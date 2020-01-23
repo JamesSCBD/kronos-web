@@ -1,0 +1,13 @@
+// Here you can add other styles
+.page-enter-active, .page-leave-active {
+  transition: opacity .3s;
+}
+.page-enter, .page-leave-to {
+  opacity: 0;
+}
+
+@media (min-width: 992px) { 
+  .c-header.c-header-with-subheader{
+    max-height: 56px;
+  }
+}
