@@ -7,7 +7,7 @@
 import mixin from './mixin'
 
 export default {
-  name  : 'Clean',
+  name  : 'Login',
   mixins: [ mixin ]
 }
 </script>

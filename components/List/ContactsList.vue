@@ -3,7 +3,7 @@
 
     id="KContactsList"
     :items="tableItems"
-    :fields="tableFields"
+    :fields="columns"
     :busy="loading"
     class="mb-0 table-outline list"
     responsive="md"
@@ -44,9 +44,13 @@
 
 import { FullNameCol, CountryCol } from './Columns'
 import   mixin                     from './mixin'
-import { fullName, OrganizationName, Country, meta } from '~/configs/table-fields'
 
-const tableFields = [ fullName, OrganizationName, Country, meta ]
+const columns = [
+  { key: 'fullName',         label: 'Name' },
+  { key: 'OrganizationName', label: 'Organization' },
+  { key: 'Country',          label: 'Country', class: 'text-center' },
+  { key: 'Score',            label: 'Rank' }
+]
 
 export default {
   name      : 'ContactsList',
@@ -60,7 +64,7 @@ function data (){
   const { conferenceCode } = this.$route.params
   const   editPath         = `/${conferenceCode}/contacts/`
 
-  return { tableFields, editPath }
+  return { columns, editPath }
 }
 
 function remove (identifier){ alert(`delete contact ${identifier}`) }

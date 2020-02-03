@@ -6,5 +6,3 @@ export const meetingNominator = [ 'Kronos-FullAccess', 'Kronos-Meeting-Nominator
 export const priorityPassOnly = [ 'Kronos-FullAccess', 'Kronos-PriorityPassOnly' ]
 export const everyone         = false
 export const admins           = fullAccess
-
-export default { admins, admin, user, readOnly, meetingNominator, priorityPassOnly }

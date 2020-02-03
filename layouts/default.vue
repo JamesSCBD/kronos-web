@@ -17,11 +17,15 @@
 
 <script>
 import   mixin                        from './mixin'
-import { KHeader, KFooter, KSidebar } from '~/components'
+import { KHeader, KFooter, KSidebar } from '~/components/kronos'
 
 export default {
   name      : 'Default',
   components: { KHeader, KFooter, KSidebar },
-  mixins    : [ mixin ]
+  mixins    : [ mixin ],
+  created (){
+    this.$store.dispatch('conferences/getDataFromApi')
+    this.$store.dispatch('countries/getDataFromApi')
+  }
 }
 </script>

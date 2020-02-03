@@ -8,14 +8,8 @@
     <CDropdownHeader tag="div" class="text-center" color="light">
       <strong>Account</strong>
     </CDropdownHeader>
-    <CDropdownItem>
-      Messages
-      <CBadge color="success" class="ml-auto">
-        55
-      </CBadge>
-    </CDropdownItem>
     <CDropdownDivider />
-    <CDropdownItem :href="`${$auth.accountsUrl}/profile${returnUrl}`" target="_blank" rel="noopener">
+    <CDropdownItem :href="`${$auth.accountsUrl}/profile/?returnIUrl=${returnUrl}`" target="_blank" rel="noopener">
       <CIcon name="user" /> Profile
     </CDropdownItem>
     <CDropdownItem @click="$logOut(); $router.push('/login')">
@@ -35,7 +29,7 @@ export default {
 }
 
 function returnUrl (){
-  if (!this.isServer) return encodeURIComponent('?returnUrl=' + window.location.href)
+  if (!this.isServer) return encodeURIComponent(window.location.href)
   return ''
 }
 </script>

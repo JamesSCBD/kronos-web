@@ -91,3 +91,6 @@ sw.*
 
 yarn.lock
 .nuxt
+
+#IDE
+.vscode/

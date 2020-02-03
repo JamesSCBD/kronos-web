@@ -2,13 +2,11 @@ export default async function ({ route, redirect, store }){
   if (route.path === '/login') return
 
   const { conferenceCode }   = route.params
-  const isAdminRoute         = (conferenceCode === 'admin')
   const isConferenceLoaded   = store.getters['conferences/selected']
-  const isAppFistLoad        = !conferenceCode && !isConferenceLoaded
+  const isAppFirstLoad       = !conferenceCode && !isConferenceLoaded
   const code                 = await loadConference({ store })
 
-  if (isAdminRoute) return
-  if (isAppFistLoad || route.path === '/') redirect(`/${code}/dashboard`)
+  if (isAppFirstLoad || route.path === '/') redirect(`/${code}/dashboard`)
 }
 
 async function loadConference ({ store }){

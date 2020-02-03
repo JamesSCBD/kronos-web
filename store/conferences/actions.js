@@ -1,5 +1,4 @@
-import { byCode               } from './getters'
-import { normalizeApiResponse } from '~/modules/api-normalize'
+import { byCode } from './getters'
 
 // ACTIONS
 export async function getDataFromApi ({ state,  commit, rootState }, query){
@@ -20,7 +19,6 @@ function queryConferences ($http, { locale = 'en' } = {}){
   const searchParams = new URLSearchParams({ s: JSON.stringify({ StartDate: -1 }) })
 
   return $http.$get(`${process.env.NUXT_ENV_API}/api/v2016/conferences`, { searchParams })
-    .then(resp => normalizeApiResponse(resp, locale))
 }
 
 function initSelectedConference ({ state, commit }, { conferenceCode }){

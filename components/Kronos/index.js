@@ -1,5 +1,3 @@
-import KHeader from './Header'
-import KFooter from './Footer'
-import KSidebar from './Sidebar'
-
-export { KHeader, KFooter, KSidebar }
+export KHeader  from './Header'
+export KFooter  from './Footer'
+export KSidebar from './Sidebar'

@@ -2,7 +2,7 @@
   <div class="container-fluid">
     <div class="row ">
       <div class="col-12">
-        <List type="organizations" :table-items="tableItems" :loading="loading" />
+        <List :table-items="tableItems" :loading="loading" />
       </div>
     </div>
   </div>
@@ -10,7 +10,7 @@
 
 <script>
 import { readOnly } from '@roles'
-import { List     } from '@components'
+import   List       from '@components/list/OrganizationsList'
 
 const apiHost = process.env.NUXT_ENV_KRONOS_API
 

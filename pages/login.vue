@@ -59,7 +59,7 @@
 
 export default {
   name   : 'Login',
-  layout : 'clean',
+  layout : 'login',
   data,
   mounted,
   methods: { goToSCBDLogin, goToSCBDSignUp, authenticate }

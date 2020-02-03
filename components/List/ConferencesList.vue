@@ -3,7 +3,7 @@
 
     id="KConferenceList"
     :items="tableItems"
-    :fields="tableFields"
+    :fields="columns"
     :busy="loading"
     class="mb-0 table-outline list"
     responsive="md"
@@ -43,10 +43,21 @@
 <script>
 
 // import { } from './Columns'
-import   mixin                     from './mixin'
-import { code, Title, Description, StartDate, EndDate, timezone, institution } from '~/configs/table-fields'
+import { DateTime } from 'luxon'
+import   mixin      from './mixin'
 
-const tableFields = [ code, Title, Description, StartDate, EndDate, timezone, institution ]
+const dateFormatter = v => DateTime.fromISO(v).toFormat('dd LLL yyyy HH:mm') // 13 Jan 2020 20:34
+
+// conferences
+const columns = [
+  { key: 'code',           label: 'Code',         sortable: true },
+  { key: 'Title.en',       label: 'Title',        sortable: true },
+  { key: 'Description.en', label: 'Description',  sortable: true },
+  { key: 'StartDate',      label: 'Start',        sortable: true, formatter: dateFormatter },
+  { key: 'EndDate',        label: 'End',          sortable: true, formatter: dateFormatter },
+  { key: 'timezone',       label: 'Timezone',     sortable: true },
+  { key: 'institution',    label: 'Institution',  sortable: true }
+]
 
 export default {
   name      : 'ConferenceList',
@@ -55,7 +66,7 @@ export default {
   data
 }
 
-function data (){ return { tableFields } }
+function data (){ return { columns } }
 
 </script>
 <style scoped>

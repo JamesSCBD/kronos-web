@@ -2,7 +2,7 @@
   <BTable
     id="KOrganizationList"
     :items="tableItems"
-    :fields="tableFields"
+    :fields="columns"
     :busy="loading"
     class="mb-0 table-outline list"
     responsive="md"
@@ -28,10 +28,16 @@
 
 <script>
 
-import   mixin                                 from './mixin'
-import { OrganizationName, OrganizationAcronym, MemberCount, EventCount, Country, meta } from '~/configs/table-fields'
+import mixin  from './mixin'
 
-const tableFields = [ OrganizationName, OrganizationAcronym, MemberCount, EventCount, Country, meta ]
+const columns  = [
+  { key: 'OrganizationName',     label: 'Organization' },
+  { key: 'OrganizationAcronym',  label: 'Acronym' },
+  { key: 'MemberCount',          label: '# of Members' },
+  { key: 'EventCount',           label: '# of Events' },
+  { key: 'Country',              label: 'Country', class: 'text-center' },
+  { key: 'Score',                label: 'Rank' }
+]
 
 export default {
   name   : 'OrganizationsList',
@@ -44,7 +50,7 @@ function data (){
   const { conferenceCode } = this.$route.params
   const   editPath         = `/${conferenceCode}/organizations/`
 
-  return { tableFields, editPath }
+  return { columns, editPath }
 }
 
 function remove (identifier){ alert(`delete org ${identifier}`) }

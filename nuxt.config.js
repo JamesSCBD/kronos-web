@@ -1,9 +1,12 @@
-import path from 'path'
-// import purgecss from '@fullhuman/postcss-purgecss'
-import { ssoScbd, fontawesome, purgeCSS, dotEnvReader } from './configs'
-dotEnvReader()
+import path   from 'path'
+import dotenv from 'dotenv'
 
-const config = {
+import fontawesome from './configs/fa'
+import ssoScbd     from './configs/ssoScbd'
+
+dotenv.config({ path: path.resolve(process.cwd(), '.env') })
+
+export default {
   mode    : 'spa',
   parallel: true,
   modern  : true,
@@ -30,11 +33,8 @@ const config = {
   ],
   modules: [
     '@nuxt/http', // Doc: https://axios.nuxtjs.org/usage
-    'nuxt-purgecss',
-  
     '@nuxtjs/pwa',
     'nuxt-fontawesome', // https://github.com/vaso2/nuxt-fontawesome#readme
-    
     '@scbd/nuxt-scbd-sso-module'
 
   ],
@@ -58,22 +58,15 @@ const config = {
         config.resolve.alias['@coreui/vue']       = path.join(__dirname, 'node_modules/@coreui/vue/src')
         config.resolve.alias['bootstrap-vue/src'] = path.join(__dirname, 'node_modules/bootstrap-vue/src')
       }
+    },
+    babel: {
+      plugins: [
+        '@babel/plugin-proposal-export-default-from',
+        '@babel/plugin-proposal-export-namespace-from'
+      ]
     }
-
-    // postcss: {
-    //   plugins: [
-    //     purgecss({
-    //       content  : [ './pages/**/*.vue', './layouts/**/*.vue', './components/**/*.vue' ],
-    //       whitelist: [ 'html', 'body' ]
-    //     })
-    //   ]
-    // }
   },
   router: { linkActiveClass: 'active-link', middleware: [ 'redirects' ] },
   fontawesome,
-  purgeCSS,
-  ssoScbd,
-  watch : [ 'node_modules/@scbd/nuxt-scbd-sso-module/src/middleware.js', 'node_modules/@scbd/nuxt-scbd-sso-module/src/index.js', 'node_modules/@scbd/sso-vue-plugin-scbd/src/plugin.js' ]
+  ssoScbd
 }
-
-export default config

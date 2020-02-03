@@ -1,10 +1,9 @@
-import { BTable              } from 'bootstrap-vue'
-import { CIcon } from '@coreui/vue'
+import { BTable }  from 'bootstrap-vue'
+import { CIcon }   from '@coreui/vue'
 import { CountryCol, MetaCol, ActionsCol } from './Columns'
-import { actions             } from '~/configs/table-fields'
 
 const components = {  BTable, MetaCol, ActionsCol, CountryCol, CIcon }
-const methods = { addActionRow }
+const methods    = { addActionRow }
 
 const props =  {
   type      : { type: String, default: 'default' },
@@ -21,5 +20,5 @@ export default { components, props, methods, mounted }
 function addActionRow (){
   const isReadOnlyUser = this.$me.hasRole('Kronos-ReadOnly')
 
-  if (!isReadOnlyUser) this.tableFields = [ ...this.tableFields, actions ]
+  if (!isReadOnlyUser) this.columns = [ ...this.columns, { key: 'identifier', label: ' ' } ]
 }

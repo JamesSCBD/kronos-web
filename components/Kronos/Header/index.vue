@@ -40,9 +40,9 @@
 <script>
 import { CHeader, CHeaderBrand, CHeaderNav, CHeaderNavItem, CHeaderNavLink, CToggler } from '@coreui/vue'
 import { mutationsMap  } from '@components/Kronos/Sidebar/store-maps'
-import BreadCrumbs  from './BreadCrumbs'
-import   DropdownAccnt   from './DropdownAccnt'
-import   SubHeader       from './SubHeader'
+import BreadCrumbs       from './BreadCrumbs'
+import DropdownAccnt     from './DropdownAccnt'
+import SubHeader         from './SubHeader'
 
 export default {
   name      : 'KHeader',

@@ -8,6 +8,7 @@
     </button>
   </div>
 </template>
+
 <script>
 import { CIcon } from '@coreui/vue'
 
