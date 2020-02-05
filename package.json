@@ -20,7 +20,7 @@
     "@coreui/vue": "3.0.0-beta.8",
     "@nuxt/http": "0.3.8",
     "@nuxtjs/pwa": "3.0.0-beta.19",
-    "@scbd/nuxt-scbd-sso-module": "^0.0.3",
+    "@scbd/nuxt-scbd-sso-module": "^0.0.4",
     "bootstrap-vue": "2.2.2",
     "change-case": "4.1.1",
     "luxon": "1.21.3",
