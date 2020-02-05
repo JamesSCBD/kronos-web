@@ -15,25 +15,32 @@ import   List       from '@components/list/OrganizationsList'
 export default {
   name      : 'Organizations',
   components: { List },
-  data      : () => ({ loading: false }),
+  data      : initData,
   methods   : { tableItems: search },
   auth      : readOnly
 }
 
-//= ===================
+// ===================
 //
-//= ===================
+// ===================
+function initData (){
+  return {
+    loading: false
+  }
+}
+
+// ===================
+//
+// ===================
 async function search (ctx){
   try {
     this.loading = true
 
     const query =  buildQuery(ctx)
 
-    let rows = await this.$kronosApi.queryOrganizations(query)
+    const rows = await this.$kronosApi.getOrganizations(query)
 
-    rows = rows.map(mapRow)
-
-    return rows
+    return rows.map(r => ({ ...r, identifier: r.OrganizationUID }))
   } // TODO Handle error
   finally {
     this.loading = false
@@ -46,30 +53,15 @@ async function search (ctx){
 function buildQuery ({ filter, sortBy, sortDesc, perPage, currentPage }){
   // TODO:
 
-  // apply Boostrap standard paramters: filter, sortBy, sortDesc, perPage, currentPage
+  // apply List standard paramters: filter, sortBy, sortDesc, perPage, currentPage
   // and contact search filter to KronosQuery
 
-  const query = { limit: perPage || 100 }
+  const query = {
+    limit   : perPage || 20,
+    FreeText: 'secretariat biodiversity SCBD'
+  }
 
   return query
 }
 
-// ===================
-//
-// ===================
-function toMeta  ({ CreatedOn, CreatedBy, UpdatedOn, UpdatedBy }){ return { CreatedOn, CreatedBy, UpdatedOn, UpdatedBy } }
-
-function mapRow (row){
-  const { OrganizationUID, Country, OrganizationName, OrganizationAcronym, MemberCount, EventCount } = row
-
-  return {
-    OrganizationName,
-    Country,
-    meta      : toMeta(row),
-    identifier: OrganizationUID,
-    OrganizationAcronym,
-    MemberCount,
-    EventCount
-  }
-}
 </script>

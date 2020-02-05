@@ -1,8 +1,8 @@
 import { BTable }  from 'bootstrap-vue'
 import { CIcon }   from '@coreui/vue'
-import { CountryCol, MetaCol, ActionsCol } from './Columns'
+import { CountryCol, ActionsCol } from './Columns'
 
-const components = {  BTable, MetaCol, ActionsCol, CountryCol, CIcon }
+const components = {  BTable, ActionsCol, CountryCol, CIcon }
 const methods    = { addActionRow }
 
 const props =  {

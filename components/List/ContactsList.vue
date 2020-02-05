@@ -20,18 +20,8 @@
       </div>
     </template>
 
-    <template v-slot:cell(fullName)="{item}">
-      <div>
-        <FullNameCol v-bind="item.fullName" />
-      </div>
-    </template>
-
     <template v-slot:cell(Country)="{value}">
       <CountryCol v-if="value" :code="value" />
-    </template>
-
-    <template v-slot:cell(meta)="{value}">
-      <MetaCol v-if="value" v-bind="value" />
     </template>
 
     <template v-slot:cell(identifier)="{value}">
@@ -42,11 +32,13 @@
 
 <script>
 
-import { FullNameCol, CountryCol } from './Columns'
-import   mixin                     from './mixin'
+import { CountryCol } from './Columns'
+import   mixin        from './mixin'
 
 const columns = [
-  { key: 'fullName',         label: 'Name' },
+  { key: 'Title',            label: '' },
+  { key: 'FirstName',        label: 'First Name' },
+  { key: 'LastName',         label: 'Last Name' },
   { key: 'OrganizationName', label: 'Organization' },
   { key: 'Country',          label: 'Country', class: 'text-center' },
   { key: 'Score',            label: 'Rank' }
@@ -54,7 +46,7 @@ const columns = [
 
 export default {
   name      : 'ContactsList',
-  components: { FullNameCol, CountryCol },
+  components: { CountryCol },
   mixins    : [ mixin ],
   data,
   methods   : { remove }

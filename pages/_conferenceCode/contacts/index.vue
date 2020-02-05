@@ -15,9 +15,18 @@ import   List       from '@components/list/ContactsList'
 export default {
   name      : 'Contacts',
   components: { List },
-  data      : () => ({ loading: false }),
+  data      : initData,
   methods   : { tableItems: search },
   auth      : readOnly
+}
+
+// ===================
+//
+// ===================
+function initData (){
+  return {
+    loading: false
+  }
 }
 
 //= ===================
@@ -29,11 +38,9 @@ async function search (ctx){
 
     const query =  buildQuery(ctx)
 
-    let rows = await this.$kronosApi.queryContact(query)
+    const rows = await this.$kronosApi.getContacts(query)
 
-    rows = rows.map(mapRow)
-
-    return rows
+    return rows.map(r => ({ ...r, identifier: r.ContactUID }))
   } // TODO Handle error
   finally {
     this.loading = false
@@ -49,29 +56,11 @@ function buildQuery ({ filter, sortBy, sortDesc, perPage, currentPage }){
   // apply Boostrap standard paramters: filter, sortBy, sortDesc, perPage, currentPage
   // and contact search filter to KronosQuery
 
-  const query = { limit: perPage || 100 }
+  const query = {
+    limit   : perPage || 20,
+    FreeText: 'stephane bilodeau'
+  }
 
   return query
-}
-
-// ===================
-//
-// ===================
-function toFullname ({ Title, FirstName, LastName, Designation    }){ return { Title, FirstName, LastName, Designation    } }
-function toMeta     ({ CreatedOn, CreatedBy, UpdatedOn, UpdatedBy }){ return { CreatedOn, CreatedBy, UpdatedOn, UpdatedBy } }
-
-function mapRow (row){
-  const fullName = toFullname(row)
-  const meta     = toMeta(row)
-
-  const { ContactUID, Country, OrganizationName } = row
-  
-  return {
-    fullName,
-    OrganizationName,
-    Country,
-    meta,
-    identifier: ContactUID
-  }
 }
 </script>

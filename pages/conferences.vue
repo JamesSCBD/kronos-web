@@ -12,23 +12,22 @@
 import { readOnly } from '@roles'
 import   List       from '@components/list/ConferencesList'
 
-const apiHost = process.env.NUXT_ENV_API
-
 export default {
   name      : 'Conferences',
   components: { List },
   auth      : readOnly,
   data      : () => ({ loading: false }),
-  methods   : { tableItems }
+  methods   : { tableItems: search }
 }
 
-function tableItems (ctx){
-  this.loading = true
+async function search (ctx){
+  try {
+    this.loading = true
 
-  return this.$http.$get(`${apiHost}/api/v2016/conferences`)
-    .then((d) => {
-      this.loading = false
-      return d
-    })
+    return await this.$kronosApi.getConferences()
+  }
+  finally {
+    this.loading = false
+  }
 }
 </script>

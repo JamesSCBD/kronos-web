@@ -4,7 +4,7 @@
       <div class="col-12">
         Edit:
         <pre>
-          {{ doc }}
+          {{ organization }}
         </pre>
       </div>
     </div>
@@ -12,12 +12,26 @@
 </template>
 
 <script>
-import mixin from '~/modules/edit-doc-mixin'
+
+import { readOnly } from '@roles'
 
 export default {
-  name  : 'EditOrganization',
-  mixins: [ mixin ],
-  data  : () => ({ schema: 'organizations' })
+  name   : 'EditOrganization',
+  data   : init,
+  mounted: load,
+  auth   : readOnly
+
+}
+
+function init (){
+  return {
+    identifier  : this.$route.params.identifier,
+    organization: {}
+  }
+}
+
+async function load (){
+  this.organization = await this.$kronosApi.getOrganization(this.identifier)
 }
 
 </script>

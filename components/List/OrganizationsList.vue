@@ -16,10 +16,6 @@
       <CountryCol v-if="value" :code="value" />
     </template>
 
-    <template v-slot:cell(meta)="{value}">
-      <MetaCol v-if="value" v-bind="value" />
-    </template>
-
     <template v-slot:cell(identifier)="{value}">
       <ActionsCol v-if="value" :identifier="value" :edit-path="editPath+value" :remove="remove" />
     </template>
