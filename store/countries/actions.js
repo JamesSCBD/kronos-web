@@ -1,9 +1,7 @@
 export async function getDataFromApi ({ commit, rootState }){
-  const response  = await query(this.$http, rootState.i18n)
+  const countries  = await this.$kronosApi.getCountries()
 
-  commit('set', response)
+  commit('set', countries)
 
-  return response
+  return countries
 }
-
-function query ($http, { locale = 'en' } = {}){ return $http.$get(`${process.env.NUXT_ENV_KRONOS_API}/api/v2018/countries`) }

@@ -22,7 +22,11 @@ export default {
     ]
   },
   loading: { color: '#fff' },
-  plugins: [ 'plugins/global-component-registry.js', 'plugins/fa-to-coreui-icons/index.js' ],
+  plugins: [ 
+    'plugins/global-component-registry.js', 
+    'plugins/fa-to-coreui-icons/index.js',
+    'plugins/register-apis.js',
+   ],
   css    : [
     { src: 'node_modules/@coreui/icons/css/all.min.css', lang: 'css' },
     { src: 'node_modules/bootstrap-vue/dist/bootstrap-vue.min.css', lang: 'css' },
@@ -32,7 +36,6 @@ export default {
     '@nuxtjs/stylelint-module' // Doc: https://github.com/nuxt-community/stylelint-module
   ],
   modules: [
-    '@nuxt/http', // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/pwa',
     'nuxt-fontawesome', // https://github.com/vaso2/nuxt-fontawesome#readme
     '@scbd/nuxt-scbd-sso-module'
@@ -66,7 +69,7 @@ export default {
       ]
     }
   },
-  router: { linkActiveClass: 'active-link', middleware: [ 'redirects', 'interceptor' ] },
+  router: { linkActiveClass: 'active-link', middleware: [ 'redirects'] },
   fontawesome,
   ssoScbd
 }

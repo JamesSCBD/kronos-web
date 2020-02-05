@@ -1,12 +1,13 @@
+import ky from 'ky'
 import { byCode } from './getters'
 
 // ACTIONS
 export async function getDataFromApi ({ state,  commit, rootState }, query){
   if (state.selected) return state.docs
 
-  const { $http, $router } = this
+  const { $router } = this
   const { conferenceCode } = $router.currentRoute.params
-  const   response         = await queryConferences($http, rootState.i18n, query)
+  const   response         = await queryConferences(rootState.i18n, query)
 
   commit('set', response)
 
@@ -15,10 +16,10 @@ export async function getDataFromApi ({ state,  commit, rootState }, query){
   return response
 }
 
-function queryConferences ($http, { locale = 'en' } = {}){
+function queryConferences ({ locale = 'en' } = {}){
   const searchParams = new URLSearchParams({ s: JSON.stringify({ StartDate: -1 }) })
 
-  return $http.$get(`${process.env.NUXT_ENV_API}/api/v2016/conferences`, { searchParams })
+  return ky.get(`${process.env.NUXT_ENV_API}/api/v2016/conferences`, { searchParams }).json()
 }
 
 function initSelectedConference ({ state, commit }, { conferenceCode }){

@@ -12,8 +12,6 @@
 import { readOnly } from '@roles'
 import   List       from '@components/list/OrganizationsList'
 
-const apiHost = process.env.NUXT_ENV_KRONOS_API
-
 export default {
   name      : 'Organizations',
   components: { List },
@@ -31,11 +29,7 @@ async function search (ctx){
 
     const query =  buildQuery(ctx)
 
-    // Prepare HTTP api call
-
-    const queryStringParams = { q: JSON.stringify(query) }
-
-    let rows = await this.$http.$get(`${apiHost}/api/v2018/contacts`, { searchParams: new URLSearchParams(queryStringParams) })
+    let rows = await this.$kronosApi.queryOrganizations(query)
 
     rows = rows.map(mapRow)
 
