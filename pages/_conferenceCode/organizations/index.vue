@@ -2,7 +2,7 @@
   <div class="container-fluid">
     <div class="row ">
       <div class="col-12">
-        <List :table-items="tableItems" :loading="loading" />
+        <List :table-items="tableItems" :loading="loading" :total-rows="totalRows" />
       </div>
     </div>
   </div>
@@ -16,6 +16,7 @@ export default {
   name      : 'Organizations',
   components: { List },
   data      : initData,
+  computed  : { totalRows: rows },
   methods   : { tableItems: search },
   auth      : readOnly
 }
@@ -62,6 +63,13 @@ function buildQuery ({ filter, sortBy, sortDesc, perPage, currentPage }){
   }
 
   return query
+}
+
+// ===================
+// Get total number of rows
+// ===================
+function rows (){
+  return 0
 }
 
 </script>

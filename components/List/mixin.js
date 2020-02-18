@@ -1,14 +1,15 @@
-import { BTable }  from 'bootstrap-vue'
-import { CIcon }   from '@coreui/vue'
+import { BTable, BFormSelect, BPagination } from 'bootstrap-vue'
+import { CIcon } from '@coreui/vue'
 import { CountryCol, ActionsCol } from './Columns'
 
-const components = {  BTable, ActionsCol, CountryCol, CIcon }
-const methods    = { addActionRow }
+const components = { BTable, ActionsCol, CountryCol, CIcon, BFormSelect, BPagination }
+const methods = { addActionRow }
 
-const props =  {
+const props = {
   type      : { type: String, default: 'default' },
   tableItems: { type: [ Function, Array ], required: true },
-  loading   : { type: Boolean, required: true }
+  loading   : { type: Boolean, required: true },
+  totalRows : { type: Number, required: true, default: 0 }
 }
 
 function mounted (){

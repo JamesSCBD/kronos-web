@@ -6,12 +6,56 @@
   opacity: 0;
 }
 
+.multiselect__content span {
+  white-space: normal;
+  word-break: break-all;
+  line-height: normal;
+}
 @media (min-width: 992px) { 
   .c-header.c-header-with-subheader{
     max-height: 56px;
   }
 }
-
+@media (max-width: 426px) { 
+  .c-header-brand {
+    height: 20px;
+    margin-top: 10px;
+  }
+  .c-header.c-header-with-subheader {
+    height: 140px;
+  }
+  .c-header.c-header-with-subheader .c-header-nav {
+    height: 38px;
+    margin-right: 15px !important;
+  }
+  .vue-avatar--wrapper {
+    width: 30px !important;
+    height: 29px !important;
+    font-size: 13px !important;
+  }
+  .c-subheader {
+    flex-direction: column;
+    height: auto;
+    padding-bottom: 13px;
+  }
+  .c-subheader .breadcrumb {
+    margin-bottom: 0;
+  }
+  .c-subheader .col-4, .c-subheader .col-8 {
+    width: 100%;
+    max-width: 100%;
+    flex: 100%;
+  }
+  .c-header-fixed.c-header-with-subheader ~ .c-body{
+    padding-top: 140px;
+  }
+  select#perPageSelect {
+    margin-bottom: 10px;
+  }
+}
+.c-header-fixed.c-header-with-subheader ~ .c-body{
+  overflow: hidden;
+}
 .card-header > .c-icon:first-child {
   margin-right: 0.1rem;
   margin-top: 0.1rem;
@@ -19,4 +63,32 @@
   width: 1.2rem;
   height: 1.2rem;
   font-size: 1.2rem;
+}
+.page-item.active .page-link{
+  background-color: #1AAE9F;
+  border-color: #1AAE9F;
+}
+select#perPageSelect {
+  width: auto;
+}
+ul.pagination.b-pagination {
+  width: auto;
+  float: right;
+  margin-left: 5px;
+}
+.paginationRow {
+  display: inline-block;
+  width: 100%;
+  text-align: right;
+}
+.page-item.disabled .page-link {
+  color: #6558F5;
+  border-color: #a39bfa;
+}
+.page-link{
+  color: #6558F5;
+  border-color: #a39bfa;
+}
+.custom-select{
+  border-color: #a39bfa;
 }

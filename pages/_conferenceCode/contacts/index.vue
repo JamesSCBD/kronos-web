@@ -1,8 +1,8 @@
 <template>
   <div class="container-fluid">
-    <div class="row ">
+    <div class="row">
       <div class="col-12">
-        <List :table-items="tableItems" :loading="loading" />
+        <List :table-items="tableItems" :loading="loading" :total-rows="totalRows" />
       </div>
     </div>
   </div>
@@ -10,12 +10,13 @@
 
 <script>
 import { readOnly } from '@roles'
-import   List       from '@components/list/ContactsList'
+import List from '@components/list/ContactsList'
 
 export default {
   name      : 'Contacts',
   components: { List },
   data      : initData,
+  computed  : { totalRows: rows },
   methods   : { tableItems: search },
   auth      : readOnly
 }
@@ -35,14 +36,13 @@ function initData (){
 async function search (ctx){
   try {
     this.loading = true
-
-    const query =  buildQuery(ctx)
-
+    const query = buildQuery(ctx)
     const rows = await this.$kronosApi.getContacts(query)
 
     return rows.map(r => ({ ...r, identifier: r.ContactUID }))
-  } // TODO Handle error
+  }
   finally {
+    // TODO Handle error
     this.loading = false
   }
 }
@@ -55,12 +55,21 @@ function buildQuery ({ filter, sortBy, sortDesc, perPage, currentPage }){
 
   // apply Boostrap standard paramters: filter, sortBy, sortDesc, perPage, currentPage
   // and contact search filter to KronosQuery
-
+  const skipRecord = currentPage > 0 ? (currentPage - 1) * perPage : 0
   const query = {
-    limit   : perPage || 20,
+    limit   : perPage || 25,
+    skip    : skipRecord,
     FreeText: 'stephane bilodeau'
+    // Need API param for sorting(shortBy,direction)
   }
 
   return query
+}
+
+// ===================
+// Get total number of rows
+// ===================
+function rows (){
+  return 650 // Need API for total count of contacts
 }
 </script>
