@@ -2,7 +2,7 @@
   <div class="container-fluid">
     <div class="row ">
       <div class="col-12">
-        <List :table-items="tableItems" :loading="loading" />
+        <List :table-items="tableItems" :loading="loading" :total-rows="totalRows" />
       </div>
     </div>
   </div>
@@ -17,6 +17,7 @@ export default {
   components: { List },
   auth      : readOnly,
   data      : () => ({ loading: false }),
+  computed  : { totalRows: rows },
   methods   : { tableItems: search }
 }
 
@@ -29,5 +30,12 @@ async function search (ctx){
   finally {
     this.loading = false
   }
+}
+
+// ===================
+// Get total number of rows
+// ===================
+function rows (){
+  return 0
 }
 </script>
