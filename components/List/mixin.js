@@ -9,7 +9,8 @@ const props = {
   type      : { type: String, default: 'default' },
   tableItems: { type: [ Function, Array ], required: true },
   loading   : { type: Boolean, required: true },
-  totalRows : { type: Number, required: true, default: 0 }
+  totalRows : { type: Number, required: true, default: 0 },
+  filter    : { type: Object }
 }
 
 function mounted (){

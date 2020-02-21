@@ -6,9 +6,11 @@
         v-model="currentPage"
         :total-rows="totalRows"
         :per-page="perPage"
+        first-text="First"
+        prev-text="Prev"
+        next-text="Next"
+        last-text="Last"
         aria-controls="KContactsList"
-        hide-goto-end-buttons
-        hide-ellipsis
         limit="4"
       />
     </div>
@@ -24,6 +26,7 @@
       sort-icon-left
       :per-page="perPage"
       :current-page="currentPage"
+      :filter="filter"
     >
       <!-- https://bootstrap-vue.js.org/docs/components/table#scoped-field-slots -->
 
@@ -38,6 +41,10 @@
         <CountryCol v-if="value" :code="value" />
       </template>
 
+      <template v-slot:cell(OrganizationGovernment)="{value}">
+        <CountryCol v-if="value" :code="value" />
+      </template>
+
       <template v-slot:cell(identifier)="{value}">
         <ActionsCol v-if="value" :identifier="value" :edit-path="editPath+value" :remove="remove" />
       </template>
@@ -46,17 +53,17 @@
 </template>
 
 <script>
-
 import { CountryCol } from './Columns'
-import   mixin        from './mixin'
+import mixin from './mixin'
 
 const columns = [
-  { key: 'Title',            label: '', sortable: false },
-  { key: 'FirstName',        label: 'First Name', sortable: true },
-  { key: 'LastName',         label: 'Last Name', sortable: true },
+  { key: 'Title', label: '', sortable: false },
+  { key: 'FirstName', label: 'First Name', sortable: true },
+  { key: 'LastName', label: 'Last Name', sortable: true },
+  { key: 'OrganizationGovernment', label: 'Government', sortable: true },
   { key: 'OrganizationName', label: 'Organization', sortable: true },
-  { key: 'Country',          label: 'Country', sortable: true, class: 'text-center' },
-  { key: 'Score',            label: 'Rank', sortable: true }
+  { key: 'Country', label: 'Country', sortable: true, class: 'text-left' },
+  { key: 'Score', label: 'Rank', sortable: true }
 ]
 
 export default {
@@ -69,7 +76,7 @@ export default {
 
 function data (){
   const { conferenceCode } = this.$route.params
-  const   editPath         = `/${conferenceCode}/contacts/`
+  const editPath = `/${conferenceCode}/contacts/`
   const currentPage = 1
   const perPage = 25
   const pageOptions = [
@@ -82,9 +89,12 @@ function data (){
   return { columns, editPath, currentPage, perPage, pageOptions }
 }
 
-function remove (identifier){ alert(`delete contact ${identifier}`) }
-
+function remove (identifier){
+  alert(`delete contact ${identifier}`)
+}
 </script>
 <style scoped>
-.list{ width: 100%; }
+.list {
+  width: 100%;
+}
 </style>

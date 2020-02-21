@@ -66,6 +66,15 @@ export default class {
   }
 
   // ====================
+  // Get organization types
+  // ====================
+  async getOrganizationTypes (id){
+    const data = await this.http.get('api/v2018/organizations/Types').json()
+
+    return data
+  }
+
+  // ====================
   //
   // ====================
   async getConferences (query){
@@ -77,6 +86,18 @@ export default class {
     })
 
     const data = await ky.get(`${process.env.NUXT_ENV_API}/api/v2016/conferences`, { searchParams }).json()
+
+    return data
+  }
+
+  // ====================
+  //
+  //
+  // ====================
+  async getMeetings (query){
+    const searchParams = toURLSearchParams({ q: query })
+
+    const data = await this.http.get('api/v2018/events', { searchParams }).json()
 
     return data
   }
