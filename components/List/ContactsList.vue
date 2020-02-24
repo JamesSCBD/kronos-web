@@ -45,6 +45,10 @@
         <CountryCol v-if="value" :code="value" />
       </template>
 
+      <template v-slot:cell(Emails)="{value}">
+        <EmailCol v-if="value" :email="value" />
+      </template>
+
       <template v-slot:cell(identifier)="{value}">
         <ActionsCol v-if="value" :identifier="value" :edit-path="editPath+value" :remove="remove" />
       </template>
@@ -53,7 +57,7 @@
 </template>
 
 <script>
-import { CountryCol } from './Columns'
+import { CountryCol, EmailCol  } from './Columns'
 import mixin from './mixin'
 
 const columns = [
@@ -62,13 +66,14 @@ const columns = [
   { key: 'LastName', label: 'Last Name', sortable: true },
   { key: 'OrganizationGovernment', label: 'Government', sortable: true },
   { key: 'OrganizationName', label: 'Organization', sortable: true },
+  { key: 'Emails', label: 'Email', sortable: true },
   { key: 'Country', label: 'Country', sortable: true, class: 'text-left' },
   { key: 'Score', label: 'Rank', sortable: true }
 ]
 
 export default {
   name      : 'ContactsList',
-  components: { CountryCol },
+  components: { CountryCol, EmailCol },
   mixins    : [ mixin ],
   data,
   methods   : { remove }
