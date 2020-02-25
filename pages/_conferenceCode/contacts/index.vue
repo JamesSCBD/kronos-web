@@ -69,7 +69,7 @@
                   :options="attendanceOptions"
                   :multiple="true"
                   :clear-on-select="false"
-                  :close-on-select="false"
+                  :close-on-select="true"
                   :options-limit="4"
                   :limit="1"
                   :show-no-results="false"
@@ -104,7 +104,7 @@
               :searchable="true"
               :internal-search="false"
               :clear-on-select="false"
-              :close-on-select="false"
+              :close-on-select="true"
               :options-limit="300"
               :limit="3"
               :max-height="600"
@@ -124,7 +124,7 @@
               :multiple="false"
               :searchable="false"
               :clear-on-select="false"
-              :close-on-select="false"
+              :close-on-select="true"
             />
           </div>
         </div>
@@ -144,7 +144,7 @@
                   :multiple="false"
                   :searchable="false"
                   :clear-on-select="false"
-                  :close-on-select="false"
+                  :close-on-select="true"
                 />
               </div>
             </div>
@@ -160,7 +160,7 @@
                   :multiple="false"
                   :searchable="false"
                   :clear-on-select="false"
-                  :close-on-select="false"
+                  :close-on-select="true"
                 />
               </div>
             </div>
@@ -178,7 +178,7 @@
               :multiple="false"
               :searchable="false"
               :clear-on-select="false"
-              :close-on-select="false"
+              :close-on-select="true"
             />
           </div>
         </div>
@@ -214,6 +214,7 @@ export default {
   },
   data    : initData,
   computed: { totalRows: rows },
+  mounted,
   methods : {
     tableItems: search,
     clearAll,
@@ -262,6 +263,25 @@ function initData (){
   }
 }
 
+async function mounted (){
+  this.meetingsOptions = await this.$kronosApi.getMeetings({ FullText: '' })
+  const country =  await this.$kronosApi.getCountries()
+
+  sortCountryByAsc(country, this)
+  this.organizationTypesOptions = await this.$kronosApi.getOrganizationTypes()
+}
+
+function sortCountryByAsc (country, _this){
+  _this.countryOptions = country.sort((a, b) => {
+    const nameA = a.Name.toLowerCase()
+    const nameB = b.Name.toLowerCase()
+
+    if (nameA < nameB) return -1
+    if (nameA > nameB) return 1
+    return 0
+  })
+}
+
 //= ===================
 //
 //= ===================
@@ -270,18 +290,8 @@ async function search (ctx){
     this.loading = true
     const query = buildQuery(ctx)
     const rows = await this.$kronosApi.getContacts(query)
-    const query1 = {
-      FullText: ''
-      // EvenUIDs: [ '0000000052000000cbd0495c000014ba' ]
-    }
 
-    this.meetingsOptions = await this.$kronosApi.getMeetings(query1)
-    this.countryOptions = await this.$kronosApi.getCountries()
-    this.organizationTypesOptions = await this.$kronosApi.getOrganizationTypes()
-
-    const data = rows.map(r => ({ ...r, identifier: r.ContactUID }))
-
-    return data
+    return rows.map(r => ({ ...r, identifier: r.ContactUID }))
   }
   finally {
     // TODO Handle error
@@ -302,7 +312,6 @@ function buildQuery ({ filter, sortBy, sortDesc, perPage, currentPage }){
   // TODO:
   // apply Boostrap standard paramters: filter, sortBy, sortDesc, perPage, currentPage
   // and contact search filter to KronosQuery
-
   const skipRecord = currentPage > 0 ? (currentPage - 1) * perPage : 0
   const query = {
     limit                  : perPage || 25,
@@ -313,14 +322,16 @@ function buildQuery ({ filter, sortBy, sortDesc, perPage, currentPage }){
     StatusForEventUID2     : getMeetingsIds(filter, 1),
     StatusForEventUID3     : getMeetingsIds(filter, 2),
     StatusForEventUID4     : getMeetingsIds(filter, 3),
-    OrganizationUIDs       : getOrganizationIds(filter)
+    OrganizationUIDs       : getOrganizationIds(filter),
+    Governments            :
+      filter.selectedCountry === '' || filter.selectedCountry === null ? '' : [ filter.selectedCountry.Code ],
+    CountryScope: 'Country'
 
     // Need API param for sorting(shortBy,direction)
   }
 
   return query
 }
-
 function getMeetingsIds (filter, index){
   let meetingId = null
 

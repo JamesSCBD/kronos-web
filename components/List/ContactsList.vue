@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import { CountryCol, EmailCol  } from './Columns'
+import { CountryCol, EmailCol } from './Columns'
 import mixin from './mixin'
 
 const columns = [
