@@ -46,7 +46,7 @@
       </template>
 
       <template v-slot:cell(Emails)="{value}">
-        <EmailCol v-if="value" :email="value" />
+        <EmailCol v-if="value" :emails="value" />
       </template>
 
       <template v-slot:cell(identifier)="{value}">

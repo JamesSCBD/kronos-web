@@ -2,7 +2,7 @@
   <div class="text-left">
     <!-- <CountryFlag :country="code" />
     <br> -->
-    {{ getEmailAddress(email) }}
+    {{ getEmailAddress(emails) }}
   </div>
 </template>
 
@@ -11,13 +11,13 @@
 
 export default {
   components: {  },
-  props     : { email: { type: Array, required: true } },
+  props     : { emails: { type: Array, required: true } },
   methods   : { getEmailAddress }
 }
 
-function getEmailAddress (email){
-  if (email.length > 0)
-    return email[0]
+function getEmailAddress (emails){
+  if (emails.length > 0)
+    return emails[0]
   else
     return ''
 }
