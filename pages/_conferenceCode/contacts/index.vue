@@ -156,11 +156,31 @@
               track-by="value"
               placeholder="Special Flags..."
               :options="flagOptions"
-              :multiple="false"
+              :multiple="true"
               :searchable="false"
               :clear-on-select="false"
               :close-on-select="true"
-            />
+            >
+              <template slot="tag" slot-scope="{ option, remove }">
+                <span class="custom__tag">
+                  <span>{{ option.name }}</span>
+                  <span class="custom__remove" @click="remove(option)">❌</span>
+                </span>
+              </template>
+              <template slot="selection" slot-scope="{ values }">
+                <span
+                  v-if="values.length > 2"
+                  class="multiselect__single"
+                >{{ values.length }} flags selected</span>
+              </template>
+              <template slot="clear">
+                <div
+                  v-if="filter.selectedFlag.length"
+                  class="multiselect__clear"
+                  @mousedown.prevent.stop="clearAllFlags()"
+                />
+              </template>
+            </multiselect>
           </div>
         </div>
       </div>
@@ -176,11 +196,31 @@
                   track-by="Code"
                   placeholder="Country"
                   :options="countryOptions"
-                  :multiple="false"
+                  :multiple="true"
                   :searchable="false"
                   :clear-on-select="false"
                   :close-on-select="true"
-                />
+                >
+                  <template slot="tag" slot-scope="{ option, remove }">
+                    <span class="custom__tag">
+                      <span>{{ option.Name }}</span>
+                      <span class="custom__remove" @click="remove(option)">❌</span>
+                    </span>
+                  </template>
+                  <template slot="selection" slot-scope="{ values }">
+                    <span
+                      v-if="values.length > 2"
+                      class="multiselect__single"
+                    >{{ values.length }} country selected</span>
+                  </template>
+                  <template slot="clear">
+                    <div
+                      v-if="filter.selectedCountry.length"
+                      class="multiselect__clear"
+                      @mousedown.prevent.stop="clearAllCountry()"
+                    />
+                  </template>
+                </multiselect>
               </div>
             </div>
             <div class="col-md-4 col-sm-5 col-xs-12 pl-0">
@@ -257,7 +297,9 @@ export default {
     asyncFind,
     getAttendanceValue,
     clearAllAttendance,
-    clearAllOrganization
+    clearAllOrganization,
+    clearAllFlags,
+    clearAllCountry
   },
   auth: readOnly
 }
@@ -288,8 +330,8 @@ function initData (){
       selectedMeetings        : [],
       selectedOrganizationType: '',
       selectedOrganization    : [],
-      selectedCountry         : '',
-      selectedFlag            : '',
+      selectedCountry         : [],
+      selectedFlag            : [],
       selectedAttendance      : [],
       selectedScop            : ''
     },
@@ -301,11 +343,49 @@ function initData (){
 }
 
 async function mounted (){
-  this.meetingsOptions = await this.$kronosApi.getMeetings({ FullText: '' })
+  this.meetingsOptions = await getMajorMinorMeetings(this)
+
   const country = await this.$kronosApi.getCountries()
 
   sortCountryByAsc(country, this)
   this.organizationTypesOptions = await this.$kronosApi.getOrganizationTypes()
+}
+
+async function getMajorMinorMeetings (_this){
+  const majorEventIDs = []
+  const minorEventIDs = []
+
+  const majorMeetingsData =
+    _this.$store.getters['conferences/selected'].MajorEventIDs
+  const minorMeetingsData =
+    _this.$store.getters['conferences/selected'].MinorEventIDs
+
+  majorMeetingsData.forEach((element) => {
+    majorEventIDs.push('00000000' + element)
+  })
+
+  minorMeetingsData.forEach((element) => {
+    minorEventIDs.push('00000000' + element)
+  })
+
+  const majorMeetings = await _this.$kronosApi.getMeetings({
+    EvenUIDs: majorEventIDs
+  })
+
+  const minorMeetings = await _this.$kronosApi.getMeetings({
+    EvenUIDs: minorEventIDs
+  })
+
+  const meetingDivider = [
+    {
+      EventUID   : '00000000000000000000000000000000',
+      Code       : '-----------------------------',
+      Title      : '-----------------------------',
+      $isDisabled: true
+    }
+  ]
+
+  return majorMeetings.concat(meetingDivider).concat(minorMeetings)
 }
 
 function sortCountryByAsc (country, _this){
@@ -360,10 +440,9 @@ function buildQuery ({ filter, sortBy, sortDesc, perPage, currentPage }){
     StatusForEventUID3     : getMeetingsIds(filter, 2),
     StatusForEventUID4     : getMeetingsIds(filter, 3),
     OrganizationUIDs       : getOrganizationIds(filter),
-    Governments            :
-      filter.selectedCountry === '' || filter.selectedCountry === null
-        ? ''
-        : [ filter.selectedCountry.Code ],
+    Governments            : filter.selectedCountry.length
+      ? getCountryCodes(filter)
+      : [],
     CountryScope: 'Country'
 
     // Need API param for sorting(shortBy,direction)
@@ -387,6 +466,15 @@ function getOrganizationIds (filter){
     oraganizationIds.push(value.OrganizationUID)
   })
   return oraganizationIds
+}
+
+function getCountryCodes (filter){
+  const countryCodes = []
+
+  filter.selectedCountry.forEach((value) => {
+    countryCodes.push(value.Code)
+  })
+  return countryCodes
 }
 
 function getAttendanceValue (filter){
@@ -425,5 +513,13 @@ function clearAllAttendance (){
 
 function clearAllOrganization (){
   this.filter.selectedOrganization = []
+}
+
+function clearAllFlags (){
+  this.filter.selectedFlag = []
+}
+
+function clearAllCountry (){
+  this.filter.selectedCountry = []
 }
 </script>

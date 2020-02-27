@@ -205,3 +205,9 @@ ul.pagination.b-pagination {
   font-weight: 600;
   line-height: 32px;
 }
+
+.multiselect__option--disabled {
+  background: white!important;
+  cursor: text;
+  pointer-events: none;
+}
