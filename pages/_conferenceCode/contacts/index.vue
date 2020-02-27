@@ -119,11 +119,10 @@
               :options="organizationOptions"
               :multiple="true"
               :searchable="true"
-              :internal-search="false"
+              :internal-search="true"
               :clear-on-select="false"
               :close-on-select="true"
               :max-height="300"
-              @search-change="asyncFind"
             >
               <template slot="tag" slot-scope="{ option, remove }">
                 <span class="custom__tag">
@@ -197,7 +196,7 @@
                   placeholder="Country"
                   :options="countryOptions"
                   :multiple="true"
-                  :searchable="false"
+                  :searchable="true"
                   :clear-on-select="false"
                   :close-on-select="true"
                 >
@@ -294,7 +293,6 @@ export default {
     tableItems: search,
     clearAllMeetings,
     getMeetingsList,
-    asyncFind,
     getAttendanceValue,
     clearAllAttendance,
     clearAllOrganization,
@@ -345,9 +343,16 @@ function initData (){
 async function mounted (){
   this.meetingsOptions = await getMajorMinorMeetings(this)
 
+  this.organizationOptions = await this.$kronosApi.getOrganizations({
+    limit: 5000
+  })
+
   const country = await this.$kronosApi.getCountries()
 
   sortCountryByAsc(country, this)
+  const conf = await this.$kronosApi.getConferences()
+
+  console.log(conf)
   this.organizationTypesOptions = await this.$kronosApi.getOrganizationTypes()
 }
 
@@ -406,6 +411,8 @@ async function search (ctx){
   try {
     this.loading = true
     const query = buildQuery(ctx)
+
+    // query = { limit: 25 }
     const rows = await this.$kronosApi.getContacts(query)
 
     return rows.map(r => ({ ...r, identifier: r.ContactUID }))
@@ -416,12 +423,6 @@ async function search (ctx){
   }
 }
 
-async function asyncFind (query){
-  this.organizationOptions = await this.$kronosApi.getOrganizations({
-    limit: 100
-  })
-}
-
 // ===================
 // Build Query to pass to kronos api
 // ===================
@@ -430,26 +431,40 @@ function buildQuery ({ filter, sortBy, sortDesc, perPage, currentPage }){
   // apply Boostrap standard paramters: filter, sortBy, sortDesc, perPage, currentPage
   // and contact search filter to KronosQuery
   const skipRecord = currentPage > 0 ? (currentPage - 1) * perPage : 0
-  const query = {
-    limit                  : perPage || 25,
-    skip                   : skipRecord,
-    FreeText               : filter.name,
-    EventRegistrationStatus: getAttendanceValue(filter),
-    StatusForEventUID1     : getMeetingsIds(filter, 0),
-    StatusForEventUID2     : getMeetingsIds(filter, 1),
-    StatusForEventUID3     : getMeetingsIds(filter, 2),
-    StatusForEventUID4     : getMeetingsIds(filter, 3),
-    OrganizationUIDs       : getOrganizationIds(filter),
-    Governments            : filter.selectedCountry.length
-      ? getCountryCodes(filter)
-      : [],
-    CountryScope: 'Country'
 
-    // Need API param for sorting(shortBy,direction)
+  const query = {
+    Governments     : filter.selectedCountry.length ? getCountryCodes(filter) : null,
+    limit           : perPage || 25,
+    CountryScope    : filter.selectedScop.name, //TODO
+    skip            : skipRecord,
+    FreeText        : filter.name,
+    OrganizationUIDs: filter.selectedOrganization.length
+      ? getOrganizationIds(filter)
+      : null,
+    EventUIDs: filter.selectedMeetings.length
+      ? getSelectedMeetingsIds(filter)
+      : null,
+    EventRegistrationStatus: filter.selectedAttendance.length
+      ? getAttendanceValue(filter)
+      : null,
+    StatusForEventUID1: getMeetingsIds(filter, 0),
+    StatusForEventUID2: getMeetingsIds(filter, 1),
+    StatusForEventUID3: getMeetingsIds(filter, 2),
+    StatusForEventUID4: getMeetingsIds(filter, 3)
   }
 
   return query
 }
+
+function getSelectedMeetingsIds (filter){
+  const meetingIds = []
+
+  filter.selectedMeetings.forEach((value) => {
+    meetingIds.push(value.EventUID)
+  })
+  return meetingIds
+}
+
 function getMeetingsIds (filter, index){
   let meetingId = null
 
