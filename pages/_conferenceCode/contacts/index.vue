@@ -350,9 +350,7 @@ async function mounted (){
   const country = await this.$kronosApi.getCountries()
 
   sortCountryByAsc(country, this)
-  const conf = await this.$kronosApi.getConferences()
 
-  console.log(conf)
   this.organizationTypesOptions = await this.$kronosApi.getOrganizationTypes()
 }
 

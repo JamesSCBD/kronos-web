@@ -27,6 +27,7 @@
       :per-page="perPage"
       :current-page="currentPage"
       :filter="filter"
+      @filtered="onFiltered"
     >
       <!-- https://bootstrap-vue.js.org/docs/components/table#scoped-field-slots -->
 
@@ -52,6 +53,27 @@
       <template v-slot:cell(identifier)="{value}">
         <ActionsCol v-if="value" :identifier="value" :edit-path="editPath+value" :remove="remove" />
       </template>
+
+      <template v-slot:cell(StatusEvent1Date)="data">
+        <span
+          :class="RegistrationStatuses[data.item.StatusEvent1]"
+        >{{ getLocalDateString(data.item.StatusEvent1Date) }}</span>
+      </template>
+      <template v-slot:cell(StatusEvent2Date)="data">
+        <span
+          :class="RegistrationStatuses[data.item.StatusEvent2]"
+        >{{ getLocalDateString(data.item.StatusEvent2Date) }}</span>
+      </template>
+      <template v-slot:cell(StatusEvent3Date)="data">
+        <span
+          :class="RegistrationStatuses[data.item.StatusEvent3]"
+        >{{ getLocalDateString(data.item.StatusEvent3Date) }}</span>
+      </template>
+      <template v-slot:cell(StatusEvent4Date)="data">
+        <span
+          :class="RegistrationStatuses[data.item.StatusEvent4]"
+        >{{ getLocalDateString(data.item.StatusEvent4Date) }}</span>
+      </template>
     </BTable>
   </div>
 </template>
@@ -60,7 +82,9 @@
 import { CountryCol, EmailCol } from './Columns'
 import mixin from './mixin'
 
-const columns = [
+const columns = []
+
+const orignalColumns = [
   { key: 'Title', label: '', sortable: false },
   { key: 'FirstName', label: 'First Name', sortable: true },
   { key: 'LastName', label: 'Last Name', sortable: true },
@@ -76,9 +100,13 @@ export default {
   components: { CountryCol, EmailCol },
   mixins    : [ mixin ],
   data,
-  methods   : { remove }
+  methods   : { remove, onFiltered, getLocalDateString }
 }
 
+function getLocalDateString (value){
+  if (value !== undefined) return new Date(value).toLocaleString()
+  else return ''
+}
 function data (){
   const { conferenceCode } = this.$route.params
   const editPath = `/${conferenceCode}/contacts/`
@@ -90,8 +118,35 @@ function data (){
     { value: 100, text: '100/page' },
     { value: 250, text: '250/page' }
   ]
+  const RegistrationStatuses = {
+    0: 'Any',
+    1: 'nominated-text-red',
+    2: 'accredited-text-red',
+    4: 'registered-text-red'
+  }
 
-  return { columns, editPath, currentPage, perPage, pageOptions }
+  return {
+    columns,
+    editPath,
+    currentPage,
+    perPage,
+    pageOptions,
+    RegistrationStatuses
+  }
+}
+
+function onFiltered (filteredItems){
+  this.columns = [].concat(orignalColumns)
+  for (let index = 0; index < this.filter.selectedMeetings.length; index++)
+    if (index < 4)
+      this.columns = [
+        ...this.columns,
+        {
+          key     : 'StatusEvent' + (index + 1) + 'Date',
+          label   : this.filter.selectedMeetings[index].Code,
+          sortable: true
+        }
+      ]
 }
 
 function remove (identifier){

@@ -11,6 +11,13 @@
   word-break: break-all;
   line-height: normal;
 }
+.table-responsive-md {
+  overflow-y: auto;
+}
+.table .thead-light th {
+  font-size: 13px;
+  vertical-align: middle;
+}
 @media (min-width: 992px) { 
   .c-header.c-header-with-subheader{
     max-height: 56px;
@@ -210,4 +217,16 @@ ul.pagination.b-pagination {
   background: white!important;
   cursor: text;
   pointer-events: none;
+}
+
+.nominated-text-red {
+  color: red;
+}
+
+.accredited-text-red {
+  color: green;
+}
+
+.registered-text-red {
+  color: blue;
 }
