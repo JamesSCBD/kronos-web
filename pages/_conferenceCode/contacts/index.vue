@@ -35,7 +35,7 @@
                   v-model="filter.selectedMeetings"
                   label="Code"
                   track-by="Code"
-                  placeholder="Meetings attendance"
+                  placeholder="Meetings"
                   open-direction="bottom"
                   :options="meetingsOptions"
                   :multiple="true"
