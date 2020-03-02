@@ -497,7 +497,7 @@ function getAttendanceValue (filter){
     filter.selectedAttendance.forEach((element) => {
       registrationStatus += element.value
     })
-  return registrationStatus
+  return registrationStatus || undefined
 }
 
 // ===================
