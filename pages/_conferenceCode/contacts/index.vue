@@ -261,7 +261,15 @@
               :searchable="false"
               :clear-on-select="false"
               :close-on-select="true"
-            />
+            >
+              <template slot="clear">
+                <div
+                  v-if="filter.selectedOrganizationType !== ''"
+                  class="multiselect__clear"
+                  @mousedown.prevent.stop="clearSelectedOptions('organization-type')"
+                />
+              </template>
+            </multiselect>
           </div>
         </div>
       </div>
@@ -301,7 +309,8 @@ export default {
     tableItems: search,
     getMeetingsList,
     getAttendanceValue,
-    clearSelectedOptions
+    clearSelectedOptions,
+    isFiltersApplied
   },
   auth: readOnly
 }
@@ -340,6 +349,22 @@ function initData (){
     organizationOptions     : [],
     organizationTypesOptions: []
   }
+}
+
+function isFiltersApplied (_this){
+  if (
+    _this.filter.name ||
+    _this.filter.isBroadSearch ||
+    _this.filter.selectedMeetings.length ||
+    _this.filter.selectedOrganizationType ||
+    _this.filter.selectedOrganization.length ||
+    _this.filter.selectedCountry.length ||
+    _this.filter.selectedFlag.length ||
+    _this.filter.selectedAttendance.length ||
+    _this.filter.selectedScop
+  )
+    return true
+  else return false
 }
 
 async function mounted (){
@@ -409,13 +434,17 @@ function sortCountryByAsc (country, _this){
 //= ===================
 async function search (ctx){
   try {
-    this.loading = true
-    const query = buildQuery(ctx)
+    if (isFiltersApplied(this)){
+      this.loading = true
+      const query = buildQuery(ctx)
 
-    // query = { limit: 25 }
-    const rows = await this.$kronosApi.getContacts(query)
+      const rows = await this.$kronosApi.getContacts(query)
 
-    return rows.map(r => ({ ...r, identifier: r.ContactUID }))
+      return rows.map(r => ({ ...r, identifier: r.ContactUID }))
+    }
+    else {
+      return []
+    }
   }
   finally {
     // TODO Handle error
@@ -433,7 +462,9 @@ function buildQuery ({ filter, sortBy, sortDesc, perPage, currentPage }){
   const skipRecord = currentPage > 0 ? (currentPage - 1) * perPage : 0
 
   const query = {
-    Governments     : filter.selectedCountry.length ? getCountryCodes(filter) : undefined,
+    Governments: filter.selectedCountry.length
+      ? getCountryCodes(filter)
+      : undefined,
     limit           : perPage || 25,
     CountryScope    : filter.selectedScop.value || undefined, //TODO
     skip            : skipRecord,
@@ -537,6 +568,9 @@ function clearSelectedOptions (type){
     break
   case 'scope':
     this.filter.selectedScop = ''
+    break
+  case 'organization-type':
+    this.filter.selectedOrganizationType = ''
     break
   }
 }
