@@ -310,7 +310,7 @@ function initData (){
     loading          : false,
     sizes            : [ 'Small', 'Medium', 'Large', 'Extra Large' ],
     countryOptions   : [],
-    flagOptions      : [ { name: 'Funded', value: 1 }, { name: 'priority', value: 2 } ],
+    flagOptions      : [ { name: 'Funded', value: 1 }, { name: 'Priority', value: 2 } ],
     attendanceOptions: [
       { name: 'Any', value: 0, code: 'Any' },
       { name: 'Nominated', value: 1 << 0, code: 'Nom' },
