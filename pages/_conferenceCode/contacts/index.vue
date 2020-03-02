@@ -13,7 +13,7 @@
                   id="filterInput"
                   v-model="filter.name"
                   type="search"
-                  placeholder="Name /Barcode /#tags"
+                  placeholder="Name / Barcode / #tags"
                 />
               </div>
             </div>
