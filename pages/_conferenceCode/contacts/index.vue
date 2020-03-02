@@ -114,7 +114,7 @@
               v-model="filter.selectedOrganization"
               label="OrganizationName"
               track-by="OrganizationUID"
-              placeholder="Organization(autocomplete)"
+              placeholder="Organization"
               open-direction="bottom"
               :options="organizationOptions"
               :multiple="true"
