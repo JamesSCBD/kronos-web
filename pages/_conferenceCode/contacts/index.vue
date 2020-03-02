@@ -319,8 +319,8 @@ function initData (){
     ],
     scopeOptions: [
       { name: 'Any', value: 1 },
-      { name: 'Goverment', value: 2 },
-      { name: 'Country/Address', value: 3 }
+      { name: 'Goverment', value: 'GOV' },
+      { name: 'Country (Address)', value: 'CTR' }
     ],
     filter: {
       name                    : '',
