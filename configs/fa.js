@@ -3,7 +3,7 @@
 const imports = [
   {
     set  : '@fortawesome/free-solid-svg-icons',
-    icons: [ 'faPaperPlane', 'faPassport', 'faCircleNotch', 'faTachometerAlt', 'faEdit', 'faTrashAlt', 'faFilter', 'faSort', 'faUser', 'faUsers', 'faUserFriends', 'faEllipsisH', 'faEllipsisV', 'faHome', 'faLock', 'faSignOutAlt', 'faPlus', 'faPhoneAlt', 'faAddressBook', 'faTh', 'faFax', 'faEnvelope', 'faLongArrowAltLeft', 'faLongArrowAltRight', 'faInfoCircle', 'faTimes' ]
+    icons: [ 'faPaperPlane', 'faPassport', 'faCircleNotch', 'faTachometerAlt', 'faEdit', 'faTrashAlt', 'faFilter', 'faSort', 'faUser', 'faUsers', 'faUserFriends', 'faEllipsisH', 'faEllipsisV', 'faHome', 'faLock', 'faSignOutAlt', 'faPlus', 'faPhoneAlt', 'faAddressBook', 'faTh', 'faFax', 'faEnvelope', 'faLongArrowAltLeft', 'faLongArrowAltRight', 'faInfoCircle', 'faTimes', 'faUserCircle' ]
   },
   {
     set  : '@fortawesome/free-regular-svg-icons',

@@ -37,6 +37,11 @@
           <strong>Loading...</strong>
         </div>
       </template>
+      <template v-slot:head(Title)>
+        <span class="text-center">
+          <CIcon name="idBadge" />
+        </span>
+      </template>
 
       <template v-slot:cell(Country)="{value}">
         <CountryCol v-if="value" :code="value" />
@@ -119,7 +124,6 @@ function data (){
     { value: 250, text: '250/page' }
   ]
   const RegistrationStatuses = {
-    0: 'Any',
     1: 'nominated-text-red',
     2: 'accredited-text-red',
     4: 'registered-text-red'
