@@ -40,7 +40,7 @@
                   :options="meetingsOptions"
                   :multiple="true"
                   :clear-on-select="false"
-                  :close-on-select="false"
+                  :close-on-select="true"
                   :show-no-results="false"
                   :searchable="false"
                 >
@@ -60,7 +60,7 @@
                     <div
                       v-if="filter.selectedMeetings.length"
                       class="multiselect__clear"
-                      @mousedown.prevent.stop="clearAllMeetings()"
+                      @mousedown.prevent.stop="clearSelectedOptions('meetings')"
                     />
                   </template>
                 </multiselect>
@@ -97,7 +97,7 @@
                     <div
                       v-if="filter.selectedAttendance.length"
                       class="multiselect__clear"
-                      @mousedown.prevent.stop="clearAllAttendance()"
+                      @mousedown.prevent.stop="clearSelectedOptions('attendance')"
                     />
                   </template>
                 </multiselect>
@@ -140,7 +140,7 @@
                 <div
                   v-if="filter.selectedOrganization.length"
                   class="multiselect__clear"
-                  @mousedown.prevent.stop="clearAllOrganization()"
+                  @mousedown.prevent.stop="clearSelectedOptions('organization')"
                 />
               </template>
             </multiselect>
@@ -176,7 +176,7 @@
                 <div
                   v-if="filter.selectedFlag.length"
                   class="multiselect__clear"
-                  @mousedown.prevent.stop="clearAllFlags()"
+                  @mousedown.prevent.stop="clearSelectedOptions('flag')"
                 />
               </template>
             </multiselect>
@@ -186,7 +186,7 @@
       <div class="row">
         <div class="col-md-6 col-sm-6 col-xs-12">
           <div class="row">
-            <div class="col-md-8 col-sm-7 col-xs-12 pr-0">
+            <div class="col-md-7 col-sm-6 col-xs-12 pr-0">
               <div class="form-group">
                 <multiselect
                   id="ajax"
@@ -208,7 +208,7 @@
                   </template>
                   <template slot="selection" slot-scope="{ values }">
                     <span
-                      v-if="values.length > 2"
+                      v-if="values.length > 1"
                       class="multiselect__single"
                     >{{ values.length }} country selected</span>
                   </template>
@@ -216,13 +216,13 @@
                     <div
                       v-if="filter.selectedCountry.length"
                       class="multiselect__clear"
-                      @mousedown.prevent.stop="clearAllCountry()"
+                      @mousedown.prevent.stop="clearSelectedOptions('country')"
                     />
                   </template>
                 </multiselect>
               </div>
             </div>
-            <div class="col-md-4 col-sm-5 col-xs-12 pl-0">
+            <div class="col-md-5 col-sm-6 col-xs-12 pl-0">
               <div class="form-group">
                 <multiselect
                   id="ajax"
@@ -235,7 +235,15 @@
                   :searchable="false"
                   :clear-on-select="false"
                   :close-on-select="true"
-                />
+                >
+                  <template slot="clear">
+                    <div
+                      v-if="filter.selectedScop !== ''"
+                      class="multiselect__clear"
+                      @mousedown.prevent.stop="clearSelectedOptions('scope')"
+                    />
+                  </template>
+                </multiselect>
               </div>
             </div>
           </div>
@@ -291,13 +299,9 @@ export default {
   mounted,
   methods : {
     tableItems: search,
-    clearAllMeetings,
     getMeetingsList,
     getAttendanceValue,
-    clearAllAttendance,
-    clearAllOrganization,
-    clearAllFlags,
-    clearAllCountry
+    clearSelectedOptions
   },
   auth: readOnly
 }
@@ -312,13 +316,11 @@ function initData (){
     countryOptions   : [],
     flagOptions      : [ { name: 'Funded', value: 1 }, { name: 'Priority', value: 2 } ],
     attendanceOptions: [
-      { name: 'Any', value: 0, code: 'Any' },
       { name: 'Nominated', value: 1 << 0, code: 'Nom' },
       { name: 'Accredited', value: 1 << 1, code: 'Acc' },
       { name: 'Registered', value: 1 << 2, code: 'Reg' }
     ],
     scopeOptions: [
-      { name: 'Any', value: 1 },
       { name: 'Goverment', value: 'GOV' },
       { name: 'Country (Address)', value: 'CTR' }
     ],
@@ -431,20 +433,20 @@ function buildQuery ({ filter, sortBy, sortDesc, perPage, currentPage }){
   const skipRecord = currentPage > 0 ? (currentPage - 1) * perPage : 0
 
   const query = {
-    Governments     : filter.selectedCountry.length ? getCountryCodes(filter) : null,
+    Governments     : filter.selectedCountry.length ? getCountryCodes(filter) : undefined,
     limit           : perPage || 25,
-    CountryScope    : filter.selectedScop.name, //TODO
+    CountryScope    : filter.selectedScop.value || undefined, //TODO
     skip            : skipRecord,
-    FreeText        : filter.name,
+    FreeText        : filter.name || undefined,
     OrganizationUIDs: filter.selectedOrganization.length
       ? getOrganizationIds(filter)
-      : null,
+      : undefined,
     EventUIDs: filter.selectedMeetings.length
       ? getSelectedMeetingsIds(filter)
-      : null,
+      : undefined,
     EventRegistrationStatus: filter.selectedAttendance.length
       ? getAttendanceValue(filter)
-      : null,
+      : undefined,
     StatusForEventUID1: getMeetingsIds(filter, 0),
     StatusForEventUID2: getMeetingsIds(filter, 1),
     StatusForEventUID3: getMeetingsIds(filter, 2),
@@ -464,7 +466,7 @@ function getSelectedMeetingsIds (filter){
 }
 
 function getMeetingsIds (filter, index){
-  let meetingId = null
+  let meetingId
 
   if (filter.selectedMeetings.length > index)
     meetingId = filter.selectedMeetings[index].EventUID
@@ -516,23 +518,26 @@ async function getMeetingsList (){
   return rows
 }
 
-function clearAllMeetings (){
-  this.filter.selectedMeetings = []
-}
-
-function clearAllAttendance (){
-  this.filter.selectedAttendance = []
-}
-
-function clearAllOrganization (){
-  this.filter.selectedOrganization = []
-}
-
-function clearAllFlags (){
-  this.filter.selectedFlag = []
-}
-
-function clearAllCountry (){
-  this.filter.selectedCountry = []
+function clearSelectedOptions (type){
+  switch (type){
+  case 'meetings':
+    this.filter.selectedMeetings = []
+    break
+  case 'organization':
+    this.filter.selectedOrganization = []
+    break
+  case 'attendance':
+    this.filter.selectedAttendance = []
+    break
+  case 'flag':
+    this.filter.selectedFlag = []
+    break
+  case 'country':
+    this.filter.selectedCountry = []
+    break
+  case 'scope':
+    this.filter.selectedScop = ''
+    break
+  }
 }
 </script>
