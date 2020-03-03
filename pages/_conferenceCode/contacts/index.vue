@@ -345,7 +345,6 @@ function initData (){
       selectedScop            : ''
     },
     meetingsOptions         : [],
-    selectedCountrie        : [],
     organizationOptions     : [],
     organizationTypesOptions: []
   }
@@ -478,7 +477,7 @@ function buildQuery ({ filter, sortBy, sortDesc, perPage, currentPage }){
       ? getCountryCodes(filter)
       : undefined,
     limit           : perPage || 25,
-    CountryScope    : filter.selectedScop.value || undefined, //TODO
+    CountryScope    : filter.selectedScop.value || undefined,
     skip            : skipRecord,
     FreeText        : filter.name || undefined,
     OrganizationUIDs: filter.selectedOrganization.length

@@ -25,6 +25,7 @@
       sort-icon-left
       :per-page="perPage"
       :current-page="currentPage"
+      :filter="filter"
     >
       <!-- https://bootstrap-vue.js.org/docs/components/table#scoped-field-slots -->
 
@@ -32,8 +33,16 @@
         <CountryCol v-if="value" :code="value" />
       </template>
 
+      <template v-slot:cell(Government)="{value}">
+        <CountryCol v-if="value" :code="value" />
+      </template>
+
       <template v-slot:cell(identifier)="{value}">
         <ActionsCol v-if="value" :identifier="value" :edit-path="editPath+value" :remove="remove" />
+      </template>
+
+      <template v-slot:cell(IsValidated)="{value}">
+        {{ value ? 'Yes': 'No' }}
       </template>
     </BTable>
   </div>
@@ -45,8 +54,10 @@ import mixin from './mixin'
 const columns = [
   { key: 'OrganizationName', label: 'Organization' },
   { key: 'OrganizationAcronym', label: 'Acronym' },
-  { key: 'MemberCount', label: '# of Members' },
-  { key: 'EventCount', label: '# of Events' },
+  { key: 'Government', label: 'Government' },
+  { key: 'IsValidated', label: 'IsValidated' },
+  { key: 'MemberCount', label: 'Member Count' },
+  // { key: 'EventCount', label: '# of Events' },
   { key: 'Country', label: 'Country', class: 'text-center' },
   { key: 'Score', label: 'Rank' }
 ]
