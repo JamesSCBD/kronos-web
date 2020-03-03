@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid">
-    <div class="row ">
+    <div class="row">
       <div class="col-12">
         <List :table-items="tableItems" :loading="loading" :total-rows="totalRows" />
       </div>
@@ -10,13 +10,12 @@
 
 <script>
 import { readOnly } from '@roles'
-import   List       from '@components/list/OrganizationsList'
+import List from '@components/list/OrganizationsList'
 
 export default {
   name      : 'Organizations',
   components: { List },
   data      : initData,
-  computed  : { totalRows: rows },
   methods   : { tableItems: search },
   auth      : readOnly
 }
@@ -26,7 +25,8 @@ export default {
 // ===================
 function initData (){
   return {
-    loading: false
+    loading  : false,
+    totalRows: 0
   }
 }
 
@@ -37,15 +37,25 @@ async function search (ctx){
   try {
     this.loading = true
 
-    const query =  buildQuery(ctx)
+    const query = buildQuery(ctx)
 
     const rows = await this.$kronosApi.getOrganizations(query)
 
+    this.totalRows = getTotalRows(ctx, this, rows.length)
     return rows.map(r => ({ ...r, identifier: r.OrganizationUID }))
-  } // TODO Handle error
+  }
   finally {
+    // TODO Handle error
     this.loading = false
   }
+}
+
+// ===================
+// Get total number of rows
+// ===================
+function getTotalRows (ctx, _this, _rowsLength){
+  if (_rowsLength < ctx.perPage) return ctx.perPage * ctx.currentPage
+  else return ctx.perPage * ctx.currentPage + 1
 }
 
 // ===================
@@ -58,18 +68,10 @@ function buildQuery ({ filter, sortBy, sortDesc, perPage, currentPage }){
   // and contact search filter to KronosQuery
 
   const query = {
-    limit   : perPage || 20,
-    FreeText: 'secretariat biodiversity SCBD'
+    limit: 20
+    //FreeText: ''
   }
 
   return query
 }
-
-// ===================
-// Get total number of rows
-// ===================
-function rows (){
-  return 0
-}
-
 </script>

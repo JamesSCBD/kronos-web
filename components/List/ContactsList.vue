@@ -6,12 +6,11 @@
         v-model="currentPage"
         :total-rows="totalRows"
         :per-page="perPage"
-        first-text="First"
         prev-text="Prev"
         next-text="Next"
-        last-text="Last"
         aria-controls="KContactsList"
-        limit="4"
+        hide-goto-end-buttons
+        limit="1"
       />
     </div>
     <BTable

@@ -302,10 +302,9 @@ export default {
     BFormCheckbox,
     Multiselect
   },
-  data    : initData,
-  computed: { totalRows: rows },
+  data   : initData,
   mounted,
-  methods : {
+  methods: {
     tableItems: search,
     getMeetingsList,
     getAttendanceValue,
@@ -321,6 +320,7 @@ export default {
 function initData (){
   return {
     loading          : false,
+    totalRows        : 0,
     sizes            : [ 'Small', 'Medium', 'Large', 'Extra Large' ],
     countryOptions   : [],
     flagOptions      : [ { name: 'Funded', value: 1 }, { name: 'Priority', value: 2 } ],
@@ -440,9 +440,13 @@ async function search (ctx){
 
       const rows = await this.$kronosApi.getContacts(query)
 
+      this.totalRows = getTotalRows(ctx, this, rows.length)
+
       return rows.map(r => ({ ...r, identifier: r.ContactUID }))
     }
     else {
+      ctx.currentPage = 1
+      this.totalRows = 0
       return []
     }
   }
@@ -450,6 +454,14 @@ async function search (ctx){
     // TODO Handle error
     this.loading = false
   }
+}
+
+// ===================
+// Get total number of rows
+// ===================
+function getTotalRows (ctx, _this, _rowsLength){
+  if (_rowsLength < ctx.perPage) return ctx.perPage * ctx.currentPage
+  else return ctx.perPage * ctx.currentPage + 1
 }
 
 // ===================
@@ -531,13 +543,6 @@ function getAttendanceValue (filter){
       registrationStatus += element.value
     })
   return registrationStatus || undefined
-}
-
-// ===================
-// Get total number of rows
-// ===================
-function rows (){
-  return 650 // Need API for total count of contacts
 }
 
 async function getMeetingsList (){
