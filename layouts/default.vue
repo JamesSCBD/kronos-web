@@ -26,6 +26,7 @@ export default {
   created (){
     this.$store.dispatch('conferences/getDataFromApi')
     this.$store.dispatch('countries/getDataFromApi')
+    this.$store.dispatch('organizations/getDataFromApi')
   }
 }
 </script>

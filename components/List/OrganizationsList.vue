@@ -41,6 +41,10 @@
         <ActionsCol v-if="value" :identifier="value" :edit-path="editPath+value" :remove="remove" />
       </template>
 
+      <template v-slot:cell(OrganizationTypeUID)="{value}">
+        <OrganizationTypeCol v-if="value" :organization-type-id="value" />
+      </template>
+
       <template v-slot:cell(IsValidated)="{value}">
         {{ value ? 'Yes': 'No' }}
       </template>
@@ -54,6 +58,7 @@ import mixin from './mixin'
 const columns = [
   { key: 'OrganizationName', label: 'Organization' },
   { key: 'OrganizationAcronym', label: 'Acronym' },
+  { key: 'OrganizationTypeUID', label: 'Type' },
   { key: 'Government', label: 'Government' },
   { key: 'IsValidated', label: 'IsValidated' },
   { key: 'MemberCount', label: 'Member Count' },

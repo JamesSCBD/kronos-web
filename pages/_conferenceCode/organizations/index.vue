@@ -392,7 +392,7 @@ function getTotalRows (ctx, _this, _rowsLength){
 // ===================
 function buildQuery ({ filter, sortBy, sortDesc, perPage, currentPage }){
   // TODO:
-
+ 
   // apply List standard paramters: filter, sortBy, sortDesc, perPage, currentPage
   // and contact search filter to KronosQuery
   const skipRecord = currentPage > 0 ? (currentPage - 1) * perPage : 0
