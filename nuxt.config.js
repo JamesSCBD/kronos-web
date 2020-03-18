@@ -4,7 +4,8 @@ import dotenv from 'dotenv'
 import fontawesome from './configs/fa'
 import ssoScbd     from './configs/ssoScbd'
 
-dotenv.config({ path: path.resolve(process.cwd(), '.env') })
+if(/^[a-z]+$/.test(process.env.NODE_ENV))
+  dotenv.config({ path: path.resolve(process.cwd(), `.env.${process.env.NODE_ENV}`) })
 
 export default {
   mode    : 'spa',

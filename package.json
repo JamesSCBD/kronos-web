@@ -5,7 +5,7 @@
   "author": "Secretariat of the Convention on Biological Diversity &lt;it@cbd.int&gt;",
   "private": true,
   "scripts": {
-    "dev": "rm -rf .nuxt && nuxt",
+    "dev": "rm -rf .nuxt && NODE_ENV=dev && nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
