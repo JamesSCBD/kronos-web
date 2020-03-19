@@ -1,28 +1,38 @@
-<p align="center"><img width="52px" height="65px" src="https://www.cbd.int/styles/ui/templates/cbd2011/images/logo-cbd-leaf-line.gif" alt="Secretariat of the Convention on Biological Diversity"><img width="148x" height="65px" src="https://www.cbd.int/styles/ui/templates/cbd2011/images/logo-cbd-text-en.gif" alt="Secretariat of the Convention on Biological Diversity"></p>
-<h1 align="center">Kronos Web Dashboard</h1>
+# Kronos Web Dashboard
 
-<p align="center">
-
-</p>
-
-<p align="center"> Kronos front end - Conference Registration System for the SCBD</p>
+Kronos front end - Conference Registration System for the SCBD
 
 [logo]:https://www.cbd.int/styles/ui/templates/cbd2011/images/logo-cbd-leaf-line.gif
 [logoText]:https://www.cbd.int/styles/ui/templates/cbd2011/images/logo-cbd-text-en.gif
 
 
-## Build Setup
+### Build Setup
+
+#### install dependencies
+``` bash
+$ yarn install
+```
+
+#### Set environment variable settings
+Export following dev enviroment variable OR Create a `.env` file in the root of your project folder an copy past them in.  
+```
+NODE_ENV=dev
+NUXT_ENV_API=https://api.cbddev.xyz
+NUXT_ENV_KRONOS_API=https://kronos.cbddev.xyz
+```
+
+#### Starter the projects
 
 ``` bash
-# install dependencies
-$ yarn install
-
 # serve with hot reload at localhost:3000
 $ yarn dev
 
 ```
 
-## @scbd/nuxt-scbd-sso-module
+
+
+### @scbd/nuxt-scbd-sso-module
+
 ``` js
 
 this.logOut()<void> //global method to log user our and clear stores of data.
@@ -49,8 +59,8 @@ export default {
 
 ```
 
-## @nuxt/http
-### https://http.nuxtjs.org/
+### @nuxt/http
+#### https://http.nuxtjs.org/
 ``` js
 this.$http.$get
 this.$http.$put

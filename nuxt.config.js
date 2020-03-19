@@ -1,11 +1,10 @@
 import path   from 'path'
 import dotenv from 'dotenv'
 
+dotenv.config({debug:true})
+
 import fontawesome from './configs/fa'
 import ssoScbd     from './configs/ssoScbd'
-
-if(/^[a-z]+$/.test(process.env.NODE_ENV))
-  dotenv.config({ path: path.resolve(process.cwd(), `.env.${process.env.NODE_ENV}`) })
 
 export default {
   mode    : 'spa',
