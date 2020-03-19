@@ -16,7 +16,6 @@ $ yarn install
 #### Set environment variable settings
 Export following dev enviroment variable OR Create a `.env` file in the root of your project folder an copy past them in.  
 ```
-NODE_ENV=dev
 NUXT_ENV_API=https://api.cbddev.xyz
 NUXT_ENV_KRONOS_API=https://kronos.cbddev.xyz
 ```
