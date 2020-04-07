@@ -12,13 +12,23 @@
 
 <script>
 import { CSidebar, CSidebarBrand, CSidebarMinimizer } from '@coreui/vue'
-import { gettersMap, mutationsMap }                     from '@components/Kronos/Sidebar/store-maps'
-import   Nav                                            from './Nav'
+import { mapGetters, mapMutations } from 'vuex'
+import   Nav from './Nav'
 
 export default {
   name      : 'KSidebar',
   components: { CSidebar, CSidebarBrand, CSidebarMinimizer, Nav },
-  computed  : { ...gettersMap() },
-  methods   : { ...mutationsMap() }
+  computed  : {
+    ...mapGetters({
+      isMin : 'coreui/isMin',
+      isShow: 'coreui/isShow'
+    })
+  },
+  methods: {
+    ...mapMutations({
+      toggleShow: 'coreui/sideBarShowToggle',
+      toggleMin : 'coreui/sideBarMinToggle'
+    })
+  }
 }
 </script>

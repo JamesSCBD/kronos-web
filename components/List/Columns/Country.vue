@@ -16,6 +16,6 @@ export default {
 }
 
 function getNameByCode (code){
-  return this.$store.getters['countries/nameByCode'](code)
+  return this.$store.getters['countries/getNameByCode'](code)
 }
 </script>

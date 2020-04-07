@@ -41,9 +41,10 @@ module.exports = {
     'no-useless-rename'             : 'error',
     'arrow-spacing'                 : 'error',
     'no-var'                        : 'error',
+    'eqeqeq'                        : 'off',
 
     'arrow-body-style'         : [ 'error' ],
-    'max-statements'           : [ 'error', 15 ],
+    'max-statements'           : [ 'error', 30 ],
     'max-params'               : [ 'error', 3 ],
     'max-nested-callbacks'     : [ 'error', 3 ],
     'max-depth'                : [ 'error', 4 ],

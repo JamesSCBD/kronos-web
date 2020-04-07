@@ -39,7 +39,7 @@
 
 <script>
 import { CHeader, CHeaderBrand, CHeaderNav, CHeaderNavItem, CHeaderNavLink, CToggler } from '@coreui/vue'
-import { mutationsMap  } from '@components/Kronos/Sidebar/store-maps'
+import { mapMutations } from 'vuex'
 import BreadCrumbs       from './BreadCrumbs'
 import DropdownAccnt     from './DropdownAccnt'
 import SubHeader         from './SubHeader'
@@ -47,7 +47,11 @@ import SubHeader         from './SubHeader'
 export default {
   name      : 'KHeader',
   components: { BreadCrumbs, SubHeader, DropdownAccnt, CHeader, CHeaderBrand, CHeaderNav, CHeaderNavItem, CHeaderNavLink, CToggler },
-  methods   : { ...mutationsMap() }
+  methods   : {
+    ...mapMutations({
+      toggleShow: 'coreui/sideBarShowToggle'
+    })
+  }
 }
 
 </script>

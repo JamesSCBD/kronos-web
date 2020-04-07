@@ -1,21 +1,22 @@
 <template>
   <div>
     <div class="paginationRow">
-      <BFormSelect id="perPageSelect" v-model="perPage" :options="pageOptions" />
+      <BFormSelect id="page-size" v-model="pageSize" class="form-control" :options="pageOptions" />
       <BPagination
         v-model="currentPage"
         :total-rows="totalRows"
-        :per-page="perPage"
+        :per-page="pageSize"
         prev-text="Prev"
         next-text="Next"
         aria-controls="KContactsList"
         hide-goto-end-buttons
-        limit="1"
+        limit="4"
       />
     </div>
+
     <BTable
       id="KContactsList"
-      :items="tableItems"
+      :items="searchContacts"
       :fields="columns"
       :busy="loading"
       class="mb-0 table-outline list"
@@ -23,10 +24,9 @@
       hover
       head-variant="light"
       sort-icon-left
-      :per-page="perPage"
+      :per-page="pageSize"
       :current-page="currentPage"
-      :filter="filter"
-      @filtered="onFiltered"
+      :filter="baseQuery"
     >
       <!-- https://bootstrap-vue.js.org/docs/components/table#scoped-field-slots -->
 
@@ -54,41 +54,36 @@
         <EmailCol v-if="value" :emails="value" />
       </template>
 
-      <template v-slot:cell(identifier)="{value}">
-        <ActionsCol v-if="value" :identifier="value" :edit-path="editPath+value" :remove="remove" />
-      </template>
-
       <template v-slot:cell(StatusEvent1Date)="data">
         <span
-          :class="RegistrationStatuses[data.item.StatusEvent1]"
-        >{{ getLocalDateString(data.item.StatusEvent1Date) }}</span>
+          :class="registrationStatuses[data.item.StatusEvent1]"
+        >{{ data.item.StatusEvent1Date | toLocalDate }}</span>
       </template>
       <template v-slot:cell(StatusEvent2Date)="data">
         <span
-          :class="RegistrationStatuses[data.item.StatusEvent2]"
-        >{{ getLocalDateString(data.item.StatusEvent2Date) }}</span>
+          :class="registrationStatuses[data.item.StatusEvent2]"
+        >{{ data.item.StatusEvent2Date | toLocalDate }}</span>
       </template>
       <template v-slot:cell(StatusEvent3Date)="data">
         <span
-          :class="RegistrationStatuses[data.item.StatusEvent3]"
-        >{{ getLocalDateString(data.item.StatusEvent3Date) }}</span>
+          :class="registrationStatuses[data.item.StatusEvent3]"
+        >{{ data.item.StatusEvent3Date | toLocalDate }}</span>
       </template>
       <template v-slot:cell(StatusEvent4Date)="data">
         <span
-          :class="RegistrationStatuses[data.item.StatusEvent4]"
-        >{{ getLocalDateString(data.item.StatusEvent4Date) }}</span>
+          :class="registrationStatuses[data.item.StatusEvent4]"
+        >{{ data.item.StatusEvent4Date | toLocalDate }}</span>
       </template>
     </BTable>
   </div>
 </template>
 
 <script>
+import _ from 'lodash'
 import { CountryCol, EmailCol } from './Columns'
 import mixin from './mixin'
 
-const columns = []
-
-const orignalColumns = [
+const baseColumns = [
   { key: 'Title', label: '', sortable: false },
   { key: 'FirstName', label: 'First Name', sortable: true },
   { key: 'LastName', label: 'Last Name', sortable: true },
@@ -99,65 +94,190 @@ const orignalColumns = [
   { key: 'Score', label: 'Rank', sortable: true }
 ]
 
+const pageOptions = [
+  { value: 25, text: '25/page' },
+  { value: 50, text: '50/page' },
+  { value: 100, text: '100/page' },
+  { value: 250, text: '250/page' }
+]
+const defaultPageSize = pageOptions[0].value
+const defaultPage     = 1
+
+const registrationStatuses = {
+  1: 'nominated-text',
+  2: 'accredited-text',
+  4: 'registered-text'
+}
+
 export default {
   name      : 'ContactsList',
   components: { CountryCol, EmailCol },
-  mixins    : [ mixin ],
-  data,
-  methods   : { remove, onFiltered, getLocalDateString }
+  filters   : {
+    toLocalDate
+  },
+  mixins: [ mixin ],
+  props : {
+    baseQuery: { type: Object, default: () => ({}) }
+  },
+  data (){
+    return {
+      loading    : false,
+      columns    : [ ...baseColumns ],
+      totalRows  : 0,
+      currentPage: defaultPage,
+      pageSize   : defaultPageSize,
+      pageOptions,
+      registrationStatuses
+    }
+  },
+  mounted,
+  methods: {
+    resetPage,
+    searchContacts,
+    updateColumns,
+    loadQueryString,
+    saveQueryString,
+    buildQuery
+  }
 }
 
-function getLocalDateString (value){
-  if (value !== undefined) return new Date(value).toLocaleString()
+function mounted (){
+  this.loadQueryString()
+}
+
+//=================================
+//
+//=================================
+function buildQuery (){
+  const query = _(this.baseQuery || {}).omitBy(_.isNil).value()
+
+  if (_.isEmpty(query))
+    return null
+
+  const limit = this.pageSize
+  const skip  = this.pageSize * (this.currentPage - 1)
+
+  if (limit) query.limit = limit
+  if (skip)  query.skip  = skip
+
+  //todo sort
+
+  return query
+}
+
+//=================================
+//
+//=================================
+async function searchContacts (ctx){
+  try {
+    this.loading = true
+    
+    this.updateColumns()
+    this.saveQueryString()
+
+    const query = this.buildQuery()
+
+    if (!query)
+      return
+      
+    const rows = await this.$kronosApi.getContacts(query)
+
+    this.totalRows = 1234 //TODO
+
+    return rows.map(r => ({ ...r, identifier: r.ContactUID }))
+  }
+  finally {
+    this.loading = false
+  }
+}
+
+//=================================
+//
+//=================================
+function resetPage (){
+  this.currentPage = defaultPage
+  this.totalRows = 0
+}
+
+//=================================
+//
+//=================================
+function loadQueryString (){
+  const { page, pageSize } = this.$route.query
+
+  this.currentPage = parseInt(page)     || defaultPage
+  this.pageSize    = parseInt(pageSize) || defaultPageSize
+}
+
+//=================================
+//
+//=================================
+function saveQueryString (){
+  const params = {
+    pageSize: undefined,
+    page    : undefined,
+    sorts   : undefined
+  }
+
+  if (this.currentPage != defaultPage)     params.page     = this.currentPage
+  if (this.pageSize    != defaultPageSize) params.pageSize = this.pageSize
+
+  const newQueryString =  Object.assign({}, this.$route.query, params)
+
+  this.$router.push({ query: newQueryString })
+}
+
+//=================================
+//
+//=================================
+function toLocalDate (value){
+  if (value) return new Date(value).toLocaleString()
   else return ''
 }
-function data (){
-  const { conferenceCode } = this.$route.params
-  const editPath = `/${conferenceCode}/contacts/`
-  const currentPage = 1
-  const perPage = 25
-  const pageOptions = [
-    { value: 25, text: '25/page' },
-    { value: 50, text: '50/page' },
-    { value: 100, text: '100/page' },
-    { value: 250, text: '250/page' }
-  ]
-  const RegistrationStatuses = {
-    1: 'nominated-text-red',
-    2: 'accredited-text-red',
-    4: 'registered-text-red'
-  }
 
-  return {
-    columns,
-    editPath,
-    currentPage,
-    perPage,
-    pageOptions,
-    RegistrationStatuses
-  }
-}
+//=================================
+//
+//=================================
+function updateColumns (){
+  this.columns = [ ...baseColumns ]
 
-function onFiltered (filteredItems){
-  this.columns = [].concat(orignalColumns)
-  for (let index = 0; index < this.filter.selectedMeetings.length; index++)
+  const query = this.baseQuery || {}
+  const eventUIDs = _.compact([ query.StatusForEventUID1, query.StatusForEventUID2, query.StatusForEventUID3, query.StatusForEventUID4 ])
+
+  if (!eventUIDs)
+    return
+
+  for (let index = 0; index < eventUIDs.length; index++)
     if (index < 4)
       this.columns = [
         ...this.columns,
         {
           key     : 'StatusEvent' + (index + 1) + 'Date',
-          label   : this.filter.selectedMeetings[index].Code,
+          label   : eventUIDs[index],
           sortable: true
         }
       ]
 }
 
-function remove (identifier){
-  alert(`delete contact ${identifier}`)
-}
 </script>
 <style scoped>
 .list {
   width: 100%;
+}
+
+.paginationRow {
+  display: inline-block;
+  width: 100%;
+  text-align: right;
+}
+
+select#page-size {
+  display: inline;
+  width: auto;
+  margin: 0px 5px;
+}
+ul.pagination.b-pagination {
+  width: auto;
+  float: right;
 }
 </style>

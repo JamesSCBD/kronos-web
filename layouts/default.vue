@@ -24,9 +24,11 @@ export default {
   components: { KHeader, KFooter, KSidebar },
   mixins    : [ mixin ],
   created (){
-    this.$store.dispatch('conferences/getDataFromApi')
-    this.$store.dispatch('countries/getDataFromApi')
-    this.$store.dispatch('organizations/getDataFromApi')
+    const selectedConferenceCode = this.$route.params.conferenceCode
+    
+    this.$store.dispatch('conferences/initialize', selectedConferenceCode)
+    this.$store.dispatch('countries/initialize')
+    this.$store.dispatch('organizations/initialize')
   }
 }
 </script>

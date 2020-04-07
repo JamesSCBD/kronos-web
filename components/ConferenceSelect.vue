@@ -33,8 +33,8 @@ function onSelect (option){
 
 function gettersMap (){
   return mapGetters({
-    options: 'conferences/asSelectOptions',
-    value  : 'conferences/selectedAsOption'
+    options: 'conferences/list',
+    value  : 'conferences/list'
   })
 }
 </script>

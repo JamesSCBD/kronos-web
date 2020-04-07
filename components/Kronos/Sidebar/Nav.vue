@@ -1,9 +1,8 @@
 <template>
   <CSidebarNav>
+    <BFormSelect id="page-size" v-model="conferenceId" class="form-control" :options="conferenceOptions" @change="setSelectedConference" />
     <CSidebarNavItem name="Dashbord" icon="tachometerAlt" :to="`/${conferenceCode}/dashboard`" />
-
     <CSidebarNavTitle> Reg </CSidebarNavTitle>
-    
     <CSidebarNavItem name="Contacts" icon="addressBook" :to="`/${conferenceCode}/contacts`" />
     <CSidebarNavItem name="Organizations" icon="building" :to="`/${conferenceCode}/organizations`" />
     <CSidebarNavItem name="Conferences" icon="users" :to="`/conferences`" />
@@ -12,19 +11,31 @@
 
 <script>
 import { CSidebarNav, CSidebarNavTitle, CSidebarNavItem } from '@coreui/vue'
-import { gettersMap } from '@components/Kronos/Sidebar/store-maps'
+import { BFormSelect } from 'bootstrap-vue'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name      : 'KSidebarNav',
-  components: { CSidebarNav, CSidebarNavTitle, CSidebarNavItem },
-  computed  : { ...gettersMap(), conferenceCode }
+  components: { CSidebarNav, CSidebarNavTitle, CSidebarNavItem, BFormSelect },
+  computed  : {
+    conferenceOptions,
+    ...mapGetters({
+      conferenceList: 'conferences/list',
+      conferenceId  : 'conferences/selectedId',
+      conferenceCode: 'conferences/selectedCode'
+    })
+  },
+  methods: {
+    ...mapActions({
+      setSelectedConference: 'conferences/setSelected'
+    })
+  }
 }
 
-function conferenceCode (){
-  const { conferenceCode } = this.$route.params || {}
-  
-  return conferenceCode || this.selectedCode
+function conferenceOptions (){
+  return this.conferenceList.map(c => ({ value: c._id, text: c.Title.en }))
 }
+
 </script>
 
 <style scoped>

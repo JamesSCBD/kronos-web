@@ -1,4 +1,3 @@
-
 import ky from 'ky'
 
 export default class {

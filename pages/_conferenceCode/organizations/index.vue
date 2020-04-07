@@ -11,7 +11,7 @@
               <div class="form-group">
                 <BFormInput
                   id="filterInput"
-                  v-model="filter.name"
+                  v-model="searchTagInput"
                   type="search"
                   placeholder="Name / Acronym / #KEYWORD"
                 />
@@ -31,7 +31,6 @@
             <div class="col-md-7 col-sm-7 col-xs-12 pr-0">
               <div class="form-group">
                 <multiselect
-                  id="ajax"
                   v-model="filter.selectedMeetings"
                   label="Code"
                   track-by="Code"
@@ -40,7 +39,7 @@
                   :options="meetingsOptions"
                   :multiple="true"
                   :clear-on-select="false"
-                  :close-on-select="true"
+                  :close-on-select="false"
                   :show-no-results="false"
                   :searchable="false"
                 >
@@ -69,7 +68,6 @@
             <div class="col-md-5 col-sm-5 col-xs-12 pl-0">
               <div class="form-group">
                 <multiselect
-                  id="ajax"
                   v-model="filter.selectedAttendance"
                   label="name"
                   track-by="value"
@@ -78,7 +76,7 @@
                   :options="attendanceOptions"
                   :multiple="true"
                   :clear-on-select="false"
-                  :close-on-select="true"
+                  :close-on-select="false"
                   :show-no-results="false"
                 >
                   <template slot="tag" slot-scope="{ option, remove }">
@@ -110,20 +108,31 @@
         <div class="col-md-6 col-sm-6 col-xs-12">
           <div class="form-group">
             <multiselect
-              id="ajax"
-              v-model="filter.selectedOrganizationType"
+              v-model="filter.selectedOrganizationTypes"
               label="Title"
               track-by="OrganizationTypeUID"
               placeholder="Categories"
-              :options="organizationTypesOptions"
-              :multiple="false"
+              :options="organizationTypeOptions"
+              :multiple="true"
               :searchable="false"
               :clear-on-select="false"
               :close-on-select="true"
             >
+              <template slot="tag" slot-scope="{ option, remove }">
+                <span class="custom__tag">
+                  <span>{{ option.Title }}</span>
+                  <span class="custom__remove" @click="remove(option)">&times;</span>
+                </span>
+              </template>
+              <template slot="selection" slot-scope="{ values }">
+                <span
+                  v-if="values.length > 1"
+                  class="multiselect__single"
+                >{{ values.length }} organization type selected</span>
+              </template>
               <template slot="clear">
                 <div
-                  v-if="filter.selectedOrganizationType !== ''"
+                  v-if="filter.selectedOrganizationTypes.length"
                   class="multiselect__clear"
                   @mousedown.prevent.stop="clearSelectedOptions('organization-type')"
                 />
@@ -134,7 +143,6 @@
         <div class="col-md-6 col-sm-6 col-xs-12">
           <div class="form-group">
             <multiselect
-              id="ajax"
               v-model="filter.selectedValidationStatus"
               label="name"
               track-by="value"
@@ -162,7 +170,6 @@
             <div class="col-md-7 col-sm-6 col-xs-12 pr-0">
               <div class="form-group">
                 <multiselect
-                  id="ajax"
                   v-model="filter.selectedCountry"
                   label="Name"
                   track-by="Code"
@@ -171,7 +178,7 @@
                   :multiple="true"
                   :searchable="true"
                   :clear-on-select="false"
-                  :close-on-select="true"
+                  :close-on-select="false"
                 >
                   <template slot="tag" slot-scope="{ option, remove }">
                     <span class="custom__tag">
@@ -198,7 +205,6 @@
             <div class="col-md-5 col-sm-6 col-xs-12 pl-0">
               <div class="form-group">
                 <multiselect
-                  id="ajax"
                   v-model="filter.selectedScop"
                   label="name"
                   track-by="value"
@@ -238,18 +244,29 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { readOnly } from '@roles'
 import List from '@components/list/OrganizationsList'
 import { BFormInput, BFormCheckbox } from 'bootstrap-vue'
 import Multiselect from 'vue-multiselect'
+import _ from 'lodash'
 
 export default {
   name      : 'Organizations',
   components: { List, BFormInput, Multiselect, BFormCheckbox },
   data      : initData,
+  computed  : {
+    ...mapGetters({
+      countryOptions         : 'countries/list',
+      organizationTypeOptions: 'organizations/types'
+    })
+  },
+  watch: {
+    searchTagInput: _.debounce(onSearchTextChanged, 400)
+  },
   mounted,
-  methods   : { tableItems: search, clearSelectedOptions, isFiltersApplied },
-  auth      : readOnly
+  methods: { tableItems: search, clearSelectedOptions, isFiltersApplied },
+  auth   : readOnly
 }
 
 // ===================
@@ -260,15 +277,14 @@ function initData (){
     loading  : false,
     totalRows: 0,
     filter   : {
-      name                    : '',
-      isBroadSearch           : false,
-      selectedMeetings        : [],
-      selectedAttendance      : [],
-      selectedOrganization    : [],
-      selectedValidationStatus: '',
-      selectedCountry         : [],
-      selectedScop            : '',
-      selectedOrganizationType: ''
+      name                     : '',
+      isBroadSearch            : false,
+      selectedMeetings         : [],
+      selectedAttendance       : [],
+      selectedValidationStatus : '',
+      selectedCountry          : [],
+      selectedScop             : '',
+      selectedOrganizationTypes: []
     },
     scopeOptions: [
       { name: 'Goverment', value: 'GOV' },
@@ -279,25 +295,22 @@ function initData (){
       { name: 'Accredited', value: 1 << 1, code: 'Acc' },
       { name: 'Registered', value: 1 << 2, code: 'Reg' }
     ],
-    meetingsOptions         : [],
-    countryOptions          : [],
-    organizationTypesOptions: [],
-    validationStatusOptions : [
+    meetingsOptions        : [],
+    validationStatusOptions: [
       { name: 'Any', value: undefined },
       { name: 'Validated', value: true },
       { name: 'Not Validated', value: false }
-    ]
+    ],
+    searchTagInput: ''
   }
+}
+
+function onSearchTextChanged (value){
+  this.filter.name = value
 }
 
 async function mounted (){
   this.meetingsOptions = await getMajorMinorMeetings(this)
-
-  const country = await this.$kronosApi.getCountries()
-
-  sortCountryByAsc(country, this)
-
-  this.organizationTypesOptions = await this.$kronosApi.getOrganizationTypes()
 }
 
 async function getMajorMinorMeetings (_this){
@@ -369,7 +382,7 @@ function isFiltersApplied (_this){
     _this.filter.name ||
     _this.filter.isBroadSearch ||
     _this.filter.selectedMeetings.length ||
-    _this.filter.selectedOrganizationType ||
+    _this.filter.selectedOrganizationTypes.length ||
     _this.filter.selectedCountry.length ||
     _this.filter.selectedValidationStatus ||
     _this.filter.selectedAttendance.length ||
@@ -392,40 +405,35 @@ function getTotalRows (ctx, _this, _rowsLength){
 // ===================
 function buildQuery ({ filter, sortBy, sortDesc, perPage, currentPage }){
   // TODO:
- 
+
   // apply List standard paramters: filter, sortBy, sortDesc, perPage, currentPage
   // and contact search filter to KronosQuery
   const skipRecord = currentPage > 0 ? (currentPage - 1) * perPage : 0
   const query = {
-    limit       : perPage || 25,
-    skip        : skipRecord,
-    FreeText    : filter.name || undefined, //Done
-    CountryScope: filter.selectedScop.value || undefined, //Done
-    EventUIDs   : filter.selectedMeetings.length
-      ? getSelectedMeetingsIds(filter)
-      : undefined, //Done
-    TypeUIDs: filter.selectedOrganizationType.OrganizationTypeUID
-      ? [ filter.selectedOrganizationType.OrganizationTypeUID ]
-      : undefined, //Done
-    EventRegistrationStatus: filter.selectedAttendance.length
-      ? getAttendanceValue(filter)
-      : undefined, //Done
-    Governments: filter.selectedCountry.length
-      ? getCountryCodes(filter)
-      : undefined,
-    IsValidated: filter.selectedValidationStatus.value
+    FreeText               : filter.name || undefined,
+    CountryScope           : filter.selectedScop.value || undefined,
+    EventUIDs              : getSelectedMeetingsIds(filter),
+    TypeUIDs               : getOrganizationTypeIds(filter),
+    EventRegistrationStatus: getAttendanceValue(filter),
+    Governments            : getCountryCodes(filter),
+    IsValidated            : filter.selectedValidationStatus.value,
+    limit                  : perPage || 25,
+    skip                   : skipRecord
   }
 
   return query
 }
 
-function getCountryCodes (filter){
-  const countryCodes = []
+function getOrganizationTypeIds (filter){
+  return filter.selectedOrganizationTypes.length
+    ? filter.selectedOrganizationTypes.map(o => o.OrganizationTypeUID)
+    : undefined
+}
 
-  filter.selectedCountry.forEach((value) => {
-    countryCodes.push(value.Code)
-  })
-  return countryCodes
+function getCountryCodes (filter){
+  return filter.selectedCountry.length
+    ? filter.selectedCountry.map(c => c.Code)
+    : undefined
 }
 
 function getAttendanceValue (filter){
@@ -439,32 +447,15 @@ function getAttendanceValue (filter){
 }
 
 function getSelectedMeetingsIds (filter){
-  const meetingIds = []
-
-  filter.selectedMeetings.forEach((value) => {
-    meetingIds.push(value.EventUID)
-  })
-  return meetingIds
-}
-
-function sortCountryByAsc (country, _this){
-  _this.countryOptions = country.sort((a, b) => {
-    const nameA = a.Name.toLowerCase()
-    const nameB = b.Name.toLowerCase()
-
-    if (nameA < nameB) return -1
-    if (nameA > nameB) return 1
-    return 0
-  })
+  return filter.selectedMeetings.length
+    ? filter.selectedMeetings.map(m => m.EventUID)
+    : undefined
 }
 
 function clearSelectedOptions (type){
   switch (type){
   case 'meetings':
     this.filter.selectedMeetings = []
-    break
-  case 'organization':
-    this.filter.selectedOrganization = []
     break
   case 'attendance':
     this.filter.selectedAttendance = []
@@ -479,7 +470,7 @@ function clearSelectedOptions (type){
     this.filter.selectedScop = ''
     break
   case 'organization-type':
-    this.filter.selectedOrganizationType = ''
+    this.filter.selectedOrganizationTypes = []
     break
   }
 }

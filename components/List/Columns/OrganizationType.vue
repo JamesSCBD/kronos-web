@@ -13,6 +13,6 @@ export default {
 }
 
 function getOrganizationNameById (organizationTypeId){
-  return this.$store.getters['organizations/organizationNameById'](organizationTypeId)
+  return this.$store.getters['organizations/typeNameById'](organizationTypeId)
 }
 </script>

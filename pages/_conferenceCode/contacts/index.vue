@@ -11,15 +11,17 @@
               <div class="form-group">
                 <BFormInput
                   id="filterInput"
-                  v-model="filter.name"
+                  v-model="name"
                   type="search"
                   placeholder="Name / Barcode / #tags"
+
+                  @input="onNameTextChange"
                 />
               </div>
             </div>
             <div class="col-md-4 col-sm-5 col-xs-12">
               <div class="form-group">
-                <BFormCheckbox v-model="filter.isBroadSearch">
+                <BFormCheckbox v-model="isBroadSearch">
                   Broad search
                 </BFormCheckbox>
               </div>
@@ -31,23 +33,25 @@
             <div class="col-md-7 col-sm-7 col-xs-12 pr-0">
               <div class="form-group">
                 <multiselect
-                  id="ajax"
-                  v-model="filter.selectedMeetings"
+                  v-model="selectedMeetings"
                   label="Code"
-                  track-by="Code"
+                  track-by="EventUID"
                   placeholder="Meetings"
                   open-direction="bottom"
                   :options="meetingsOptions"
+                  group-values="events"
+                  group-label="title"
+                  :group-select="false"
                   :multiple="true"
                   :clear-on-select="false"
-                  :close-on-select="true"
+                  :close-on-select="false"
                   :show-no-results="false"
-                  :searchable="false"
+                  :searchable="true"
                 >
                   <template slot="tag" slot-scope="{ option, remove }">
                     <span class="custom__tag">
                       <span>{{ option.Code }}</span>
-                      <span class="custom__remove" @click="remove(option)">❌</span>
+                      <span class="custom__remove" @click="remove(option)">&times;</span>
                     </span>
                   </template>
                   <template slot="selection" slot-scope="{ values }">
@@ -58,9 +62,9 @@
                   </template>
                   <template slot="clear">
                     <div
-                      v-if="filter.selectedMeetings.length"
+                      v-if="selectedMeetings.length"
                       class="multiselect__clear"
-                      @mousedown.prevent.stop="clearSelectedOptions('meetings')"
+                      @mousedown.prevent.stop="selectedMeetings = null"
                     />
                   </template>
                 </multiselect>
@@ -69,8 +73,7 @@
             <div class="col-md-5 col-sm-5 col-xs-12 pl-0">
               <div class="form-group">
                 <multiselect
-                  id="ajax"
-                  v-model="filter.selectedAttendance"
+                  v-model="selectedAttendances"
                   label="name"
                   track-by="value"
                   placeholder="Attendance "
@@ -78,26 +81,20 @@
                   :options="attendanceOptions"
                   :multiple="true"
                   :clear-on-select="false"
-                  :close-on-select="true"
+                  :close-on-select="false"
                   :show-no-results="false"
                 >
                   <template slot="tag" slot-scope="{ option, remove }">
                     <span class="custom__tag">
                       <span>{{ option.code }}</span>
-                      <span class="custom__remove" @click="remove(option)">❌</span>
+                      <span class="custom__remove" @click="remove(option)">&times;</span>
                     </span>
-                  </template>
-                  <template slot="selection" slot-scope="{ values }">
-                    <span
-                      v-if="values.length > 2"
-                      class="multiselect__single"
-                    >{{ values.length }} attendance selected</span>
                   </template>
                   <template slot="clear">
                     <div
-                      v-if="filter.selectedAttendance.length"
+                      v-if="selectedAttendances.length"
                       class="multiselect__clear"
-                      @mousedown.prevent.stop="clearSelectedOptions('attendance')"
+                      @mousedown.prevent.stop="selectedAttendances = null"
                     />
                   </template>
                 </multiselect>
@@ -110,37 +107,44 @@
         <div class="col-md-6 col-sm-6 col-xs-12">
           <div class="form-group">
             <multiselect
-              id="ajax"
-              v-model="filter.selectedOrganization"
+              v-model="selectedOrganizations"
               label="OrganizationName"
               track-by="OrganizationUID"
-              placeholder="Organization"
+              placeholder="Search organization"
               open-direction="bottom"
               :options="organizationOptions"
               :multiple="true"
               :searchable="true"
-              :internal-search="true"
+              :loading="isLoadingOrganization"
+              :internal-search="false"
               :clear-on-select="false"
-              :close-on-select="true"
+              :close-on-select="false"
               :max-height="300"
+              @search-change="onOrganizationTextChange"
             >
+              <template slot="option" slot-scope="props">
+                <span class="float-right">{{ props.option.Score }}</span>
+                <span>{{ props.option.OrganizationName }}</span>
+                <b v-if="props.option.OrganizationAcronym">{{ props.option.OrganizationAcronym }}</b>
+                <i v-if="props.option.MemberCount>=0">({{ props.option.MemberCount }})</i>
+              </template>
               <template slot="tag" slot-scope="{ option, remove }">
                 <span class="custom__tag">
-                  <span>{{ option.OrganizationName }}</span>
-                  <span class="custom__remove" @click="remove(option)">❌</span>
+                  <span>{{ option.OrganizationAcronym || option.OrganizationName }}</span>
+                  <span class="custom__remove" @click="remove(option)">&times;</span>
                 </span>
               </template>
               <template slot="selection" slot-scope="{ values }">
                 <span
-                  v-if="values.length > 1"
+                  v-if="values.length > 3"
                   class="multiselect__single"
-                >{{ values.length }} organization selected</span>
+                >{{ values.length }} organizations selected</span>
               </template>
               <template slot="clear">
                 <div
-                  v-if="filter.selectedOrganization.length"
+                  v-if="selectedOrganizations.length"
                   class="multiselect__clear"
-                  @mousedown.prevent.stop="clearSelectedOptions('organization')"
+                  @mousedown.prevent.stop="selectedOrganizations = null"
                 />
               </template>
             </multiselect>
@@ -149,8 +153,7 @@
         <div class="col-md-6 col-sm-6 col-xs-12">
           <div class="form-group">
             <multiselect
-              id="ajax"
-              v-model="filter.selectedFlag"
+              v-model="selectedFlags"
               label="name"
               track-by="value"
               placeholder="Special Flags..."
@@ -158,12 +161,12 @@
               :multiple="true"
               :searchable="false"
               :clear-on-select="false"
-              :close-on-select="true"
+              :close-on-select="false"
             >
               <template slot="tag" slot-scope="{ option, remove }">
                 <span class="custom__tag">
                   <span>{{ option.name }}</span>
-                  <span class="custom__remove" @click="remove(option)">❌</span>
+                  <span class="custom__remove" @click="remove(option)">&times;</span>
                 </span>
               </template>
               <template slot="selection" slot-scope="{ values }">
@@ -174,9 +177,9 @@
               </template>
               <template slot="clear">
                 <div
-                  v-if="filter.selectedFlag.length"
+                  v-if="selectedFlags.length"
                   class="multiselect__clear"
-                  @mousedown.prevent.stop="clearSelectedOptions('flag')"
+                  @mousedown.prevent.stop="selectedFlags = null"
                 />
               </template>
             </multiselect>
@@ -189,8 +192,7 @@
             <div class="col-md-7 col-sm-6 col-xs-12 pr-0">
               <div class="form-group">
                 <multiselect
-                  id="ajax"
-                  v-model="filter.selectedCountry"
+                  v-model="selectedCountries"
                   label="Name"
                   track-by="Code"
                   placeholder="Country"
@@ -198,25 +200,25 @@
                   :multiple="true"
                   :searchable="true"
                   :clear-on-select="false"
-                  :close-on-select="true"
+                  :close-on-select="false"
                 >
                   <template slot="tag" slot-scope="{ option, remove }">
                     <span class="custom__tag">
                       <span>{{ option.Name }}</span>
-                      <span class="custom__remove" @click="remove(option)">❌</span>
+                      <span class="custom__remove" @click="remove(option)">&times;</span>
                     </span>
                   </template>
                   <template slot="selection" slot-scope="{ values }">
                     <span
                       v-if="values.length > 1"
                       class="multiselect__single"
-                    >{{ values.length }} country selected</span>
+                    >{{ values.length }} countries selected</span>
                   </template>
                   <template slot="clear">
                     <div
-                      v-if="filter.selectedCountry.length"
+                      v-if="selectedCountries.length"
                       class="multiselect__clear"
-                      @mousedown.prevent.stop="clearSelectedOptions('country')"
+                      @mousedown.prevent.stop="selectedCountries = null"
                     />
                   </template>
                 </multiselect>
@@ -225,8 +227,7 @@
             <div class="col-md-5 col-sm-6 col-xs-12 pl-0">
               <div class="form-group">
                 <multiselect
-                  id="ajax"
-                  v-model="filter.selectedScop"
+                  v-model="selectedCountryScope"
                   label="name"
                   track-by="value"
                   placeholder="Scope"
@@ -238,9 +239,9 @@
                 >
                   <template slot="clear">
                     <div
-                      v-if="filter.selectedScop !== ''"
+                      v-if="selectedCountryScope !== ''"
                       class="multiselect__clear"
-                      @mousedown.prevent.stop="clearSelectedOptions('scope')"
+                      @mousedown.prevent.stop="selectedCountryScope = null"
                     />
                   </template>
                 </multiselect>
@@ -251,22 +252,33 @@
         <div class="col-md-6 col-sm-6 col-xs-12">
           <div class="form-group">
             <multiselect
-              id="ajax"
-              v-model="filter.selectedOrganizationType"
+              v-model="selectedOrganizationTypes"
               label="Title"
               track-by="OrganizationTypeUID"
-              placeholder="Categories"
+              placeholder="Categories..."
               :options="organizationTypesOptions"
-              :multiple="false"
-              :searchable="false"
+              :multiple="true"
+              :searchable="true"
               :clear-on-select="false"
-              :close-on-select="true"
+              :close-on-select="false"
             >
+              <template slot="tag" slot-scope="{ option, remove }">
+                <span class="custom__tag">
+                  <span>{{ option.Title }}</span>
+                  <span class="custom__remove" @click="remove(option)">&times;</span>
+                </span>
+              </template>
+              <template slot="selection" slot-scope="{ values }">
+                <span
+                  v-if="values.length > 2"
+                  class="multiselect__single"
+                >{{ values.length }} categories selected</span>
+              </template>
               <template slot="clear">
                 <div
-                  v-if="filter.selectedOrganizationType !== ''"
+                  v-if="selectedOrganizationTypes.length"
                   class="multiselect__clear"
-                  @mousedown.prevent.stop="clearSelectedOptions('organization-type')"
+                  @mousedown.prevent.stop="selectedOrganizationTypes = null"
                 />
               </template>
             </multiselect>
@@ -276,40 +288,53 @@
     </div>
     <div class="row">
       <div class="col-12">
-        <List
-          :table-items="tableItems"
-          :loading="loading"
-          :total-rows="totalRows"
-          :filter="filter"
-        />
+        <ContactsList :base-query="query" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { readOnly } from '@roles'
-import List from '@components/list/ContactsList'
+import ContactsList from '@components/list/ContactsList'
 import { BFormInput, BFormCheckbox } from 'bootstrap-vue'
-
 import Multiselect from 'vue-multiselect'
+import _ from 'lodash'
 
 export default {
   name      : 'Contacts',
   components: {
-    List,
+    ContactsList,
     BFormInput,
     BFormCheckbox,
     Multiselect
   },
-  data   : initData,
-  mounted,
+  data,
+  computed: {
+    query                    : buildQuery,
+    meetingsOptions          : getMeetingsOptions,
+    name                     : wrapQS('name',  { isArray: false }).get,
+    isBroadSearch            : wrapQS('broad', { isArray: false, type: Boolean }),
+    selectedOrganizations    : wrapQS('organization', { key: 'OrganizationUID',       find (v){ return this.organizationOptions.find(o => o.OrganizationUID == v.OrganizationUID) } }),
+    selectedOrganizationTypes: wrapQS('types',        { key: 'OrganizationTypeUID',   find (v){ return this.organizationTypesOptions.find(o => o.OrganizationTypeUID == v.OrganizationTypeUID) } }),
+    selectedCountries        : wrapQS('country',      { key: 'Code',                  find (v){ return this.countryOptions.find(o => o.Code == v.Code) } }),
+    selectedMeetings         : wrapQS('meeting',      { key: 'EventUID',              find (v){ return this.events.find(o => o.EventUID == v.EventUID) } }),
+    selectedFlags            : wrapQS('flag',         { key: 'value',                 find (v){ return this.flagOptions.find(o => o.value == v.value) } }),
+    selectedCountryScope     : wrapQS('scope',        { key: 'value', isArray: false, find (v){ return this.scopeOptions.find(o => o.value == v.value) } }),
+    selectedAttendances      : wrapQS('attendance',   { key: 'value', type: Number,   find (v){ return this.attendanceOptions.find(o => o.value == v.value) } }),
+    ...mapGetters({
+      countryOptions          : 'countries/list',
+      organizationTypesOptions: 'organizations/types',
+      selectedConference      : 'conferences/selected',
+      majorEvents             : 'conferences/majorEvents',
+      events                  : 'conferences/events'
+    })
+  },
   methods: {
-    tableItems: search,
-    getMeetingsList,
-    getAttendanceValue,
-    clearSelectedOptions,
-    isFiltersApplied
+    onNameTextChange        : _.debounce(wrapQS('name', { type: String }).set, 400),
+    onOrganizationTextChange: _.debounce(searchOrganizations, 400),
+    queryString
   },
   auth: readOnly
 }
@@ -317,13 +342,14 @@ export default {
 // ===================
 //
 // ===================
-function initData (){
+function data (){
   return {
-    loading          : false,
-    totalRows        : 0,
-    sizes            : [ 'Small', 'Medium', 'Large', 'Extra Large' ],
-    countryOptions   : [],
-    flagOptions      : [ { name: 'Funded', value: 1 }, { name: 'Priority', value: 2 } ],
+    isLoadingOrganization: false,
+    organizationOptions  : [],
+    flagOptions          : [
+      { name: 'Funded', value: 1 },
+      { name: 'Priority', value: 2 }
+    ],
     attendanceOptions: [
       { name: 'Nominated', value: 1 << 0, code: 'Nom' },
       { name: 'Accredited', value: 1 << 1, code: 'Acc' },
@@ -332,250 +358,144 @@ function initData (){
     scopeOptions: [
       { name: 'Goverment', value: 'GOV' },
       { name: 'Country (Address)', value: 'CTR' }
-    ],
-    filter: {
-      name                    : '',
-      isBroadSearch           : false,
-      selectedMeetings        : [],
-      selectedOrganizationType: '',
-      selectedOrganization    : [],
-      selectedCountry         : [],
-      selectedFlag            : [],
-      selectedAttendance      : [],
-      selectedScop            : ''
-    },
-    meetingsOptions         : [],
-    organizationOptions     : [],
-    organizationTypesOptions: []
+    ]
   }
 }
 
-function isFiltersApplied (_this){
-  if (
-    _this.filter.name ||
-    _this.filter.isBroadSearch ||
-    _this.filter.selectedMeetings.length ||
-    _this.filter.selectedOrganizationType ||
-    _this.filter.selectedOrganization.length ||
-    _this.filter.selectedCountry.length ||
-    _this.filter.selectedFlag.length ||
-    _this.filter.selectedAttendance.length ||
-    _this.filter.selectedScop
-  )
-    return true
-  else return false
+function getMeetingsOptions (){
+  const now = new Date()
+
+  const options = [ {
+    title : 'Main meetings',
+    events: _(this.events).filter(e => e.isMajor).orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ]).value()
+  }, {
+    title : 'Parallel meetings',
+    events: _(this.events).filter(e => e.isMinor).orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ]).value()
+  }, {
+    title : 'Other future meetings',
+    events: _(this.events).filter(e => !e.isMajor && !e.isMinor && new Date(e.EndDate) > now).orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ]).value()
+  }, {
+    title : 'Recent past meetings',
+    events: _(this.events).filter(e => !e.isMajor && !e.isMinor && new Date(e.EndDate) <= now).orderBy([ 'EndDate', 'StartDate', 'Code' ], [ 'desc', 'asc', 'asc' ]).value()
+  } ]
+
+  return _.filter(options, o => o.events.length)
 }
 
-async function mounted (){
-  this.meetingsOptions = await getMajorMinorMeetings(this)
-
-  this.organizationOptions = await this.$kronosApi.getOrganizations({
-    limit: 5000
-  })
-
-  const country = await this.$kronosApi.getCountries()
-
-  sortCountryByAsc(country, this)
-
-  this.organizationTypesOptions = await this.$kronosApi.getOrganizationTypes()
-}
-
-async function getMajorMinorMeetings (_this){
-  const majorEventIDs = []
-  const minorEventIDs = []
-
-  const majorMeetingsData =
-    _this.$store.getters['conferences/selected'].MajorEventIDs
-  const minorMeetingsData =
-    _this.$store.getters['conferences/selected'].MinorEventIDs
-
-  majorMeetingsData.forEach((element) => {
-    majorEventIDs.push('00000000' + element)
-  })
-
-  minorMeetingsData.forEach((element) => {
-    minorEventIDs.push('00000000' + element)
-  })
-
-  const majorMeetings = await _this.$kronosApi.getMeetings({
-    EvenUIDs: majorEventIDs
-  })
-
-  const minorMeetings = await _this.$kronosApi.getMeetings({
-    EvenUIDs: minorEventIDs
-  })
-
-  const meetingDivider = [
-    {
-      EventUID   : '00000000000000000000000000000000',
-      Code       : '-----------------------------',
-      Title      : '-----------------------------',
-      $isDisabled: true
-    }
-  ]
-
-  return majorMeetings.concat(meetingDivider).concat(minorMeetings)
-}
-
-function sortCountryByAsc (country, _this){
-  _this.countryOptions = country.sort((a, b) => {
-    const nameA = a.Name.toLowerCase()
-    const nameB = b.Name.toLowerCase()
-
-    if (nameA < nameB) return -1
-    if (nameA > nameB) return 1
-    return 0
-  })
-}
-
-//= ===================
-//
-//= ===================
-async function search (ctx){
+async function searchOrganizations (text){
   try {
-    if (isFiltersApplied(this)){
-      this.loading = true
-      const query = buildQuery(ctx)
+    this.isLoadingOrganization = true
+    let foundOrganizations = this.organizationOptions
 
-      const rows = await this.$kronosApi.getContacts(query)
-
-      this.totalRows = getTotalRows(ctx, this, rows.length)
-
-      return rows.map(r => ({ ...r, identifier: r.ContactUID }))
+    if (text){
+      this.organizationOptions = this.selectedOrganizations
+      foundOrganizations = await this.$kronosApi.getOrganizations({ FreeText: text, limit: 25 })
     }
-    else {
-      ctx.currentPage = 1
-      this.totalRows = 0
-      return []
-    }
+    
+    this.organizationOptions = _.unionBy(this.selectedOrganizations, foundOrganizations, o => o.OrganizationUID)
   }
   finally {
-    // TODO Handle error
-    this.loading = false
+    this.isLoadingOrganization = false
   }
 }
+/*
+async function selectOrganizations (organizationUIDs){
+  if (organizationUIDs && organizationUIDs.length){
+    this.organizationOptions = await this.$kronosApi.getOrganizations({
+      OrganizationUIDs: asArray(organizationUIDs)
+    })
+    const uids = asArray(organizationUIDs)
 
-// ===================
-// Get total number of rows
-// ===================
-function getTotalRows (ctx, _this, _rowsLength){
-  if (_rowsLength < ctx.perPage) return ctx.perPage * ctx.currentPage
-  else return ctx.perPage * ctx.currentPage + 1
-}
+    this.selectedOrganizations = this.organizationOptions.filter(o =>
+      uids.includes(o.OrganizationUID)
+    )
+  }
+  else {
+    this.organizationOptions = []
+    this.selectedOrganizations = []
+  }
+}*/
 
 // ===================
 // Build Query to pass to kronos api
 // ===================
-function buildQuery ({ filter, sortBy, sortDesc, perPage, currentPage }){
-  // TODO:
-  // apply Boostrap standard paramters: filter, sortBy, sortDesc, perPage, currentPage
-  // and contact search filter to KronosQuery
-  const skipRecord = currentPage > 0 ? (currentPage - 1) * perPage : 0
+function buildQuery (){
+  const query = cleanUp({
+    FreeText               : this.name,
+    IsBroadSearch          : this.isBroadSearch,
+    //    IsFunded: todo
+    Governments            : this.selectedCountries.map(o => o.Code),
+    CountryScope           : (this.selectedCountryScope || {}).value,
+    OrganizationUIDs       : this.selectedOrganizations.map(o => o.OrganizationUID),
+    EventUIDs              : this.selectedMeetings.map(o => o.EventUID),
+    EventRegistrationStatus: this.selectedAttendances.reduce((r, v) => r + v.value, 0)
 
-  const query = {
-    Governments: filter.selectedCountry.length
-      ? getCountryCodes(filter)
-      : undefined,
-    limit           : perPage || 25,
-    CountryScope    : filter.selectedScop.value || undefined,
-    skip            : skipRecord,
-    FreeText        : filter.name || undefined,
-    OrganizationUIDs: filter.selectedOrganization.length
-      ? getOrganizationIds(filter)
-      : undefined,
-    EventUIDs: filter.selectedMeetings.length
-      ? getSelectedMeetingsIds(filter)
-      : undefined,
-    EventRegistrationStatus: filter.selectedAttendance.length
-      ? getAttendanceValue(filter)
-      : undefined,
-    StatusForEventUID1: getMeetingsIds(filter, 0),
-    StatusForEventUID2: getMeetingsIds(filter, 1),
-    StatusForEventUID3: getMeetingsIds(filter, 2),
-    StatusForEventUID4: getMeetingsIds(filter, 3)
+  })
+
+  if (!_.isEmpty(query)){
+    query.StatusForEventUIDs = _(this.majorEvents.map(o => o.EventUID)).union(query.EventUIDs).compact().value()
+
+    query.StatusForEventUID1 = query.StatusForEventUIDs[0] //backward compaty
+    query.StatusForEventUID2 = query.StatusForEventUIDs[1]
+    query.StatusForEventUID3 = query.StatusForEventUIDs[2]
+    query.StatusForEventUID4 = query.StatusForEventUIDs[3]
   }
 
-  return query
+  return cleanUp(query)
 }
+function wrapQS (name, options){
+  const {  key, find, type } = (options || {})
+  let { isArray } = (options || { })
 
-function getSelectedMeetingsIds (filter){
-  const meetingIds = []
+  isArray = isArray !== false
 
-  filter.selectedMeetings.forEach((value) => {
-    meetingIds.push(value.EventUID)
-  })
-  return meetingIds
-}
+  return {
+    get (){
+      let values = asArray(this.queryString(name))
 
-function getMeetingsIds (filter, index){
-  let meetingId
+      if (type == Boolean) values = asArray(values).map(v => Boolean(v))
+      if (type == Number)  values = asArray(values).map(v => Number(v))
 
-  if (filter.selectedMeetings.length > index)
-    meetingId = filter.selectedMeetings[index].EventUID
+      if (key)  values = values.map(v => ({ [key]: v }))
+      if (find) values = values.map(v => find.call(this, v) || v)
 
-  return meetingId
-}
+      return isArray ? values : values[0]
+    },
+    set (values){
+      values = asArray(values)
 
-function getOrganizationIds (filter){
-  const oraganizationIds = []
+      if (key)
+        values = values.map(o => o[key])
 
-  filter.selectedOrganization.forEach((value) => {
-    oraganizationIds.push(value.OrganizationUID)
-  })
-  return oraganizationIds
-}
-
-function getCountryCodes (filter){
-  const countryCodes = []
-
-  filter.selectedCountry.forEach((value) => {
-    countryCodes.push(value.Code)
-  })
-  return countryCodes
-}
-
-function getAttendanceValue (filter){
-  let registrationStatus = 0
-
-  if (filter.selectedAttendance !== undefined)
-    filter.selectedAttendance.forEach((element) => {
-      registrationStatus += element.value
-    })
-  return registrationStatus || undefined
-}
-
-async function getMeetingsList (){
-  const query = {
-    FullText: ''
+      this.queryString(name, values)
+    }
   }
-  const rows = await this.$kronosApi.getMeetings(query)
-
-  return rows
 }
 
-function clearSelectedOptions (type){
-  switch (type){
-  case 'meetings':
-    this.filter.selectedMeetings = []
-    break
-  case 'organization':
-    this.filter.selectedOrganization = []
-    break
-  case 'attendance':
-    this.filter.selectedAttendance = []
-    break
-  case 'flag':
-    this.filter.selectedFlag = []
-    break
-  case 'country':
-    this.filter.selectedCountry = []
-    break
-  case 'scope':
-    this.filter.selectedScop = ''
-    break
-  case 'organization-type':
-    this.filter.selectedOrganizationType = ''
-    break
+function queryString (name, value){
+  if (value !== undefined){
+    const params = { [name]: value }
+    const newQueryString =  Object.assign({}, this.$route.query, params)
+
+    this.$router.push({ query: newQueryString })
   }
+
+  return this.$route.query[name]
+}
+
+function asArray (data){
+  return _([ data ])
+    .flatten()
+    .compact()
+    .value()
+}
+
+function cleanUp (obj){
+  return _(obj).omitBy(v =>
+    (_.isNil(v)) ||
+    (_.isString(v) && _.isEmpty(v)) ||
+    (_.isObject(v) && _.isEmpty(v)) ||
+    (_.isArray(v)  && _.isEmpty(v))
+  ).value()
 }
 </script>

@@ -69,7 +69,7 @@ export default {
       ]
     }
   },
-  router: { linkActiveClass: 'active-link', middleware: [ 'redirects'] },
+  router: { linkActiveClass: 'active-link', middleware: [ 'auth', 'redirects'] },
   fontawesome,
   ssoScbd
 }
