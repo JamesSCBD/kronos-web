@@ -80,6 +80,7 @@
 
 <script>
 import _ from 'lodash'
+import { mapGetters } from 'vuex'
 import { CountryCol, EmailCol } from './Columns'
 import mixin from './mixin'
 
@@ -129,6 +130,11 @@ export default {
       pageOptions,
       registrationStatuses
     }
+  },
+  computed: {
+    ...mapGetters({
+      getEventCodeById: 'conferences/getEventCodeById'
+    })
   },
   mounted,
   methods: {
@@ -253,7 +259,7 @@ function updateColumns (){
         ...this.columns,
         {
           key     : 'StatusEvent' + (index + 1) + 'Date',
-          label   : eventUIDs[index],
+          label   : this.getEventCodeById(eventUIDs[index]),
           sortable: true
         }
       ]
