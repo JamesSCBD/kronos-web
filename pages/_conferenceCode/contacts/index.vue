@@ -46,12 +46,6 @@
                   :show-no-results="false"
                   :searchable="true"
                 >
-                  <template slot="tag" slot-scope="{ option, remove }">
-                    <span class="custom__tag">
-                      <span>{{ option.Code }}</span>
-                      <span class="custom__remove" @click="remove(option)">&times;</span>
-                    </span>
-                  </template>
                   <template slot="selection" slot-scope="{ values }">
                     <span
                       v-if="values.length > 2"
@@ -83,11 +77,12 @@
                   :show-no-results="false"
                 >
                   <template slot="tag" slot-scope="{ option, remove }">
-                    <span class="custom__tag">
-                      <span>{{ option.code }}</span>
-                      <span class="custom__remove" @click="remove(option)">&times;</span>
+                    <span class="multiselect__tag">
+                      <span>{{ option.Title.substr(0,3) }}</span>
+                      <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="remove(option)" />
                     </span>
                   </template>
+
                   <template slot="clear">
                     <div
                       v-if="selectedAttendances.length"
@@ -127,9 +122,9 @@
                 <i v-if="props.option.MemberCount>=0">({{ props.option.MemberCount }})</i>
               </template>
               <template slot="tag" slot-scope="{ option, remove }">
-                <span class="custom__tag">
+                <span class="multiselect__tag">
                   <span>{{ option.OrganizationAcronym || option.OrganizationName }}</span>
-                  <span class="custom__remove" @click="remove(option)">&times;</span>
+                  <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="remove(option)" />
                 </span>
               </template>
               <template slot="selection" slot-scope="{ values }">
@@ -161,12 +156,6 @@
               :clear-on-select="false"
               :close-on-select="false"
             >
-              <template slot="tag" slot-scope="{ option, remove }">
-                <span class="custom__tag">
-                  <span>{{ option.Title }}</span>
-                  <span class="custom__remove" @click="remove(option)">&times;</span>
-                </span>
-              </template>
               <template slot="selection" slot-scope="{ values }">
                 <span
                   v-if="values.length > 2"
@@ -200,12 +189,6 @@
                   :clear-on-select="false"
                   :close-on-select="false"
                 >
-                  <template slot="tag" slot-scope="{ option, remove }">
-                    <span class="custom__tag">
-                      <span>{{ option.Name }}</span>
-                      <span class="custom__remove" @click="remove(option)">&times;</span>
-                    </span>
-                  </template>
                   <template slot="selection" slot-scope="{ values }">
                     <span
                       v-if="values.length > 1"
@@ -260,12 +243,6 @@
               :clear-on-select="false"
               :close-on-select="false"
             >
-              <template slot="tag" slot-scope="{ option, remove }">
-                <span class="custom__tag">
-                  <span>{{ option.Title }}</span>
-                  <span class="custom__remove" @click="remove(option)">&times;</span>
-                </span>
-              </template>
               <template slot="selection" slot-scope="{ values }">
                 <span
                   v-if="values.length > 2"
@@ -305,9 +282,9 @@ const Flags = [
 ]
 
 const Attendances = [
-  { Title: 'Nominated',  Value: 1 << 0, code: 'Nom' },
-  { Title: 'Accredited', Value: 1 << 1, code: 'Acc' },
-  { Title: 'Registered', Value: 1 << 2, code: 'Reg' }
+  { Title: 'Nominated',  Value: 1 << 0 },
+  { Title: 'Accredited', Value: 1 << 1 },
+  { Title: 'Registered', Value: 1 << 2 }
 ]
 const CountryScopes = [
   { Title: 'Goverment', Code: 'GOV' },
