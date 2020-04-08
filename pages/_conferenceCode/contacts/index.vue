@@ -11,11 +11,9 @@
               <div class="form-group">
                 <BFormInput
                   id="filterInput"
-                  v-model="name"
+                  v-model="freeText"
                   type="search"
                   placeholder="Name / Barcode / #tags"
-
-                  @input="onNameTextChange"
                 />
               </div>
             </div>
@@ -33,12 +31,12 @@
             <div class="col-md-7 col-sm-7 col-xs-12 pr-0">
               <div class="form-group">
                 <multiselect
-                  v-model="selectedMeetings"
+                  v-model="selectedEvents"
                   label="Code"
                   track-by="EventUID"
                   placeholder="Meetings"
                   open-direction="bottom"
-                  :options="meetingsOptions"
+                  :options="eventOptions"
                   group-values="events"
                   group-label="title"
                   :group-select="false"
@@ -62,9 +60,9 @@
                   </template>
                   <template slot="clear">
                     <div
-                      v-if="selectedMeetings.length"
+                      v-if="selectedEvents.length"
                       class="multiselect__clear"
-                      @mousedown.prevent.stop="selectedMeetings = null"
+                      @mousedown.prevent.stop="selectedEvents = null"
                     />
                   </template>
                 </multiselect>
@@ -74,8 +72,8 @@
               <div class="form-group">
                 <multiselect
                   v-model="selectedAttendances"
-                  label="name"
-                  track-by="value"
+                  label="Title"
+                  track-by="Value"
                   placeholder="Attendance "
                   open-direction="bottom"
                   :options="attendanceOptions"
@@ -154,8 +152,8 @@
           <div class="form-group">
             <multiselect
               v-model="selectedFlags"
-              label="name"
-              track-by="value"
+              label="Title"
+              track-by="Code"
               placeholder="Special Flags..."
               :options="flagOptions"
               :multiple="true"
@@ -165,7 +163,7 @@
             >
               <template slot="tag" slot-scope="{ option, remove }">
                 <span class="custom__tag">
-                  <span>{{ option.name }}</span>
+                  <span>{{ option.Title }}</span>
                   <span class="custom__remove" @click="remove(option)">&times;</span>
                 </span>
               </template>
@@ -228,10 +226,10 @@
               <div class="form-group">
                 <multiselect
                   v-model="selectedCountryScope"
-                  label="name"
-                  track-by="value"
+                  label="Title"
+                  track-by="Code"
                   placeholder="Scope"
-                  :options="scopeOptions"
+                  :options="countryScopeOptions"
                   :multiple="false"
                   :searchable="false"
                   :clear-on-select="false"
@@ -239,7 +237,7 @@
                 >
                   <template slot="clear">
                     <div
-                      v-if="selectedCountryScope !== ''"
+                      v-if="selectedCountryScope.Code"
                       class="multiselect__clear"
                       @mousedown.prevent.stop="selectedCountryScope = null"
                     />
@@ -295,12 +293,26 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 import { readOnly } from '@roles'
 import ContactsList from '@components/list/ContactsList'
 import { BFormInput, BFormCheckbox } from 'bootstrap-vue'
 import Multiselect from 'vue-multiselect'
 import _ from 'lodash'
+
+const Flags = [
+  { Title: 'Funded', Code: 'funded' }
+]
+
+const Attendances = [
+  { Title: 'Nominated',  Value: 1 << 0, code: 'Nom' },
+  { Title: 'Accredited', Value: 1 << 1, code: 'Acc' },
+  { Title: 'Registered', Value: 1 << 2, code: 'Reg' }
+]
+const CountryScopes = [
+  { Title: 'Goverment', Code: 'GOV' },
+  { Title: 'Country (Address)', Code: 'CTR' }
+]
 
 export default {
   name      : 'Contacts',
@@ -310,76 +322,136 @@ export default {
     BFormCheckbox,
     Multiselect
   },
-  data,
+  data (){
+    return {
+      isLoadingOrganization: false,
+      organizationOptions  : []
+    }
+  },
   computed: {
     query                    : buildQuery,
-    meetingsOptions          : getMeetingsOptions,
-    name                     : wrapQS('name',  { isArray: false }).get,
-    isBroadSearch            : wrapQS('broad', { isArray: false, type: Boolean }),
-    selectedOrganizations    : wrapQS('organization', { key: 'OrganizationUID',       find (v){ return this.organizationOptions.find(o => o.OrganizationUID == v.OrganizationUID) } }),
-    selectedOrganizationTypes: wrapQS('types',        { key: 'OrganizationTypeUID',   find (v){ return this.organizationTypesOptions.find(o => o.OrganizationTypeUID == v.OrganizationTypeUID) } }),
-    selectedCountries        : wrapQS('country',      { key: 'Code',                  find (v){ return this.countryOptions.find(o => o.Code == v.Code) } }),
-    selectedMeetings         : wrapQS('meeting',      { key: 'EventUID',              find (v){ return this.events.find(o => o.EventUID == v.EventUID) } }),
-    selectedFlags            : wrapQS('flag',         { key: 'value',                 find (v){ return this.flagOptions.find(o => o.value == v.value) } }),
-    selectedCountryScope     : wrapQS('scope',        { key: 'value', isArray: false, find (v){ return this.scopeOptions.find(o => o.value == v.value) } }),
-    selectedAttendances      : wrapQS('attendance',   { key: 'value', type: Number,   find (v){ return this.attendanceOptions.find(o => o.value == v.value) } }),
+    freeText                 : { get: getFreeText, set: _.debounce(setFreeText, 400) },
+    isBroadSearch            : { get: getBroadSearch, set: setBroadSearch },
+    selectedCountries        : { get: getSelectedCountries, set: setSelectedCountries },
+    selectedCountryScope     : { get: getSelectedCountryScope, set: setSelectedCountryScope },
+    selectedOrganizations    : { get: getSelectedOrganizations, set: setSelectedOrganizations },
+    selectedOrganizationTypes: { get: getSelectedOrganizationTypes, set: setSelectedOrganizationTypes },
+    selectedEvents           : { get: getSelectedEvents, set: setSelectedEvents },
+    selectedFlags            : { get: getSelectedFlags, set: setSelectedFlags },
+    selectedAttendances      : { get: getSelectedAttendances, set: setSelectedAttendances },
+    flagOptions              : { get: () => Flags },
+    attendanceOptions        : { get: () => Attendances },
+    countryScopeOptions      : { get: () => CountryScopes },
+    eventOptions             : getEventOptions,
     ...mapGetters({
-      countryOptions          : 'countries/list',
-      organizationTypesOptions: 'organizations/types',
-      selectedConference      : 'conferences/selected',
-      majorEvents             : 'conferences/majorEvents',
-      events                  : 'conferences/events'
+      countryOptions               : 'countries/list',
+      organizationTypesOptions     : 'organizations/types',
+      selectedConference           : 'conferences/selected',
+      majorEvents                  : 'conferences/majorEvents',
+      events                       : 'conferences/events',
+      getCachedEventById           : 'conferences/getEventById',
+      getCachedCountryByCode       : 'countries/getCountryByCode',
+      getCachedOrganizationById    : 'organizations/getOrganizationById',
+      getCachedOrganizationTypeById: 'organizations/getTypeById'
     })
   },
+  created (){
+    initOrganizationCache.call(this)
+  },
   methods: {
-    onNameTextChange        : _.debounce(wrapQS('name', { type: String }).set, 400),
     onOrganizationTextChange: _.debounce(searchOrganizations, 400),
-    queryString
+    queryString,
+    ...mapActions({
+      getOrganizations: 'organizations/getOrganizations'
+    })
   },
   auth: readOnly
 }
 
-// ===================
-//
-// ===================
-function data (){
-  return {
-    isLoadingOrganization: false,
-    organizationOptions  : [],
-    flagOptions          : [
-      { name: 'Funded', value: 1 },
-      { name: 'Priority', value: 2 }
-    ],
-    attendanceOptions: [
-      { name: 'Nominated', value: 1 << 0, code: 'Nom' },
-      { name: 'Accredited', value: 1 << 1, code: 'Acc' },
-      { name: 'Registered', value: 1 << 2, code: 'Reg' }
-    ],
-    scopeOptions: [
-      { name: 'Goverment', value: 'GOV' },
-      { name: 'Country (Address)', value: 'CTR' }
-    ]
-  }
+///////////////
+// FreeText //
+//////////////
+function getFreeText (){
+  const text = asArray(this.queryString('text'))[0]
+
+  return text || ''
 }
 
-function getMeetingsOptions (){
-  const now = new Date()
+function setFreeText (values){
+  const text = asArray(values)[0] || ''
 
-  const options = [ {
-    title : 'Main meetings',
-    events: _(this.events).filter(e => e.isMajor).orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ]).value()
-  }, {
-    title : 'Parallel meetings',
-    events: _(this.events).filter(e => e.isMinor).orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ]).value()
-  }, {
-    title : 'Other future meetings',
-    events: _(this.events).filter(e => !e.isMajor && !e.isMinor && new Date(e.EndDate) > now).orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ]).value()
-  }, {
-    title : 'Recent past meetings',
-    events: _(this.events).filter(e => !e.isMajor && !e.isMinor && new Date(e.EndDate) <= now).orderBy([ 'EndDate', 'StartDate', 'Code' ], [ 'desc', 'asc', 'asc' ]).value()
-  } ]
+  this.queryString('text', text)
+}
 
-  return _.filter(options, o => o.events.length)
+/////////////////
+// BroadSearch //
+/////////////////
+function getBroadSearch (){
+  const value = asArray(this.queryString('broad'))[0]
+
+  return [ 'true', '1' ].includes(value)
+}
+
+function setBroadSearch (values){
+  const value = asArray(values)[0]
+
+  this.queryString('broad', value || null)
+}
+
+///////////////
+// Countries //
+///////////////
+
+function getSelectedCountries (){
+  const codes = asArray(this.queryString('country'))
+
+  return codes.map(code => this.getCachedCountryByCode(code) || { Code: code, isMissing: true })
+}
+
+function setSelectedCountries (values){
+  const codes = asArray(values).map(o => o.Code)
+
+  this.queryString('country', codes)
+}
+
+function getSelectedCountryScope (){
+  const code = asArray(this.queryString('scope'))[0]
+
+  return this.countryScopeOptions.find(c => c.Code == code) || { Code: code, isMissing: true }
+}
+
+function setSelectedCountryScope (value){
+  const codes = asArray(value).map(o => o.Code)
+
+  this.queryString('scope', codes)
+}
+
+//////////////////
+// organization //
+//////////////////
+
+function getSelectedOrganizationTypes (){
+  const ids = asArray(this.queryString('type'))
+
+  return ids.map(id => this.getCachedOrganizationTypeById(id) || { OrganizationTypeUID: id, isMissing: true })
+}
+
+function setSelectedOrganizationTypes (values){
+  const ids = asArray(values).map(o => o.OrganizationTypeUID)
+
+  this.queryString('type', ids)
+}
+
+function getSelectedOrganizations (){
+  const ids = asArray(this.queryString('organization'))
+
+  return ids.map(id => this.getCachedOrganizationById(id) || { OrganizationUID: id, isMissing: true })
+}
+
+function setSelectedOrganizations (values){
+  const ids = asArray(values).map(o => o.OrganizationUID)
+
+  this.queryString('organization', ids)
 }
 
 async function searchOrganizations (text){
@@ -389,7 +461,7 @@ async function searchOrganizations (text){
 
     if (text){
       this.organizationOptions = this.selectedOrganizations
-      foundOrganizations = await this.$kronosApi.getOrganizations({ FreeText: text, limit: 25 })
+      foundOrganizations = await this.getOrganizations({ FreeText: text, limit: 25 })
     }
     
     this.organizationOptions = _.unionBy(this.selectedOrganizations, foundOrganizations, o => o.OrganizationUID)
@@ -398,44 +470,103 @@ async function searchOrganizations (text){
     this.isLoadingOrganization = false
   }
 }
-/*
-async function selectOrganizations (organizationUIDs){
-  if (organizationUIDs && organizationUIDs.length){
-    this.organizationOptions = await this.$kronosApi.getOrganizations({
-      OrganizationUIDs: asArray(organizationUIDs)
-    })
-    const uids = asArray(organizationUIDs)
 
-    this.selectedOrganizations = this.organizationOptions.filter(o =>
-      uids.includes(o.OrganizationUID)
-    )
-  }
-  else {
-    this.organizationOptions = []
-    this.selectedOrganizations = []
-  }
-}*/
+async function initOrganizationCache (){
+  const missingOrganizations = this.selectedOrganizations.filter(o => o.isMissing)
+
+  if (missingOrganizations.length)
+    this.organizationOptions = await this.getOrganizations({ OrganizationUIDs: missingOrganizations.map(o => o.OrganizationUID) })
+}
+
+///////////
+// Flags //
+///////////
+
+function getSelectedFlags (){
+  const codes = asArray(this.queryString('flag'))
+
+  return codes.map(code => this.flagOptions.find(o => o.Code == code) || { Code: code, isMissing: true })
+}
+
+function setSelectedFlags (values){
+  const codes = asArray(values).map(o => o.Code)
+
+  this.queryString('flag', codes)
+}
+
+/////////////////
+// Attendances //
+////////////////
+
+function getSelectedAttendances (){
+  const ids = asArray(this.queryString('attendance'))
+
+  return ids.map(id => this.attendanceOptions.find(o => o.Value == id) || { Value: id, isMissing: true })
+}
+
+function setSelectedAttendances (values){
+  const ids = asArray(values).map(o => o.Value)
+
+  this.queryString('attendance', ids)
+}
+
+//////////////
+// Meetings //
+//////////////
+function getSelectedEvents (){
+  const ids = asArray(this.queryString('event'))
+
+  return ids.map(id => this.getCachedEventById(id) || { EventUID: id, isMissing: true })
+}
+
+function setSelectedEvents (values){
+  const ids = asArray(values).map(o => o.EventUID)
+
+  this.queryString('event', ids)
+}
+
+function getEventOptions (){
+  const now = new Date()
+
+  const options = [ {
+    title : 'Main meetings',
+    events: _(this.events).filter(e => e.isMajor).orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ]).value()
+  }, {
+    title : 'Parallel meetings',
+    events: _(this.events).filter(e => e.isMinor).orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ]).value()
+  }, {
+    title : 'Future meetings',
+    events: _(this.events).filter(e => !e.isMajor && !e.isMinor && new Date(e.EndDate) > now).orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ]).value()
+  }, {
+    title : 'Recent past meetings',
+    events: _(this.events).filter(e => !e.isMajor && !e.isMinor && new Date(e.EndDate) <= now).orderBy([ 'EndDate', 'StartDate', 'Code' ], [ 'desc', 'asc', 'asc' ]).value()
+  } ]
+
+  return _.filter(options, o => o.events.length)
+}
 
 // ===================
 // Build Query to pass to kronos api
 // ===================
 function buildQuery (){
   const query = cleanUp({
-    FreeText               : this.name,
-    IsBroadSearch          : this.isBroadSearch,
-    //    IsFunded: todo
+    FreeText               : this.freeText,
     Governments            : this.selectedCountries.map(o => o.Code),
-    CountryScope           : (this.selectedCountryScope || {}).value,
     OrganizationUIDs       : this.selectedOrganizations.map(o => o.OrganizationUID),
-    EventUIDs              : this.selectedMeetings.map(o => o.EventUID),
-    EventRegistrationStatus: this.selectedAttendances.reduce((r, v) => r + v.value, 0)
-
+    EventUIDs              : this.selectedEvents.map(o => o.EventUID),
+    EventRegistrationStatus: this.selectedAttendances.reduce((r, v) => r + v.value, 0) || undefined
   })
 
-  if (!_.isEmpty(query)){
+  if (query.FreeText)    query.IsBroadSearch = this.isBroadSearch || undefined
+  if (query.Governments) query.CountryScope  = (this.selectedCountryScope || {}).value
+  
+  if (this.selectedFlags.some(o => o.Code == 'funded'))
+    query.IsFunded = true
+
+  if (!_.isEmpty(cleanUp(query))){
     query.StatusForEventUIDs = _(this.majorEvents.map(o => o.EventUID)).union(query.EventUIDs).compact().value()
 
-    query.StatusForEventUID1 = query.StatusForEventUIDs[0] //backward compaty
+    query.StatusForEventUID1 = query.StatusForEventUIDs[0] //backward compatibility
     query.StatusForEventUID2 = query.StatusForEventUIDs[1]
     query.StatusForEventUID3 = query.StatusForEventUIDs[2]
     query.StatusForEventUID4 = query.StatusForEventUIDs[3]
@@ -443,39 +574,11 @@ function buildQuery (){
 
   return cleanUp(query)
 }
-function wrapQS (name, options){
-  const {  key, find, type } = (options || {})
-  let { isArray } = (options || { })
-
-  isArray = isArray !== false
-
-  return {
-    get (){
-      let values = asArray(this.queryString(name))
-
-      if (type == Boolean) values = asArray(values).map(v => Boolean(v))
-      if (type == Number)  values = asArray(values).map(v => Number(v))
-
-      if (key)  values = values.map(v => ({ [key]: v }))
-      if (find) values = values.map(v => find.call(this, v) || v)
-
-      return isArray ? values : values[0]
-    },
-    set (values){
-      values = asArray(values)
-
-      if (key)
-        values = values.map(o => o[key])
-
-      this.queryString(name, values)
-    }
-  }
-}
 
 function queryString (name, value){
   if (value !== undefined){
-    const params = { [name]: value }
-    const newQueryString =  Object.assign({}, this.$route.query, params)
+    const params = { [name]: value || undefined }
+    const newQueryString =  { ...this.$route.query, ...params }
 
     this.$router.push({ query: newQueryString })
   }

@@ -38,6 +38,16 @@ export const getters = {
 
   events ({ activeEvents }){
     return activeEvents
+  },
+
+  getEventById ({ activeEvents }){
+    return id => activeEvents.find(o => o.EventUID == id)
+  },
+  getEventByCode ({ activeEvents }){
+    return code => activeEvents.find(o => o.Code == code)
+  },
+  getEventCodeById ({ activeEvents }){
+    return id => (activeEvents.find(o => o.EventUID == id) || {}).Code || id
   }
 }
 

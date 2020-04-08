@@ -8,8 +8,8 @@ export const getters   = {
 
   list (state){ return state.countries },
     
-  getCountryByCode (state){
-    return code => state.countries.find(c => c.Code == code.toLowerCase())
+  getCountryByCode ({ countries }){
+    return code => countries.find(c => c.Code == code.toLowerCase())
   },
 
   getNameByCode (state, getters){
