@@ -26,6 +26,7 @@ export default {
     'plugins/global-component-registry.js', 
     'plugins/fa-to-coreui-icons/index.js',
     'plugins/register-apis.js',
+    'plugins/global-filters.js'
    ],
   css    : [
     { src: 'node_modules/@coreui/icons/css/all.min.css', lang: 'css' },

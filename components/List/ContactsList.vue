@@ -57,22 +57,22 @@
       <template v-slot:cell(StatusEvent1Date)="data">
         <span
           :class="registrationStatuses[data.item.StatusEvent1]"
-        >{{ data.item.StatusEvent1Date | toLocalDate }}</span>
+        >{{ data.item.StatusEvent1Date | datetime }}</span>
       </template>
       <template v-slot:cell(StatusEvent2Date)="data">
         <span
           :class="registrationStatuses[data.item.StatusEvent2]"
-        >{{ data.item.StatusEvent2Date | toLocalDate }}</span>
+        >{{ data.item.StatusEvent2Date | datetime }}</span>
       </template>
       <template v-slot:cell(StatusEvent3Date)="data">
         <span
           :class="registrationStatuses[data.item.StatusEvent3]"
-        >{{ data.item.StatusEvent3Date | toLocalDate }}</span>
+        >{{ data.item.StatusEvent3Date | datetime }}</span>
       </template>
       <template v-slot:cell(StatusEvent4Date)="data">
         <span
           :class="registrationStatuses[data.item.StatusEvent4]"
-        >{{ data.item.StatusEvent4Date | toLocalDate }}</span>
+        >{{ data.item.StatusEvent4Date | datetime }}</span>
       </template>
     </BTable>
   </div>
@@ -113,11 +113,8 @@ const registrationStatuses = {
 export default {
   name      : 'ContactsList',
   components: { CountryCol, EmailCol },
-  filters   : {
-    toLocalDate
-  },
-  mixins: [ mixin ],
-  props : {
+  mixins    : [ mixin ],
+  props     : {
     baseQuery: { type: Object, default: () => ({}) }
   },
   data (){
@@ -231,14 +228,6 @@ function saveQueryString (){
   const newQueryString =  Object.assign({}, this.$route.query, params)
 
   this.$router.push({ query: newQueryString })
-}
-
-//=================================
-//
-//=================================
-function toLocalDate (value){
-  if (value) return new Date(value).toLocaleString()
-  else return ''
 }
 
 //=================================
