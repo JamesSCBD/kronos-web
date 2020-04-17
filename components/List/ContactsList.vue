@@ -36,6 +36,16 @@
           <strong>Loading...</strong>
         </div>
       </template>
+      <template v-slot:head(Selected)>
+        <BFormCheckbox
+          v-model="isAllSelected"
+          :indeterminate="isPartialySelected"
+          @change="onSelectedAll"
+        />
+      </template>
+      <template v-slot:cell(Selected)="data">
+        <BFormCheckbox v-model="data.item.Selected" @change="onSelected(data.item)" />
+      </template>
       <template v-slot:head(Title)>
         <span class="text-center">
           <CIcon name="idBadge" />
@@ -80,11 +90,12 @@
 
 <script>
 import _ from 'lodash'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 import { CountryCol, EmailCol } from './Columns'
 import mixin from './mixin'
 
 const baseColumns = [
+  { key: 'Selected', label: '', sortable: false },
   { key: 'Title', label: '', sortable: false },
   { key: 'FirstName', label: 'First Name', sortable: true },
   { key: 'LastName', label: 'Last Name', sortable: true },
@@ -125,13 +136,27 @@ export default {
       currentPage: defaultPage,
       pageSize   : defaultPageSize,
       pageOptions,
-      registrationStatuses
+      registrationStatuses,
+      contacts   : []
     }
   },
   computed: {
     ...mapGetters({
-      getEventCodeById: 'conferences/getEventCodeById'
-    })
+      getEventCodeById : 'conferences/getEventCodeById',
+      isContactSelected: 'contacts/isContactSelected'
+    }),
+    isAllSelected (){
+      return this.contacts.every(c => this.isContactSelected(c.ContactUID)) && this.contacts.length > 0
+    },
+    isPartialySelected (){
+      return (this.contacts.some(c => this.isContactSelected(c.ContactUID)) && !this.isAllSelected)
+    },
+    selectedContacts (){
+      return this.contacts.filter(c => this.isContactSelected(c.ContactUID))
+    },
+    notSelectedContacts (){
+      return this.contacts.filter(c => !this.isContactSelected(c.ContactUID))
+    }
   },
   mounted,
   methods: {
@@ -140,7 +165,13 @@ export default {
     updateColumns,
     loadQueryString,
     saveQueryString,
-    buildQuery
+    buildQuery,
+    onSelected,
+    onSelectedAll,
+    ...mapActions({
+      addToSelection     : 'contacts/addToSelection',
+      removeFromSelection: 'contacts/removeFromSelection'
+    })
   }
 }
 
@@ -174,6 +205,7 @@ function buildQuery (){
 async function searchContacts (ctx){
   try {
     this.loading = true
+    this.contacts = []
     
     this.updateColumns()
     this.saveQueryString()
@@ -187,7 +219,15 @@ async function searchContacts (ctx){
 
     this.totalRows = 1234 //TODO
 
-    return rows.map(r => ({ ...r, identifier: r.ContactUID }))
+    const _this = this
+
+    this.contacts = rows.map(r => ({
+      ...r,
+      get Selected (){
+        return _this.isContactSelected(this.ContactUID)
+      }
+    }))
+    return this.contacts
   }
   finally {
     this.loading = false
@@ -254,6 +294,31 @@ function updateColumns (){
       ]
 }
 
+//=================================
+// Call on when user click on contact checkbox
+//=================================
+function onSelected (item){
+  const contact = cleanContact(item)
+
+  if (this.isContactSelected(contact.ContactUID))
+    this.removeFromSelection(contact)
+  else this.addToSelection(contact)
+}
+
+//=================================
+// Call on when user click on select all checkbox
+//=================================
+function onSelectedAll (){
+  if (this.isAllSelected)
+    this.selectedContacts.forEach(c => this.removeFromSelection(cleanContact(c)))
+  else this.notSelectedContacts.forEach(c => this.addToSelection(cleanContact(c)))
+}
+
+function cleanContact (item){
+  const { Selected, ...contact } = item
+
+  return contact
+}
 </script>
 <style scoped>
 .list {
