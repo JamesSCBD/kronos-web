@@ -1,10 +1,10 @@
 <template>
   <CSidebarNav>
     <BFormSelect id="page-size" v-model="conferenceId" class="form-control" :options="conferenceOptions" @change="setSelectedConference" />
-    <CSidebarNavItem name="Dashbord" icon="tachometerAlt" :to="`/${conferenceCode}/dashboard`" />
+    <CSidebarNavItem name="Dashbord" icon="tachometerAlt" :to="`/dashboard`" />
     <CSidebarNavTitle> Reg </CSidebarNavTitle>
-    <CSidebarNavItem name="Contacts" icon="addressBook" :to="`/${conferenceCode}/contacts`" />
-    <CSidebarNavItem name="Organizations" icon="building" :to="`/${conferenceCode}/organizations`" />
+    <CSidebarNavItem name="Contacts" icon="addressBook" :to="`/contacts`" />
+    <CSidebarNavItem name="Organizations" icon="building" :to="`/organizations`" />
     <CSidebarNavItem name="Conferences" icon="users" :to="`/conferences`" />
   </CSidebarNav>
 </template>
@@ -21,8 +21,7 @@ export default {
     conferenceOptions,
     ...mapGetters({
       conferenceList: 'conferences/list',
-      conferenceId  : 'conferences/selectedId',
-      conferenceCode: 'conferences/selectedCode'
+      conferenceId  : 'conferences/selectedId'
     })
   },
   methods: {
