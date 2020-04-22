@@ -1,19 +1,11 @@
 <template>
   <div>
-    <div class="paginationRow">
-      <BFormSelect id="page-size" v-model="pageSize" class="form-control" :options="pageOptions" />
-      <BPagination
-        v-model="currentPage"
-        :total-rows="totalRows"
-        :per-page="pageSize"
-        prev-text="Prev"
-        next-text="Next"
-        aria-controls="KContactsList"
-        hide-goto-end-buttons
-        limit="4"
-      />
-    </div>
-
+    <pager
+      :page.sync="page"
+      :page-size.sync="pageSize"
+      :record-count="totalRows"
+      :sync-query-string="true"
+    />
     <BTable
       id="KContactsList"
       :items="searchContacts"
@@ -25,7 +17,7 @@
       head-variant="light"
       sort-icon-left
       :per-page="pageSize"
-      :current-page="currentPage"
+      :current-page="page"
       :filter="baseQuery"
     >
       <!-- https://bootstrap-vue.js.org/docs/components/table#scoped-field-slots -->
@@ -93,6 +85,7 @@ import _ from 'lodash'
 import { mapGetters, mapActions } from 'vuex'
 import { CountryCol, EmailCol } from './Columns'
 import mixin from './mixin'
+import pager from '~/components/controls/Pager'
 
 const baseColumns = [
   { key: 'Selected', label: '', sortable: false },
@@ -106,15 +99,6 @@ const baseColumns = [
   { key: 'Score', label: 'Rank', sortable: true }
 ]
 
-const pageOptions = [
-  { value: 25, text: '25/page' },
-  { value: 50, text: '50/page' },
-  { value: 100, text: '100/page' },
-  { value: 250, text: '250/page' }
-]
-const defaultPageSize = pageOptions[0].value
-const defaultPage     = 1
-
 const registrationStatuses = {
   1: 'nominated-text',
   2: 'accredited-text',
@@ -123,21 +107,20 @@ const registrationStatuses = {
 
 export default {
   name      : 'ContactsList',
-  components: { CountryCol, EmailCol },
+  components: { CountryCol, EmailCol, pager },
   mixins    : [ mixin ],
   props     : {
     baseQuery: { type: Object, default: () => ({}) }
   },
   data (){
     return {
-      loading    : false,
-      columns    : [ ...baseColumns ],
-      totalRows  : 0,
-      currentPage: defaultPage,
-      pageSize   : defaultPageSize,
-      pageOptions,
-      registrationStatuses,
-      contacts   : []
+      loading  : false,
+      columns  : [ ...baseColumns ],
+      totalRows: 0,
+      page     : 1,
+      pageSize : 25,
+      contacts : [],
+      registrationStatuses
     }
   },
   computed: {
@@ -158,13 +141,9 @@ export default {
       return this.contacts.filter(c => !this.isContactSelected(c.ContactUID))
     }
   },
-  mounted,
   methods: {
-    resetPage,
     searchContacts,
     updateColumns,
-    loadQueryString,
-    saveQueryString,
     buildQuery,
     onSelected,
     onSelectedAll,
@@ -173,10 +152,6 @@ export default {
       removeFromSelection: 'contacts/removeFromSelection'
     })
   }
-}
-
-function mounted (){
-  this.loadQueryString()
 }
 
 //=================================
@@ -189,7 +164,7 @@ function buildQuery (){
     return null
 
   const limit = this.pageSize
-  const skip  = this.pageSize * (this.currentPage - 1)
+  const skip  = this.pageSize * (this.page - 1)
 
   if (limit) query.limit = limit
   if (skip)  query.skip  = skip
@@ -208,13 +183,11 @@ async function searchContacts (ctx){
     this.contacts = []
     
     this.updateColumns()
-    this.saveQueryString()
 
     const query = this.buildQuery()
 
     if (!query)
       return
-      
     const rows = await this.$kronosApi.getContacts(query)
 
     this.totalRows = 1234 //TODO
@@ -232,42 +205,6 @@ async function searchContacts (ctx){
   finally {
     this.loading = false
   }
-}
-
-//=================================
-//
-//=================================
-function resetPage (){
-  this.currentPage = defaultPage
-  this.totalRows = 0
-}
-
-//=================================
-//
-//=================================
-function loadQueryString (){
-  const { page, pageSize } = this.$route.query
-
-  this.currentPage = parseInt(page)     || defaultPage
-  this.pageSize    = parseInt(pageSize) || defaultPageSize
-}
-
-//=================================
-//
-//=================================
-function saveQueryString (){
-  const params = {
-    pageSize: undefined,
-    page    : undefined,
-    sorts   : undefined
-  }
-
-  if (this.currentPage != defaultPage)     params.page     = this.currentPage
-  if (this.pageSize    != defaultPageSize) params.pageSize = this.pageSize
-
-  const newQueryString =  Object.assign({}, this.$route.query, params)
-
-  this.$router.push({ query: newQueryString })
 }
 
 //=================================
@@ -323,21 +260,5 @@ function cleanContact (item){
 <style scoped>
 .list {
   width: 100%;
-}
-
-.paginationRow {
-  display: inline-block;
-  width: 100%;
-  text-align: right;
-}
-
-select#page-size {
-  display: inline;
-  width: auto;
-  margin: 0px 5px;
-}
-ul.pagination.b-pagination {
-  width: auto;
-  float: right;
 }
 </style>
