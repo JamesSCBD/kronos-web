@@ -1,13 +1,32 @@
-const sideBar = { show: true, min: false }
+/* eslint-disable no-param-reassign */
+const _state = () => ({
+  sideBar: {
+    show: true,
+    min : false,
+  },
+});
 
-export const state     = () => ({ sideBar })
-export const getters   = { isMin, isShow }
-export const mutations = { sideBarShowToggle, sideBarMinToggle }
+const _getters = {
+  isMin({ sideBar }) {
+    return sideBar.min;
+  },
 
-// geters
-function isMin  ({ sideBar }){ return sideBar.min }
-function isShow ({ sideBar }){ return sideBar.show }
+  isShow({ sideBar }) {
+    return sideBar.show;
+  },
+};
 
-// mutations
-function sideBarShowToggle (state){ state.sideBar.show = !state.sideBar.show }
-function sideBarMinToggle  (state){ state.sideBar.min = !state.sideBar.min }
+const _mutations = {
+  sideBarShowToggle(state) {
+    state.sideBar.show = !state.sideBar.show;
+  },
+  sideBarMinToggle(state) {
+    state.sideBar.min = !state.sideBar.min;
+  },
+};
+
+export {
+  _state as state,
+  _mutations as mutations,
+  _getters as getters,
+};

@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import mixin from './mixin'
+import mixin from './mixin';
 
 const columns = [
   { key: 'OrganizationName', label: 'Organization' },
@@ -64,34 +64,36 @@ const columns = [
   { key: 'MemberCount', label: 'Member Count' },
   // { key: 'EventCount', label: '# of Events' },
   { key: 'Country', label: 'Country', class: 'text-center' },
-  { key: 'Score', label: 'Rank' }
-]
+  { key: 'Score', label: 'Rank' },
+];
 
 export default {
   name   : 'OrganizationsList',
   mixins : [ mixin ],
   data,
-  methods: { remove }
-}
+  methods: { remove },
+};
 
-function data (){
-  const { conferenceCode } = this.$route.params
-  const editPath = `/${conferenceCode}/organizations/`
-  const currentPage = 1
+function data() {
+  const { conferenceCode } = this.$route.params;
+  const editPath           = `/${conferenceCode}/organizations/`;
+  const currentPage        = 1;
 
-  const perPage = 25
+  const perPage     = 25;
   const pageOptions = [
     { value: 25, text: '25/page' },
     { value: 50, text: '50/page' },
     { value: 100, text: '100/page' },
-    { value: 250, text: '250/page' }
-  ]
+    { value: 250, text: '250/page' },
+  ];
 
-  return { columns, editPath, currentPage, perPage, pageOptions }
+  return {
+    columns, editPath, currentPage, perPage, pageOptions,
+  };
 }
 
-function remove (identifier){
-  alert(`delete org ${identifier}`)
+function remove(identifier) {
+  alert(`delete org ${identifier}`);
 }
 </script>
 <style scoped>

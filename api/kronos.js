@@ -1,123 +1,124 @@
-import ky from 'ky'
+import ky from 'ky';
 
 export default class {
-  constructor (tokenReader){
+  constructor(tokenReader) {
     this.http = ky.create({
       prefixUrl: process.env.NUXT_ENV_KRONOS_API,
       hooks    : {
         beforeRequest: [
           (request) => {
-            request.headers.set('Authorization', `Token ${tokenReader()}`)
-          }
-        ]
-      }
-    })
+            request.headers.set('Authorization', `Token ${tokenReader()}`);
+          },
+        ],
+      },
+    });
   }
 
   // ====================
   //
   // ====================
-  async getCountries (){
-    const data = await this.http.get('api/v2018/countries').json()
- 
-    return data
+  async getCountries() {
+    const data = await this.http.get('api/v2018/countries').json();
+
+    return data;
   }
 
   // ====================
   //
   //
   // ====================
-  async getContacts (query){
-    const searchParams = toURLSearchParams({ q: query })
+  async getContacts(query) {
+    const searchParams = toURLSearchParams({ q: query });
 
-    const data = await this.http.get('api/v2018/contacts', { searchParams }).json()
+    const data = await this.http.get('api/v2018/contacts', { searchParams }).json();
 
-    return data
+    return data;
   }
 
   // ====================
   //
   // ====================
-  async getContact (id){
-    const data = await this.http.get(`api/v2018/contacts/${encodeURIComponent(id)}`).json()
+  async getContact(id) {
+    const data = await this.http.get(`api/v2018/contacts/${encodeURIComponent(id)}`).json();
 
-    return data
+    return data;
   }
 
   // ====================
   //
   // ====================
-  async getOrganizations (query){
-    const searchParams = toURLSearchParams({ q: query })
+  async getOrganizations(query) {
+    const searchParams = toURLSearchParams({ q: query });
 
-    const data = await this.http.get('api/v2018/organizations', { searchParams }).json()
+    const data = await this.http.get('api/v2018/organizations', { searchParams }).json();
 
-    return data
+    return data;
   }
 
   // ====================
   //
   // ====================
-  async getOrganization (id){
-    const data = await this.http.get(`api/v2018/organizations/${encodeURIComponent(id)}`).json()
+  async getOrganization(id) {
+    const data = await this.http.get(`api/v2018/organizations/${encodeURIComponent(id)}`).json();
 
-    return data
+    return data;
   }
 
   // ====================
   // Get organization types
   // ====================
-  async getOrganizationTypes (id){
-    const data = await this.http.get('api/v2018/organizations/Types').json()
+  async getOrganizationTypes() {
+    const data = await this.http.get('api/v2018/organizations/Types').json();
 
-    return data
+    return data;
   }
 
   // ====================
   //
   // ====================
-  async getConferences (query){
+  async getConferences(query) { // eslint-disable-line class-methods-use-this
     // TODO Implements conference on Kronos API
-    
+
     const searchParams = toURLSearchParams({
       q: { ...query, ...{ institution: 'CBD' } }, // TODO remove institution filter
-      s: { StartDate: -1 }
-    })
+      s: { StartDate: -1 },
+    });
 
-    const data = await ky.get(`${process.env.NUXT_ENV_API}/api/v2016/conferences`, { searchParams }).json()
+    const data = await ky.get(`${process.env.NUXT_ENV_API}/api/v2016/conferences`, { searchParams }).json();
 
-    return data
+    return data;
   }
 
   // ====================
   //
   //
   // ====================
-  async getMeetings (query){
-    const searchParams = toURLSearchParams({ q: query })
+  async getMeetings(query) {
+    const searchParams = toURLSearchParams({ q: query });
 
-    const data = await this.http.get('api/v2018/events', { searchParams }).json()
+    const data = await this.http.get('api/v2018/events', { searchParams }).json();
 
-    return data
+    return data;
   }
 }
 
 // ====================
 //
 // ====================
-function toURLSearchParams (params){
-  if (!params) return
-    
-  const urlEncodedUrlParams = {}
+function toURLSearchParams(params) {
+  if (!params) return undefined;
 
-  for (const key in params){
-    let value = params[key]
+  const urlEncodedUrlParams = {};
+  const paramKeys           = Object.keys(params);
 
-    if      (value instanceof Object) value = JSON.stringify(value, null, '')
-    else if (value instanceof Date)   value = value.toISOString()
+  paramKeys.forEach((key) => {
+    let value = params[key];
 
-    urlEncodedUrlParams[key] = value
-  }
+    if (value instanceof Object) value = JSON.stringify(value, null, '');
+    else if (value instanceof Date) value = value.toISOString();
 
-  return new URLSearchParams(urlEncodedUrlParams)
+    urlEncodedUrlParams[key] = value;
+  });
+
+  return new URLSearchParams(urlEncodedUrlParams);
 }

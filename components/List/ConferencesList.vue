@@ -29,30 +29,34 @@
 <script>
 
 // import { } from './Columns'
-import { DateTime } from 'luxon'
-import   mixin      from './mixin'
+import { DateTime } from 'luxon';
+import mixin from './mixin';
 
-const dateFormatter = v => DateTime.fromISO(v).toFormat('dd LLL yyyy HH:mm') // 13 Jan 2020 20:34
+const dateFormatter = (v) => DateTime.fromISO(v).toFormat('dd LLL yyyy HH:mm'); // 13 Jan 2020 20:34
 
 // conferences
 const columns = [
-  { key: 'code',           label: 'Code',         sortable: true },
-  { key: 'Title.en',       label: 'Title',        sortable: true },
-  { key: 'Description.en', label: 'Description',  sortable: true },
-  { key: 'StartDate',      label: 'Start',        sortable: true, formatter: dateFormatter },
-  { key: 'EndDate',        label: 'End',          sortable: true, formatter: dateFormatter },
-  { key: 'timezone',       label: 'Timezone',     sortable: true },
-  { key: 'institution',    label: 'Institution',  sortable: true }
-]
+  { key: 'code', label: 'Code', sortable: true },
+  { key: 'Title.en', label: 'Title', sortable: true },
+  { key: 'Description.en', label: 'Description', sortable: true },
+  {
+    key: 'StartDate', label: 'Start', sortable: true, formatter: dateFormatter,
+  },
+  {
+    key: 'EndDate', label: 'End', sortable: true, formatter: dateFormatter,
+  },
+  { key: 'timezone', label: 'Timezone', sortable: true },
+  { key: 'institution', label: 'Institution', sortable: true },
+];
 
 export default {
   name      : 'ConferenceList',
-  components: {  },
+  components: { },
   mixins    : [ mixin ],
-  data
-}
+  data,
+};
 
-function data (){ return { columns } }
+function data() { return { columns }; }
 
 </script>
 <style scoped>

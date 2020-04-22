@@ -12,23 +12,23 @@
 </template>
 
 <script>
-import { user } from '@roles'
+import { user } from '@roles';
 
 export default {
   name   : 'EditContact',
   data,
   mounted: load,
-  auth   : user
+  auth   : user,
+};
+
+function data() {
+  const { identifier } = this.$route.params;
+  const contact        = {};
+
+  return { identifier, contact };
 }
 
-function data (){
-  const { identifier } = this.$route.params
-  const   contact      = {}
-
-  return { identifier, contact }
-}
-
-async function load (){
-  this.contact = await this.$kronosApi.getContact(this.identifier)
+async function load() {
+  this.contact = await this.$kronosApi.getContact(this.identifier);
 }
 </script>

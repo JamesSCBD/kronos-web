@@ -270,26 +270,26 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
-import { readOnly } from '@roles'
-import ContactsList from '@components/list/ContactsList'
-import { BFormInput, BFormCheckbox } from 'bootstrap-vue'
-import Multiselect from 'vue-multiselect'
-import _ from 'lodash'
+import { mapGetters, mapActions } from 'vuex';
+import { readOnly } from '@roles';
+import { BFormInput, BFormCheckbox } from 'bootstrap-vue';
+import Multiselect from 'vue-multiselect';
+import _ from 'lodash';
+import ContactsList from '~/components/list/ContactsList';
 
 const Flags = [
-  { Title: 'Funded', Code: 'funded' }
-]
+  { Title: 'Funded', Code: 'funded' },
+];
 
-const Attendances = [
-  { Title: 'Nominated',  Value: 1 << 0 },
-  { Title: 'Accredited', Value: 1 << 1 },
-  { Title: 'Registered', Value: 1 << 2 }
-]
+const Attendances   = [
+  { Title: 'Nominated',  Value: 1 << 0 }, // eslint-disable-line no-bitwise
+  { Title: 'Accredited', Value: 1 << 1 }, // eslint-disable-line no-bitwise
+  { Title: 'Registered', Value: 1 << 2 }, // eslint-disable-line no-bitwise
+];
 const CountryScopes = [
   { Title: 'Goverment', Code: 'GOV' },
-  { Title: 'Country (Address)', Code: 'CTR' }
-]
+  { Title: 'Country (Address)', Code: 'CTR' },
+];
 
 export default {
   name      : 'Contacts',
@@ -297,13 +297,13 @@ export default {
     ContactsList,
     BFormInput,
     BFormCheckbox,
-    Multiselect
+    Multiselect,
   },
-  data (){
+  data() {
     return {
       isLoadingOrganization: false,
-      organizationOptions  : []
-    }
+      organizationOptions  : [],
+    };
   },
   computed: {
     query                    : buildQuery,
@@ -329,253 +329,262 @@ export default {
       getCachedEventById           : 'conferences/getEventById',
       getCachedCountryByCode       : 'countries/getCountryByCode',
       getCachedOrganizationById    : 'organizations/getOrganizationById',
-      getCachedOrganizationTypeById: 'organizations/getTypeById'
-    })
+      getCachedOrganizationTypeById: 'organizations/getTypeById',
+    }),
   },
-  created (){
-    initOrganizationCache.call(this)
+  created() {
+    initOrganizationCache.call(this);
   },
   methods: {
     onOrganizationTextChange: _.debounce(searchOrganizations, 400),
     queryString,
     ...mapActions({
-      getOrganizations: 'organizations/getOrganizations'
-    })
+      getOrganizations: 'organizations/getOrganizations',
+    }),
   },
-  auth: readOnly
-}
+  auth: readOnly,
+};
 
-///////////////
+// /////////////
 // FreeText //
-//////////////
-function getFreeText (){
-  const text = asArray(this.queryString('text'))[0]
+// ////////////
+function getFreeText() {
+  const text = asArray(this.queryString('text'))[0];
 
-  return text || ''
+  return text || '';
 }
 
-function setFreeText (values){
-  const text = asArray(values)[0] || ''
+function setFreeText(values) {
+  const text = asArray(values)[0] || '';
 
-  this.queryString('text', text)
+  this.queryString('text', text);
 }
 
-/////////////////
+// ///////////////
 // BroadSearch //
-/////////////////
-function getBroadSearch (){
-  const value = asArray(this.queryString('broad'))[0]
+// ///////////////
+function getBroadSearch() {
+  const value = asArray(this.queryString('broad'))[0];
 
-  return [ 'true', '1' ].includes(value)
+  return [ 'true', '1' ].includes(value);
 }
 
-function setBroadSearch (values){
-  const value = asArray(values)[0]
+function setBroadSearch(values) {
+  const value = asArray(values)[0];
 
-  this.queryString('broad', value || null)
+  this.queryString('broad', value || null);
 }
 
-///////////////
+// /////////////
 // Countries //
-///////////////
+// /////////////
 
-function getSelectedCountries (){
-  const codes = asArray(this.queryString('country'))
+function getSelectedCountries() {
+  const codes = asArray(this.queryString('country'));
 
-  return codes.map(code => this.getCachedCountryByCode(code) || { Code: code, isMissing: true })
+  return codes.map((code) => this.getCachedCountryByCode(code) || { Code: code, isMissing: true });
 }
 
-function setSelectedCountries (values){
-  const codes = asArray(values).map(o => o.Code)
+function setSelectedCountries(values) {
+  const codes = asArray(values).map((o) => o.Code);
 
-  this.queryString('country', codes)
+  this.queryString('country', codes);
 }
 
-function getSelectedCountryScope (){
-  const code = asArray(this.queryString('scope'))[0]
+function getSelectedCountryScope() {
+  const code = asArray(this.queryString('scope'))[0];
 
-  return this.countryScopeOptions.find(c => c.Code == code) || { Code: code, isMissing: true }
+  return this.countryScopeOptions.find((c) => c.Code === code) || { Code: code, isMissing: true };
 }
 
-function setSelectedCountryScope (value){
-  const codes = asArray(value).map(o => o.Code)
+function setSelectedCountryScope(value) {
+  const codes = asArray(value).map((o) => o.Code);
 
-  this.queryString('scope', codes)
+  this.queryString('scope', codes);
 }
 
-//////////////////
+// ////////////////
 // organization //
-//////////////////
+// ////////////////
 
-function getSelectedOrganizationTypes (){
-  const ids = asArray(this.queryString('type'))
+function getSelectedOrganizationTypes() {
+  const ids = asArray(this.queryString('type'));
 
-  return ids.map(id => this.getCachedOrganizationTypeById(id) || { OrganizationTypeUID: id, isMissing: true })
+  return ids.map((id) => this.getCachedOrganizationTypeById(id) || { OrganizationTypeUID: id, isMissing: true });
 }
 
-function setSelectedOrganizationTypes (values){
-  const ids = asArray(values).map(o => o.OrganizationTypeUID)
+function setSelectedOrganizationTypes(values) {
+  const ids = asArray(values).map((o) => o.OrganizationTypeUID);
 
-  this.queryString('type', ids)
+  this.queryString('type', ids);
 }
 
-function getSelectedOrganizations (){
-  const ids = asArray(this.queryString('organization'))
+function getSelectedOrganizations() {
+  const ids = asArray(this.queryString('organization'));
 
-  return ids.map(id => this.getCachedOrganizationById(id) || { OrganizationUID: id, isMissing: true })
+  return ids.map((id) => this.getCachedOrganizationById(id) || { OrganizationUID: id, isMissing: true });
 }
 
-function setSelectedOrganizations (values){
-  const ids = asArray(values).map(o => o.OrganizationUID)
+function setSelectedOrganizations(values) {
+  const ids = asArray(values).map((o) => o.OrganizationUID);
 
-  this.queryString('organization', ids)
+  this.queryString('organization', ids);
 }
 
-async function searchOrganizations (text){
+async function searchOrganizations(text) {
   try {
-    this.isLoadingOrganization = true
-    let foundOrganizations = this.organizationOptions
+    this.isLoadingOrganization = true;
+    let foundOrganizations     = this.organizationOptions;
 
-    if (text){
-      this.organizationOptions = this.selectedOrganizations
-      foundOrganizations = await this.getOrganizations({ FreeText: text, limit: 25 })
+    if (text) {
+      this.organizationOptions = this.selectedOrganizations;
+      foundOrganizations       = await this.getOrganizations({ FreeText: text, limit: 25 });
     }
-    
-    this.organizationOptions = _.unionBy(this.selectedOrganizations, foundOrganizations, o => o.OrganizationUID)
-  }
-  finally {
-    this.isLoadingOrganization = false
+
+    this.organizationOptions = _.unionBy(this.selectedOrganizations, foundOrganizations, (o) => o.OrganizationUID);
+  } finally {
+    this.isLoadingOrganization = false;
   }
 }
 
-async function initOrganizationCache (){
-  const missingOrganizations = this.selectedOrganizations.filter(o => o.isMissing)
+async function initOrganizationCache() {
+  const missingOrganizations = this.selectedOrganizations.filter((o) => o.isMissing);
 
-  if (missingOrganizations.length)
-    this.organizationOptions = await this.getOrganizations({ OrganizationUIDs: missingOrganizations.map(o => o.OrganizationUID) })
+  if (missingOrganizations.length) {
+    this.organizationOptions = await this.getOrganizations({ OrganizationUIDs: missingOrganizations.map((o) => o.OrganizationUID) });
+  }
 }
 
-///////////
+// /////////
 // Flags //
-///////////
+// /////////
 
-function getSelectedFlags (){
-  const codes = asArray(this.queryString('flag'))
+function getSelectedFlags() {
+  const codes = asArray(this.queryString('flag'));
 
-  return codes.map(code => this.flagOptions.find(o => o.Code == code) || { Code: code, isMissing: true })
+  return codes.map((code) => this.flagOptions.find((o) => o.Code === code) || { Code: code, isMissing: true });
 }
 
-function setSelectedFlags (values){
-  const codes = asArray(values).map(o => o.Code)
+function setSelectedFlags(values) {
+  const codes = asArray(values).map((o) => o.Code);
 
-  this.queryString('flag', codes)
+  this.queryString('flag', codes);
 }
 
-/////////////////
+// ///////////////
 // Attendances //
-////////////////
+// //////////////
 
-function getSelectedAttendances (){
-  const ids = asArray(this.queryString('attendance'))
+function getSelectedAttendances() {
+  const ids = asArray(this.queryString('attendance'));
 
-  return ids.map(id => this.attendanceOptions.find(o => o.Value == id) || { Value: id, isMissing: true })
+  return ids.map((id) => this.attendanceOptions.find((o) => o.Value === id) || { Value: id, isMissing: true });
 }
 
-function setSelectedAttendances (values){
-  const ids = asArray(values).map(o => o.Value)
+function setSelectedAttendances(values) {
+  const ids = asArray(values).map((o) => o.Value);
 
-  this.queryString('attendance', ids)
+  this.queryString('attendance', ids);
 }
 
-//////////////
+// ////////////
 // Meetings //
-//////////////
-function getSelectedEvents (){
-  const ids = asArray(this.queryString('event'))
+// ////////////
+function getSelectedEvents() {
+  const ids = asArray(this.queryString('event'));
 
-  return ids.map(id => this.getCachedEventById(id) || { EventUID: id, isMissing: true })
+  return ids.map((id) => this.getCachedEventById(id) || { EventUID: id, isMissing: true });
 }
 
-function setSelectedEvents (values){
-  const ids = asArray(values).map(o => o.EventUID)
+function setSelectedEvents(values) {
+  const ids = asArray(values).map((o) => o.EventUID);
 
-  this.queryString('event', ids)
+  this.queryString('event', ids);
 }
 
-function getEventOptions (){
-  const now = new Date()
+function getEventOptions() {
+  const now = new Date();
 
-  const options = [ {
+  const options = [{
     title : 'Main meetings',
-    events: _(this.events).filter(e => e.isMajor).orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ]).value()
+    events: _(this.events)
+      .filter((e) => e.isMajor)
+      .orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ])
+      .value(),
   }, {
     title : 'Parallel meetings',
-    events: _(this.events).filter(e => e.isMinor).orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ]).value()
+    events: _(this.events)
+      .filter((e) => e.isMinor)
+      .orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ])
+      .value(),
   }, {
     title : 'Future meetings',
-    events: _(this.events).filter(e => !e.isMajor && !e.isMinor && new Date(e.EndDate) > now).orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ]).value()
+    events: _(this.events)
+      .filter((e) => !e.isMajor && !e.isMinor && new Date(e.EndDate) > now)
+      .orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ])
+      .value(),
   }, {
     title : 'Recent past meetings',
-    events: _(this.events).filter(e => !e.isMajor && !e.isMinor && new Date(e.EndDate) <= now).orderBy([ 'EndDate', 'StartDate', 'Code' ], [ 'desc', 'asc', 'asc' ]).value()
-  } ]
+    events: _(this.events)
+      .filter((e) => !e.isMajor && !e.isMinor && new Date(e.EndDate) <= now)
+      .orderBy([ 'EndDate', 'StartDate', 'Code' ], [ 'desc', 'asc', 'asc' ])
+      .value(),
+  }];
 
-  return _.filter(options, o => o.events.length)
+  return _.filter(options, (o) => o.events.length);
 }
 
 // ===================
 // Build Query to pass to kronos api
 // ===================
-function buildQuery (){
+function buildQuery() {
   const query = cleanUp({
     FreeText               : this.freeText,
-    Governments            : this.selectedCountries.map(o => o.Code),
-    OrganizationUIDs       : this.selectedOrganizations.map(o => o.OrganizationUID),
-    EventUIDs              : this.selectedEvents.map(o => o.EventUID),
-    EventRegistrationStatus: this.selectedAttendances.reduce((r, v) => r + v.value, 0) || undefined
-  })
+    Governments            : this.selectedCountries.map((o) => o.Code),
+    OrganizationUIDs       : this.selectedOrganizations.map((o) => o.OrganizationUID),
+    EventUIDs              : this.selectedEvents.map((o) => o.EventUID),
+    EventRegistrationStatus: this.selectedAttendances.reduce((r, v) => r + v.value, 0) || undefined,
+  });
 
-  if (query.FreeText)    query.IsBroadSearch = this.isBroadSearch || undefined
-  if (query.Governments) query.CountryScope  = (this.selectedCountryScope || {}).value
-  
-  if (this.selectedFlags.some(o => o.Code == 'funded'))
-    query.IsFunded = true
+  if (query.FreeText) { query.IsBroadSearch = this.isBroadSearch || undefined; }
+  if (query.Governments) { query.CountryScope = (this.selectedCountryScope || {}).value; }
 
-  if (!_.isEmpty(cleanUp(query))){
-    query.StatusForEventUIDs = _(this.majorEvents.map(o => o.EventUID)).union(query.EventUIDs).compact().value()
+  if (this.selectedFlags.some((o) => o.Code === 'funded')) { query.IsFunded = true; }
 
-    query.StatusForEventUID1 = query.StatusForEventUIDs[0] //backward compatibility
-    query.StatusForEventUID2 = query.StatusForEventUIDs[1]
-    query.StatusForEventUID3 = query.StatusForEventUIDs[2]
-    query.StatusForEventUID4 = query.StatusForEventUIDs[3]
+  if (!_.isEmpty(cleanUp(query))) {
+    query.StatusForEventUIDs = _(this.majorEvents.map((o) => o.EventUID)).union(query.EventUIDs).compact().value();
+
+    [ query.StatusForEventUID1,
+      query.StatusForEventUID2,
+      query.StatusForEventUID3,
+      query.StatusForEventUID4 ] = query.StatusForEventUIDs; // backward compatibility
   }
 
-  return cleanUp(query)
+  return cleanUp(query);
 }
 
-function queryString (name, value){
-  if (value !== undefined){
-    const params = { [name]: value || undefined }
-    const newQueryString =  { ...this.$route.query, ...params }
+function queryString(name, value) {
+  if (value !== undefined) {
+    const params         = { [name]: value || undefined };
+    const newQueryString = { ...this.$route.query, ...params };
 
-    this.$router.push({ query: newQueryString })
+    this.$router.push({ query: newQueryString });
   }
 
-  return this.$route.query[name]
+  return this.$route.query[name];
 }
 
-function asArray (data){
+function asArray(data) {
   return _([ data ])
     .flatten()
     .compact()
-    .value()
+    .value();
 }
 
-function cleanUp (obj){
-  return _(obj).omitBy(v =>
-    (_.isNil(v)) ||
-    (_.isString(v) && _.isEmpty(v)) ||
-    (_.isObject(v) && _.isEmpty(v)) ||
-    (_.isArray(v)  && _.isEmpty(v))
-  ).value()
+function cleanUp(obj) {
+  return _(obj).omitBy((v) => (_.isNil(v))
+    || (_.isString(v) && _.isEmpty(v))
+    || (_.isObject(v) && _.isEmpty(v))
+    || (_.isArray(v) && _.isEmpty(v))).value();
 }
 </script>

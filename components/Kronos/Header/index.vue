@@ -38,20 +38,32 @@
 </template>
 
 <script>
-import { CHeader, CHeaderBrand, CHeaderNav, CHeaderNavItem, CHeaderNavLink, CToggler } from '@coreui/vue'
-import { mapMutations } from 'vuex'
-import BreadCrumbs       from './BreadCrumbs'
-import DropdownAccnt     from './DropdownAccnt'
-import SubHeader         from './SubHeader'
+import { mapMutations } from 'vuex';
+import {
+  CHeader, CHeaderBrand, CHeaderNav, CHeaderNavItem, CHeaderNavLink, CToggler,
+} from '@coreui/vue';
+import BreadCrumbs from './BreadCrumbs';
+import DropdownAccnt from './DropdownAccnt';
+import SubHeader from './SubHeader';
 
 export default {
   name      : 'KHeader',
-  components: { BreadCrumbs, SubHeader, DropdownAccnt, CHeader, CHeaderBrand, CHeaderNav, CHeaderNavItem, CHeaderNavLink, CToggler },
-  methods   : {
+  components: {
+    BreadCrumbs,
+    SubHeader,
+    DropdownAccnt,
+    CHeader,
+    CHeaderBrand,
+    CHeaderNav,
+    CHeaderNavItem,
+    CHeaderNavLink,
+    CToggler,
+  },
+  methods: {
     ...mapMutations({
-      toggleShow: 'coreui/sideBarShowToggle'
-    })
-  }
-}
+      toggleShow: 'coreui/sideBarShowToggle',
+    }),
+  },
+};
 
 </script>

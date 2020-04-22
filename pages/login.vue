@@ -4,7 +4,10 @@
       <div class="row justify-content-center">
         <div class="col-12">
           <h1 class="text-center">
-            <img src="https://www.cbd.int/styles/ui/templates/cbd2011/images/logo-cbd-leaf-line.gif" style="max-height: 30px; margin: 0 10px 5px 0;">Kronos
+            <img
+              src="https://www.cbd.int/styles/ui/templates/cbd2011/images/logo-cbd-leaf-line.gif"
+              style="max-height: 30px; margin: 0 10px 5px 0;"
+            >Kronos
           </h1>
           <h3 class="text-center mb-5">
             Conference Registration System
@@ -26,7 +29,12 @@
               <div class="card-body text-center">
                 <h1>Login</h1>
                 <p class="text-muted">
-                  Sign in to your <img src="https://www.cbd.int/styles/ui/templates/cbd2011/images/logo-cbd-leaf-line.gif" style="max-height: 16px; margin-bottom: 5px;"> SCBD account. You will be redirected to accounts.cbd.int and back.
+                  Sign in to your
+                  <img
+                    src="https://www.cbd.int/styles/ui/templates/cbd2011/images/logo-cbd-leaf-line.gif"
+                    style="max-height: 16px; margin-bottom: 5px;"
+                  >
+                  SCBD account. You will be redirected to accounts.cbd.int and back.
                 </p>
                 <div class="row">
                   <div class="col-12">
@@ -62,42 +70,41 @@ export default {
   layout : 'login',
   data,
   mounted,
-  methods: { goToSCBDLogin, goToSCBDSignUp, authenticate }
+  methods: { goToSCBDLogin, goToSCBDSignUp, authenticate },
+};
+
+function data() {
+  const isUserLoaded = false;
+
+  return { isUserLoaded };
 }
 
-function data (){
-  const isUserLoaded = false
-
-  return { isUserLoaded }
+function mounted() {
+  this.$root.$on('$me', this.authenticate);
 }
 
-function mounted (){
-  this.$root.$on('$me', this.authenticate)
+function authenticate() {
+  this.$forceUpdate();
+
+  this.isUserLoaded = true;
+  if (!this.$me.isAuthenticated) { return; }
+
+  const { returnUrl } = this.$route.query;
+  const targetUrl     = returnUrl || '/';
+
+  this.$router.push(targetUrl);
 }
 
-function authenticate (e){
-  this.$forceUpdate()
+function goToSCBDLogin() {
+  const returnUrl = window.location.href;
 
-  this.isUserLoaded = true
-  if (!this.$me.isAuthenticated) return
-
-  const { returnUrl } = this.$route.query
-
-  if (returnUrl) return this.$router.push(returnUrl)
-
-  this.$router.push('/')
+  window.location.href = `${this.$auth.accountsUrl}?returnUrl=${returnUrl}`;
 }
 
-function goToSCBDLogin (){
-  const returnUrl = window.location.href
+function goToSCBDSignUp() {
+  const returnUrl = window.location.href;
 
-  window.location.href = this.$auth.accountsUrl + `?returnUrl=${returnUrl}`
-}
-
-function goToSCBDSignUp (){
-  const returnUrl = window.location.href
-
-  window.location.href = `${this.$auth.accountsUrl}/signup` + `?returnUrl=${returnUrl}`
+  window.location.href = `${this.$auth.accountsUrl}/signup?returnUrl=${encodeURIComponent(returnUrl)}`;
 }
 
 </script>

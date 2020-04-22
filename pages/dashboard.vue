@@ -9,10 +9,10 @@
 </template>
 
 <script>
-import { user } from '@roles'
+import { user } from '@roles';
 
 export default {
   name: 'ConferenceDashboard',
-  auth: user
-}
+  auth: user,
+};
 </script>

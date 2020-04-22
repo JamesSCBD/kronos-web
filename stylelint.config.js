@@ -5,11 +5,11 @@ module.exports = {
     'block-no-empty'           : true,
     'color-no-invalid-hex'     : true,
     'comment-empty-line-before': [ 'always', {
-      ignore: [ 'stylelint-commands', 'after-comment' ]
-    } ],
+      ignore: [ 'stylelint-commands', 'after-comment' ],
+    }],
     'declaration-colon-space-after': 'always',
-    indentation                    : [ 2, { baseIndentLevel: 0 } ],
+    indentation                    : [ 2, { baseIndentLevel: 0 }],
     'max-empty-lines'              : 2,
-    'unit-whitelist'               : [ 'px', 'em', 'rem', '%', 's', 'vh', 'vw' ]
-  }
-}
+    'unit-whitelist'               : [ 'px', 'em', 'rem', '%', 's', 'vh', 'vw' ],
+  },
+};

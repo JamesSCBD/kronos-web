@@ -81,11 +81,11 @@
 </template>
 
 <script>
-import _ from 'lodash'
-import { mapGetters, mapActions } from 'vuex'
-import { CountryCol, EmailCol } from './Columns'
-import mixin from './mixin'
-import pager from '~/components/controls/Pager'
+import _ from 'lodash';
+import { mapGetters, mapActions } from 'vuex';
+import { CountryCol, EmailCol } from './Columns';
+import mixin from './mixin';
+import pager from '~/components/controls/Pager';
 
 const baseColumns = [
   { key: 'Selected', label: '', sortable: false },
@@ -95,24 +95,26 @@ const baseColumns = [
   { key: 'OrganizationGovernment', label: 'Government', sortable: true },
   { key: 'OrganizationName', label: 'Organization', sortable: true },
   { key: 'Emails', label: 'Email', sortable: true },
-  { key: 'Country', label: 'Country', sortable: true, class: 'text-left' },
-  { key: 'Score', label: 'Rank', sortable: true }
-]
+  {
+    key: 'Country', label: 'Country', sortable: true, class: 'text-left',
+  },
+  { key: 'Score', label: 'Rank', sortable: true },
+];
 
 const registrationStatuses = {
   1: 'nominated-text',
   2: 'accredited-text',
-  4: 'registered-text'
-}
+  4: 'registered-text',
+};
 
 export default {
   name      : 'ContactsList',
   components: { CountryCol, EmailCol, pager },
   mixins    : [ mixin ],
   props     : {
-    baseQuery: { type: Object, default: () => ({}) }
+    baseQuery: { type: Object, default: () => ({}) },
   },
-  data (){
+  data() {
     return {
       loading  : false,
       columns  : [ ...baseColumns ],
@@ -120,26 +122,26 @@ export default {
       page     : 1,
       pageSize : 25,
       contacts : [],
-      registrationStatuses
-    }
+      registrationStatuses,
+    };
   },
   computed: {
     ...mapGetters({
       getEventCodeById : 'conferences/getEventCodeById',
-      isContactSelected: 'contacts/isContactSelected'
+      isContactSelected: 'contacts/isContactSelected',
     }),
-    isAllSelected (){
-      return this.contacts.every(c => this.isContactSelected(c.ContactUID)) && this.contacts.length > 0
+    isAllSelected() {
+      return this.contacts.every((c) => this.isContactSelected(c.ContactUID)) && this.contacts.length > 0;
     },
-    isPartialySelected (){
-      return (this.contacts.some(c => this.isContactSelected(c.ContactUID)) && !this.isAllSelected)
+    isPartialySelected() {
+      return (this.contacts.some((c) => this.isContactSelected(c.ContactUID)) && !this.isAllSelected);
     },
-    selectedContacts (){
-      return this.contacts.filter(c => this.isContactSelected(c.ContactUID))
+    selectedContacts() {
+      return this.contacts.filter((c) => this.isContactSelected(c.ContactUID));
     },
-    notSelectedContacts (){
-      return this.contacts.filter(c => !this.isContactSelected(c.ContactUID))
-    }
+    notSelectedContacts() {
+      return this.contacts.filter((c) => !this.isContactSelected(c.ContactUID));
+    },
   },
   methods: {
     searchContacts,
@@ -149,112 +151,115 @@ export default {
     onSelectedAll,
     ...mapActions({
       addToSelection     : 'contacts/addToSelection',
-      removeFromSelection: 'contacts/removeFromSelection'
-    })
-  }
+      removeFromSelection: 'contacts/removeFromSelection',
+    }),
+  },
+};
+
+//= ================================
+//
+//= ================================
+function buildQuery() {
+  const query = _(this.baseQuery || {}).omitBy(_.isNil).value();
+
+  if (_.isEmpty(query)) { return null; }
+
+  const limit = this.pageSize;
+  const skip  = this.pageSize * (this.page - 1);
+
+  if (limit) { query.limit = limit; }
+  if (skip) { query.skip = skip; }
+
+  // todo sort
+
+  return query;
 }
 
-//=================================
+//= ================================
 //
-//=================================
-function buildQuery (){
-  const query = _(this.baseQuery || {}).omitBy(_.isNil).value()
-
-  if (_.isEmpty(query))
-    return null
-
-  const limit = this.pageSize
-  const skip  = this.pageSize * (this.page - 1)
-
-  if (limit) query.limit = limit
-  if (skip)  query.skip  = skip
-
-  //todo sort
-
-  return query
-}
-
-//=================================
-//
-//=================================
-async function searchContacts (ctx){
+//= ================================
+async function searchContacts() {
   try {
-    this.loading = true
-    this.contacts = []
-    
-    this.updateColumns()
+    this.loading  = true;
+    this.contacts = [];
 
-    const query = this.buildQuery()
+    this.updateColumns();
 
-    if (!query)
-      return
-    const rows = await this.$kronosApi.getContacts(query)
+    const query = this.buildQuery();
 
-    this.totalRows = 1234 //TODO
+    if (!query) return [];
 
-    const _this = this
+    const rows = await this.$kronosApi.getContacts(query);
 
-    this.contacts = rows.map(r => ({
+    this.totalRows = 1234; // TODO
+
+    const _this = this;
+
+    this.contacts = rows.map((r) => ({
       ...r,
-      get Selected (){
-        return _this.isContactSelected(this.ContactUID)
-      }
-    }))
-    return this.contacts
-  }
-  finally {
-    this.loading = false
+      get Selected() {
+        return _this.isContactSelected(this.ContactUID);
+      },
+    }));
+    return this.contacts;
+  } finally {
+    this.loading = false;
   }
 }
 
-//=================================
+//= ================================
 //
-//=================================
-function updateColumns (){
-  this.columns = [ ...baseColumns ]
+//= ================================
+function updateColumns() {
+  this.columns = [ ...baseColumns ];
 
-  const query = this.baseQuery || {}
-  const eventUIDs = _.compact([ query.StatusForEventUID1, query.StatusForEventUID2, query.StatusForEventUID3, query.StatusForEventUID4 ])
+  const query     = this.baseQuery || {};
+  const eventUIDs = _.compact([ query.StatusForEventUID1, query.StatusForEventUID2, query.StatusForEventUID3, query.StatusForEventUID4 ]);
 
-  if (!eventUIDs)
-    return
+  if (!eventUIDs) { return; }
 
-  for (let index = 0; index < eventUIDs.length; index++)
-    if (index < 4)
+  for (let index = 0; index < eventUIDs.length; index++) {
+    if (index < 4) {
       this.columns = [
         ...this.columns,
         {
-          key     : 'StatusEvent' + (index + 1) + 'Date',
+          key     : `StatusEvent${index + 1}Date`,
           label   : this.getEventCodeById(eventUIDs[index]),
-          sortable: true
-        }
-      ]
+          sortable: true,
+        },
+      ];
+    }
+  }
 }
 
-//=================================
+//= ================================
 // Call on when user click on contact checkbox
-//=================================
-function onSelected (item){
-  const contact = cleanContact(item)
+//= ================================
+function onSelected(item) {
+  const contact = cleanContact(item);
 
-  if (this.isContactSelected(contact.ContactUID))
-    this.removeFromSelection(contact)
-  else this.addToSelection(contact)
+  if (this.isContactSelected(contact.ContactUID)) {
+    this.removeFromSelection(contact);
+  } else {
+    this.addToSelection(contact);
+  }
 }
 
-//=================================
+//= ================================
 // Call on when user click on select all checkbox
-//=================================
-function onSelectedAll (){
-  if (this.isAllSelected)
-    this.selectedContacts.forEach(c => this.removeFromSelection(cleanContact(c)))
-  else this.notSelectedContacts.forEach(c => this.addToSelection(cleanContact(c)))
+//= ================================
+function onSelectedAll() {
+  if (this.isAllSelected) {
+    this.selectedContacts.forEach((c) => this.removeFromSelection(cleanContact(c)));
+  } else {
+    this.notSelectedContacts.forEach((c) => this.addToSelection(cleanContact(c)));
+  }
 }
 
-function cleanContact (item){
-  const { Selected, ...contact } = item
+function cleanContact(item) {
+  const { Selected, ...contact } = item;
 
-  return contact
+  return contact;
 }
 </script>
 <style scoped>

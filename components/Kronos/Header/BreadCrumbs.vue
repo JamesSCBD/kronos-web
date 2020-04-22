@@ -4,33 +4,32 @@
 
 <script>
 
-import { CBreadcrumb } from '@coreui/vue'
-import { capitalCase } from 'change-case'
+import { CBreadcrumb } from '@coreui/vue';
+import { capitalCase } from 'change-case';
 
 export default {
   name      : 'KBreadCrumbs',
   components: { CBreadcrumb },
-  methods   : { makeCrumbs }
-}
+  methods   : { makeCrumbs },
+};
 
 function makeCrumbs (){ //eslint-disable-line
 
-  const { path }    = this.$route.matched[0] || { path: '/' }
-  const   pathSplit = () => path.split('/').splice(1)
-  const   crumbs    = [ ]
+  const { path }  = this.$route.matched[0] || { path: '/' };
+  const pathSplit = () => path.split('/').splice(1);
+  const crumbs    = [];
+  if (!path) return [];
 
-  if (!path) return [ ]
+  for (const [index, routeName] of pathSplit().entries()) { // eslint-disable-line
+    if (!routeName) continue; // eslint-disable-line no-continue
 
-  for (let [ index, routeName ] of pathSplit().entries()){ //eslint-disable-line
-    if (!routeName) continue
+    const text  = capitalCase(routeName);
+    const to    = index ? `/${pathSplit().splice(0, index + 1).join('/')}` : `/${routeName}`;
+    const crumb = { text, to };
 
-    const text  = capitalCase(routeName)
-    const to    = index ? '/' + pathSplit().splice(0, index + 1).join('/') : `/${routeName}`
-    const crumb = { text, to }
-
-    crumbs.push(crumb)
+    crumbs.push(crumb);
   }
 
-  return crumbs
+  return crumbs;
 }
 </script>

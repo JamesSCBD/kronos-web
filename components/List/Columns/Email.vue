@@ -10,15 +10,13 @@
 // import CountryFlag from 'vue-country-flag'
 
 export default {
-  components: {  },
+  components: { },
   props     : { emails: { type: Array, required: true } },
-  methods   : { getEmailAddress }
-}
+  methods   : { getEmailAddress },
+};
 
-function getEmailAddress (emails){
-  if (emails.length > 0)
-    return emails[0]
-  else
-    return ''
+function getEmailAddress(emails) {
+  if (emails.length > 0) return emails[0];
+  return '';
 }
 </script>

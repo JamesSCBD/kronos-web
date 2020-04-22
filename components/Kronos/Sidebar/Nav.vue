@@ -10,29 +10,31 @@
 </template>
 
 <script>
-import { CSidebarNav, CSidebarNavTitle, CSidebarNavItem } from '@coreui/vue'
-import { BFormSelect } from 'bootstrap-vue'
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions } from 'vuex';
+import { CSidebarNav, CSidebarNavTitle, CSidebarNavItem } from '@coreui/vue';
+import { BFormSelect } from 'bootstrap-vue';
 
 export default {
   name      : 'KSidebarNav',
-  components: { CSidebarNav, CSidebarNavTitle, CSidebarNavItem, BFormSelect },
-  computed  : {
+  components: {
+    CSidebarNav, CSidebarNavTitle, CSidebarNavItem, BFormSelect,
+  },
+  computed: {
     conferenceOptions,
     ...mapGetters({
       conferenceList: 'conferences/list',
-      conferenceId  : 'conferences/selectedId'
-    })
+      conferenceId  : 'conferences/selectedId',
+    }),
   },
   methods: {
     ...mapActions({
-      setSelectedConference: 'conferences/setSelected'
-    })
-  }
-}
+      setSelectedConference: 'conferences/setSelected',
+    }),
+  },
+};
 
-function conferenceOptions (){
-  return this.conferenceList.map(c => ({ value: c._id, text: c.Title.en }))
+function conferenceOptions() {
+  return this.conferenceList.map((c) => ({ value: c._id, text: c.Title.en }));
 }
 
 </script>

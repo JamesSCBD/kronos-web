@@ -11,13 +11,13 @@
 </template>
 
 <script>
-import { CFooter } from '@coreui/vue'
+import { CFooter } from '@coreui/vue';
 
 export default {
   name      : 'KFooter',
   components: { CFooter },
-  computed  : { currentYear }
-}
+  computed  : { currentYear },
+};
 
-function currentYear (){ return (new Date()).getFullYear() }
+function currentYear() { return (new Date()).getFullYear(); }
 </script>

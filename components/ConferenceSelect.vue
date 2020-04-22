@@ -17,25 +17,25 @@
 </template>
 
 <script>
-import Multiselect from 'vue-multiselect'
-import { mapGetters } from 'vuex'
+import { mapGetters } from 'vuex';
+import Multiselect from 'vue-multiselect';
 
 export default {
   name      : 'ConferenceSelect',
   components: { Multiselect },
   computed  : { ...gettersMap() },
-  methods   : { onSelect }
+  methods   : { onSelect },
+};
+
+function onSelect(option) {
+  console.log(option);
 }
 
-function onSelect (option){
-  console.log(option)
-}
-
-function gettersMap (){
+function gettersMap() {
   return mapGetters({
     options: 'conferences/list',
-    value  : 'conferences/list'
-  })
+    value  : 'conferences/list',
+  });
 }
 </script>
 

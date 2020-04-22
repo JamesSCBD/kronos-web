@@ -10,12 +10,12 @@
 // import CountryFlag from 'vue-country-flag'
 
 export default {
-  components: {  },
+  components: { },
   props     : { code: { type: String, required: true } },
-  methods   : { getNameByCode }
-}
+  methods   : { getNameByCode },
+};
 
-function getNameByCode (code){
-  return this.$store.getters['countries/getNameByCode'](code)
+function getNameByCode(code) {
+  return this.$store.getters['countries/getNameByCode'](code);
 }
 </script>

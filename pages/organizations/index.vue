@@ -220,35 +220,37 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { readOnly } from '@roles'
-import List from '@components/list/OrganizationsList'
-import { BFormInput, BFormCheckbox } from 'bootstrap-vue'
-import Multiselect from 'vue-multiselect'
-import _ from 'lodash'
+import { mapGetters } from 'vuex';
+import { readOnly } from '@roles';
+import { BFormInput, BFormCheckbox } from 'bootstrap-vue';
+import Multiselect from 'vue-multiselect';
+import _ from 'lodash';
+import List from '~/components/list/OrganizationsList';
 
 export default {
   name      : 'Organizations',
-  components: { List, BFormInput, Multiselect, BFormCheckbox },
-  data      : initData,
-  computed  : {
+  components: {
+    List, BFormInput, Multiselect, BFormCheckbox,
+  },
+  data    : initData,
+  computed: {
     ...mapGetters({
       countryOptions         : 'countries/list',
-      organizationTypeOptions: 'organizations/types'
-    })
+      organizationTypeOptions: 'organizations/types',
+    }),
   },
   watch: {
-    searchTagInput: _.debounce(onSearchTextChanged, 400)
+    searchTagInput: _.debounce(onSearchTextChanged, 400),
   },
   mounted,
   methods: { tableItems: search, clearSelectedOptions, isFiltersApplied },
-  auth   : readOnly
-}
+  auth   : readOnly,
+};
 
 // ===================
 //
 // ===================
-function initData (){
+function initData() {
   return {
     loading  : false,
     totalRows: 0,
@@ -260,132 +262,127 @@ function initData (){
       selectedValidationStatus : '',
       selectedCountry          : [],
       selectedScop             : '',
-      selectedOrganizationTypes: []
+      selectedOrganizationTypes: [],
     },
     scopeOptions: [
       { name: 'Goverment', value: 'GOV' },
-      { name: 'Country (Address)', value: 'CTR' }
+      { name: 'Country (Address)', value: 'CTR' },
     ],
     attendanceOptions: [
-      { name: 'Nominated', value: 1 << 0, code: 'Nom' },
-      { name: 'Accredited', value: 1 << 1, code: 'Acc' },
-      { name: 'Registered', value: 1 << 2, code: 'Reg' }
+      { Title: 'Nominated',  Value: 1 << 0 }, // eslint-disable-line no-bitwise
+      { Title: 'Accredited', Value: 1 << 1 }, // eslint-disable-line no-bitwise
+      { Title: 'Registered', Value: 1 << 2 }, // eslint-disable-line no-bitwise
     ],
     meetingsOptions        : [],
     validationStatusOptions: [
       { name: 'Any', value: undefined },
       { name: 'Validated', value: true },
-      { name: 'Not Validated', value: false }
+      { name: 'Not Validated', value: false },
     ],
-    searchTagInput: ''
-  }
+    searchTagInput: '',
+  };
 }
 
-function onSearchTextChanged (value){
-  this.filter.name = value
+function onSearchTextChanged(value) {
+  this.filter.name = value;
 }
 
-async function mounted (){
-  this.meetingsOptions = await getMajorMinorMeetings(this)
+async function mounted() {
+  this.meetingsOptions = await getMajorMinorMeetings(this);
 }
 
-async function getMajorMinorMeetings (_this){
-  const majorEventIDs = []
-  const minorEventIDs = []
+async function getMajorMinorMeetings(_this) {
+  const majorEventIDs = [];
+  const minorEventIDs = [];
 
-  const majorMeetingsData =
-    _this.$store.getters['conferences/selected'].MajorEventIDs
-  const minorMeetingsData =
-    _this.$store.getters['conferences/selected'].MinorEventIDs
+  const majorMeetingsData = _this.$store.getters['conferences/selected'].MajorEventIDs;
+  const minorMeetingsData = _this.$store.getters['conferences/selected'].MinorEventIDs;
 
   majorMeetingsData.forEach((element) => {
-    majorEventIDs.push('00000000' + element)
-  })
+    majorEventIDs.push(`00000000${element}`);
+  });
 
   minorMeetingsData.forEach((element) => {
-    minorEventIDs.push('00000000' + element)
-  })
+    minorEventIDs.push(`00000000${element}`);
+  });
 
   const majorMeetings = await _this.$kronosApi.getMeetings({
-    EvenUIDs: majorEventIDs
-  })
+    EvenUIDs: majorEventIDs,
+  });
 
   const minorMeetings = await _this.$kronosApi.getMeetings({
-    EvenUIDs: minorEventIDs
-  })
+    EvenUIDs: minorEventIDs,
+  });
 
   const meetingDivider = [
     {
       EventUID   : '00000000000000000000000000000000',
       Code       : '-----------------------------',
       Title      : '-----------------------------',
-      $isDisabled: true
-    }
-  ]
+      $isDisabled: true,
+    },
+  ];
 
-  return majorMeetings.concat(meetingDivider).concat(minorMeetings)
+  return majorMeetings.concat(meetingDivider).concat(minorMeetings);
 }
 
 // ===================
 //
 // ===================
-async function search (ctx){
+async function search(ctx) {
   try {
-    if (isFiltersApplied(this)){
-      this.loading = true
+    if (isFiltersApplied(this)) {
+      this.loading = true;
 
-      const query = buildQuery(ctx)
+      const query = buildQuery(ctx);
 
-      const rows = await this.$kronosApi.getOrganizations(query)
+      const rows = await this.$kronosApi.getOrganizations(query);
 
-      this.totalRows = getTotalRows(ctx, this, rows.length)
-      return rows.map(r => ({ ...r, identifier: r.OrganizationUID }))
+      this.totalRows = getTotalRows(ctx, this, rows.length);
+      return rows.map((r) => ({ ...r, identifier: r.OrganizationUID }));
     }
-    else {
-      ctx.currentPage = 1
-      this.totalRows = 0
-      return []
-    }
-  }
-  finally {
+
+    ctx.currentPage = 1;
+    this.totalRows  = 0;
+    return [];
+  } finally {
     // TODO Handle error
-    this.loading = false
+    this.loading = false;
   }
 }
 
-function isFiltersApplied (_this){
+function isFiltersApplied(_this) {
   if (
-    _this.filter.name ||
-    _this.filter.isBroadSearch ||
-    _this.filter.selectedMeetings.length ||
-    _this.filter.selectedOrganizationTypes.length ||
-    _this.filter.selectedCountry.length ||
-    _this.filter.selectedValidationStatus ||
-    _this.filter.selectedAttendance.length ||
-    _this.filter.selectedScop
-  )
-    return true
-  else return false
+    _this.filter.name
+    || _this.filter.isBroadSearch
+    || _this.filter.selectedMeetings.length
+    || _this.filter.selectedOrganizationTypes.length
+    || _this.filter.selectedCountry.length
+    || _this.filter.selectedValidationStatus
+    || _this.filter.selectedAttendance.length
+    || _this.filter.selectedScop
+  ) { return true; }
+  return false;
 }
 
 // ===================
 // Get total number of rows
 // ===================
-function getTotalRows (ctx, _this, _rowsLength){
-  if (_rowsLength < ctx.perPage) return ctx.perPage * ctx.currentPage
-  else return ctx.perPage * ctx.currentPage + 1
+function getTotalRows(ctx, _this, _rowsLength) {
+  if (_rowsLength < ctx.perPage) { return ctx.perPage * ctx.currentPage; }
+  return ctx.perPage * ctx.currentPage + 1;
 }
 
 // ===================
 // Build Query to pass to kronos api
 // ===================
-function buildQuery ({ filter, sortBy, sortDesc, perPage, currentPage }){
+function buildQuery({ filter, perPage, currentPage }) {
   // TODO:
 
   // apply List standard paramters: filter, sortBy, sortDesc, perPage, currentPage
   // and contact search filter to KronosQuery
-  const skipRecord = currentPage > 0 ? (currentPage - 1) * perPage : 0
-  const query = {
+  const skipRecord = currentPage > 0 ? (currentPage - 1) * perPage : 0;
+  const query      = {
     FreeText               : filter.name || undefined,
     CountryScope           : filter.selectedScop.value || undefined,
     EventUIDs              : getSelectedMeetingsIds(filter),
@@ -394,60 +391,63 @@ function buildQuery ({ filter, sortBy, sortDesc, perPage, currentPage }){
     Governments            : getCountryCodes(filter),
     IsValidated            : filter.selectedValidationStatus.value,
     limit                  : perPage || 25,
-    skip                   : skipRecord
-  }
+    skip                   : skipRecord,
+  };
 
-  return query
+  return query;
 }
 
-function getOrganizationTypeIds (filter){
+function getOrganizationTypeIds(filter) {
   return filter.selectedOrganizationTypes.length
-    ? filter.selectedOrganizationTypes.map(o => o.OrganizationTypeUID)
-    : undefined
+    ? filter.selectedOrganizationTypes.map((o) => o.OrganizationTypeUID)
+    : undefined;
 }
 
-function getCountryCodes (filter){
+function getCountryCodes(filter) {
   return filter.selectedCountry.length
-    ? filter.selectedCountry.map(c => c.Code)
-    : undefined
+    ? filter.selectedCountry.map((c) => c.Code)
+    : undefined;
 }
 
-function getAttendanceValue (filter){
-  let registrationStatus = 0
+function getAttendanceValue(filter) {
+  let registrationStatus = 0;
 
-  if (filter.selectedAttendance !== undefined)
+  if (filter.selectedAttendance !== undefined) {
     filter.selectedAttendance.forEach((element) => {
-      registrationStatus += element.value
-    })
-  return registrationStatus || undefined
+      registrationStatus += element.value;
+    });
+  }
+  return registrationStatus || undefined;
 }
 
-function getSelectedMeetingsIds (filter){
+function getSelectedMeetingsIds(filter) {
   return filter.selectedMeetings.length
-    ? filter.selectedMeetings.map(m => m.EventUID)
-    : undefined
+    ? filter.selectedMeetings.map((m) => m.EventUID)
+    : undefined;
 }
 
-function clearSelectedOptions (type){
-  switch (type){
-  case 'meetings':
-    this.filter.selectedMeetings = []
-    break
-  case 'attendance':
-    this.filter.selectedAttendance = []
-    break
-  case 'validation':
-    this.filter.selectedValidationStatus = ''
-    break
-  case 'country':
-    this.filter.selectedCountry = []
-    break
-  case 'scope':
-    this.filter.selectedScop = ''
-    break
-  case 'organization-type':
-    this.filter.selectedOrganizationTypes = []
-    break
+function clearSelectedOptions(type) {
+  switch (type) {
+    case 'meetings':
+      this.filter.selectedMeetings = [];
+      break;
+    case 'attendance':
+      this.filter.selectedAttendance = [];
+      break;
+    case 'validation':
+      this.filter.selectedValidationStatus = '';
+      break;
+    case 'country':
+      this.filter.selectedCountry = [];
+      break;
+    case 'scope':
+      this.filter.selectedScop = '';
+      break;
+    case 'organization-type':
+      this.filter.selectedOrganizationTypes = [];
+      break;
+    default:
+      throw new Error('not implemented');
   }
 }
 </script>

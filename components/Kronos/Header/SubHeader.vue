@@ -11,55 +11,61 @@
 
 <script>
 
-import { CSubheader, CBreadcrumb } from '@coreui/vue'
-import { capitalCase             } from 'change-case'
-import   ConferenceSelect          from '@components/ConferenceSelect'
+import { CSubheader, CBreadcrumb } from '@coreui/vue';
+import { capitalCase } from 'change-case';
+import ConferenceSelect from '~/components/ConferenceSelect';
 
 export default {
   name      : 'KHeader',
   components: { CBreadcrumb, CSubheader, ConferenceSelect },
-  methods   : { makeCrumbs, is404, isParam: getRouteParamByName, getRouteParamByName, conferenceParamRoute }
+  methods   : {
+    makeCrumbs, is404, isParam: getRouteParamByName, getRouteParamByName, conferenceParamRoute,
+  },
+};
+
+function is404(path) {
+  return !this.$router.resolve(path).resolved.matched.length;
 }
 
-function is404 (path){
-  return !this.$router.resolve(path).resolved.matched.length
-}
-
-function getRouteParamByName (name){
-  if (name.startsWith(':'))
-    return this.$route.params[name.replace(':', '')]
+function getRouteParamByName(name) {
+  return name.startsWith(':')
+    ? this.$route.params[name.replace(':', '')]
+    : undefined;
 }
 
 function makeCrumbs (){ //eslint-disable-line
 
-  const { path      } = this.$route.matched[0] || { path: '/' }
-  const   pathSplit   = () => path.split('/').splice(1)
-  const   crumbs      = [ ]
+  const { path }  = this.$route.matched[0] || { path: '/' };
+  const pathSplit = () => path.split('/').splice(1);
+  const crumbs    = [];
 
-  if (!path) return [ ]
+  if (!path) return [];
 
   for (let [ index, routeName ] of pathSplit().entries()){ //eslint-disable-line
-    if (!routeName) continue
+    if (!routeName) continue; // eslint-disable-line no-continue
 
-    let text
+    let text;
 
-    if (this.isParam(routeName))
-      text = this.conferenceParamRoute(routeName)
-    else
-      text = capitalCase(routeName)
+    if (this.isParam(routeName)) text = this.conferenceParamRoute(routeName);
+    else text = capitalCase(routeName);
 
-    const to  = index ? '/' + pathSplit().splice(0, index + 1).join('/') : `/${routeName}`
-    const crumb = this.isParam(routeName) ? { text, disabled: true } : { text, to }
+    const to = index
+      ? `/${pathSplit().splice(0, index + 1).join('/')}`
+      : `/${routeName}`;
 
-    crumbs.push(crumb)
+    const crumb = this.isParam(routeName)
+      ? { text, disabled: true }
+      : { text, to };
+
+    crumbs.push(crumb);
   }
 
-  return crumbs
+  return crumbs;
 }
 
-function conferenceParamRoute (routeParamName){
-  if (routeParamName !== ':conferenceCode') return
-
-  return this.getRouteParamByName(routeParamName)
+function conferenceParamRoute(routeParamName) {
+  return routeParamName === ':conferenceCode'
+    ? this.getRouteParamByName(routeParamName)
+    : undefined;
 }
 </script>

@@ -7,12 +7,12 @@
 <script>
 
 export default {
-  components: {  },
+  components: { },
   props     : { organizationTypeId: { type: String, required: true } },
-  methods   : { getOrganizationNameById }
-}
+  methods   : { getOrganizationNameById },
+};
 
-function getOrganizationNameById (organizationTypeId){
-  return this.$store.getters['organizations/typeNameById'](organizationTypeId)
+function getOrganizationNameById(organizationTypeId) {
+  return this.$store.getters['organizations/typeNameById'](organizationTypeId);
 }
 </script>

@@ -1,13 +1,10 @@
-import Vue from 'vue'
-import { CBadge, CEmitRootEvent, CIcon } from '@coreui/vue'
+import Vue from 'vue';
+import { CBadge, CEmitRootEvent, CIcon } from '@coreui/vue';
 
-const components = [ CBadge, CIcon ]
-const directives = [ CEmitRootEvent ]
+const globalComponents = [ CBadge, CIcon ];
+const globalDirectives = [ CEmitRootEvent ];
 
-export default () => {
-  for (const component of components)
-    Vue.component(component.name, component)
-    
-  for (const directive of directives)
-    Vue.directive(directive.name, directive)
-}
+globalComponents.forEach((component) => Vue.component(component.name, component));
+globalDirectives.forEach((directive) => Vue.directive(directive.name, directive));
+
+export default () => {};

@@ -21,18 +21,17 @@
 </template>
 
 <script>
-import _ from 'lodash'
-import { BFormSelect, BPagination } from 'bootstrap-vue'
+import { BFormSelect, BPagination } from 'bootstrap-vue';
 
 const pageOptions = [
   { value: 25, text: '25/page' },
   { value: 50, text: '50/page' },
   { value: 100, text: '100/page' },
-  { value: 250, text: '250/page' }
-]
+  { value: 250, text: '250/page' },
+];
 
-const defaultPageSize = pageOptions[0].value
-const defaultPage     = 1
+const defaultPageSize = pageOptions[0].value;
+const defaultPage     = 1;
 
 export default {
   name      : 'ContactsList',
@@ -43,81 +42,80 @@ export default {
       type    : Number,
       default : 25,
       required: true,
-      validator (value){
-        return pageOptions.some(o => o.value == value)
-      }
+      validator(value) {
+        return pageOptions.some((o) => o.value === value);
+      },
     },
     page:
     {
       type    : Number,
       required: true,
       default : 1,
-      validator (value){
-        return value > 0
-      }
+      validator(value) {
+        return value > 0;
+      },
     },
     syncQueryString:
     {
       type    : Boolean,
       required: true,
-      default : false
+      default : false,
     },
     recordCount:
     {
       type    : Number,
       required: true,
       default : 0,
-      validator (value){
-        return value >= 0
-      }
-    }
+      validator(value) {
+        return value >= 0;
+      },
+    },
   },
-  data (){
+  data() {
     return {
-      pageOptions
-    }
+      pageOptions,
+    };
   },
   computed: {
-    currentPage: { get (){ return this.page }, set (value){ this.$emit('update:page', value) } },
-    perPage    : { get (){ return this.pageSize }, set (value){ this.$emit('update:pageSize', value) } }
+    currentPage: { get() { return this.page; }, set(value) { this.$emit('update:page', value); } },
+    perPage    : { get() { return this.pageSize; }, set(value) { this.$emit('update:pageSize', value); } },
   },
   watch: {
-    page (){
-      if (this.syncQueryString)
-        this.saveQueryString()
+    page() {
+      if (this.syncQueryString) this.saveQueryString();
     },
-    pageSize (){
-      if (this.syncQueryString)
-        this.saveQueryString()
-    }
+    pageSize() {
+      if (this.syncQueryString) this.saveQueryString();
+    },
   },
   mounted,
-  methods: { loadQueryString, saveQueryString }
+  methods: { loadQueryString, saveQueryString },
+};
+
+function mounted() {
+  if (this.syncQueryString) this.loadQueryString();
 }
 
-function mounted (){
-  if (this.syncQueryString)
-    this.loadQueryString()
+function loadQueryString() {
+  const page     = parseInt(this.$route.query.page, 10);
+  const pageSize = parseInt(this.$route.query.pageSize, 10);
+
+  this.currentPage = page >= 1 ? page : defaultPage;
+  this.perPage     = pageOptions.some((o) => o.value === pageSize) ? pageSize : defaultPageSize;
 }
 
-function loadQueryString (){
-  const { page, pageSize } = this.$route.query
-
-  this.currentPage = parseInt(page) >= 1 ? parseInt(page) : defaultPage
-  this.perPage     = _.some(pageOptions, [ 'value', parseInt(pageSize) ]) ? parseInt(pageSize) : defaultPageSize
-}
-
-function  saveQueryString (){
+function saveQueryString() {
   const params = {
+    page    : undefined,
     pageSize: undefined,
-    page    : undefined
-  }
+  };
 
-  if (this.page     != defaultPage)     params.page     = this.page
-  if (this.pageSize != defaultPageSize) params.pageSize = this.pageSize
-  const newQueryString = { ...this.$route.query, ...params }
+  if (this.page && this.page !== defaultPage) params.page = this.page;
+  if (this.pageSize && this.pageSize !== defaultPageSize) params.pageSize = this.pageSize;
 
-  this.$router.push({ query: newQueryString })
+  const newQueryString = { ...this.$route.query, ...params };
+
+  this.$router.push({ query: newQueryString });
 }
 </script>
 <style scoped>

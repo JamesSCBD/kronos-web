@@ -16,19 +16,19 @@
 </template>
 
 <script>
-import   mixin                        from './mixin'
-import { KHeader, KFooter, KSidebar } from '~/components/kronos'
+import mixin from './mixin';
+import { KHeader, KFooter, KSidebar } from '~/components/kronos';
 
 export default {
   name      : 'Default',
   components: { KHeader, KFooter, KSidebar },
   mixins    : [ mixin ],
-  created (){
-    const selectedConferenceCode = this.$route.params.conferenceCode
-    
-    this.$store.dispatch('conferences/initialize', selectedConferenceCode)
-    this.$store.dispatch('countries/initialize')
-    this.$store.dispatch('organizations/initialize')
-  }
-}
+  created() {
+    const selectedConferenceCode = this.$route.params.conferenceCode;
+
+    this.$store.dispatch('conferences/initialize', selectedConferenceCode);
+    this.$store.dispatch('countries/initialize');
+    this.$store.dispatch('organizations/initialize');
+  },
+};
 </script>

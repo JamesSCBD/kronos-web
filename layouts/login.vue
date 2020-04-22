@@ -4,10 +4,10 @@
   </div>
 </template>
 <script>
-import mixin from './mixin'
+import mixin from './mixin';
 
 export default {
   name  : 'Login',
-  mixins: [ mixin ]
-}
+  mixins: [ mixin ],
+};
 </script>

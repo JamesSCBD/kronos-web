@@ -13,25 +13,25 @@
 
 <script>
 
-import { readOnly } from '@roles'
+import { readOnly } from '@roles';
 
 export default {
   name   : 'EditOrganization',
   data   : init,
   mounted: load,
-  auth   : readOnly
+  auth   : readOnly,
 
-}
+};
 
-function init (){
+function init() {
   return {
     identifier  : this.$route.params.identifier,
-    organization: {}
-  }
+    organization: {},
+  };
 }
 
-async function load (){
-  this.organization = await this.$kronosApi.getOrganization(this.identifier)
+async function load() {
+  this.organization = await this.$kronosApi.getOrganization(this.identifier);
 }
 
 </script>

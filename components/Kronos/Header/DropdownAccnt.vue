@@ -9,7 +9,11 @@
       <strong>Account</strong>
     </CDropdownHeader>
     <CDropdownDivider />
-    <CDropdownItem :href="`${$auth.accountsUrl}/profile/?returnIUrl=${returnUrl}`" target="_blank" rel="noopener">
+    <CDropdownItem
+      :href="`${$auth.accountsUrl}/profile/?returnIUrl=${returnUrl}`"
+      target="_blank"
+      rel="noopener"
+    >
       <CIcon name="user" /> Profile
     </CDropdownItem>
     <CDropdownItem @click="$logOut(); $router.push('/login')">
@@ -19,18 +23,22 @@
 </template>
 
 <script>
-import { CDropdown, CDropdownHeader, CDropdownItem, CDropdownDivider, CHeaderNavLink } from '@coreui/vue'
-import Avatar from 'vue-avatar'
+import {
+  CDropdown, CDropdownHeader, CDropdownItem, CDropdownDivider, CHeaderNavLink,
+} from '@coreui/vue';
+import Avatar from 'vue-avatar';
 
 export default {
   name      : 'DropdownAccnt',
-  components: { Avatar, CDropdown, CDropdownHeader, CDropdownItem, CDropdownDivider, CHeaderNavLink },
-  computed  : { returnUrl }
-}
+  components: {
+    Avatar, CDropdown, CDropdownHeader, CDropdownItem, CDropdownDivider, CHeaderNavLink,
+  },
+  computed: { returnUrl },
+};
 
-function returnUrl (){
-  if (!this.isServer) return encodeURIComponent(window.location.href)
-  return ''
+function returnUrl() {
+  if (!this.isServer) return encodeURIComponent(window.location.href);
+  return '';
 }
 </script>
 

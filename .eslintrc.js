@@ -7,79 +7,48 @@ module.exports = {
   parserOptions: {
     parser: 'babel-eslint'
   },
+  plugins: [
+    'align-assignments'
+  ],
   extends: [
     '@nuxtjs',
-    'plugin:nuxt/recommended'
+    'airbnb-base',
+    'plugin:nuxt/recommended',
   ],
   // add your custom rules here
   rules: {
-    'no-console' : process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+ 
+    // vvv assignments (= / :) alignment vvv
+    'align-assignments/align-assignments': ['error', { requiresOnly: false } ],
+    'no-multi-spaces'                    : ['off'], // <<< needed for align-assignments 
+    'key-spacing'                        : ['error', { align: { beforeColon: false, afterColon : true, on: 'colon', mode: 'strict' } } ],
+    // ^^^ assignments (= / :) alignment ^^^
+ 
+    'max-len'                            : ['error', { code: 160, comments: 100, tabWidth: 2 }], // default 100 is too short
+    'array-bracket-spacing'              : ['error', 'always', {arraysInArrays:false, objectsInArrays:false}],
+    'no-plusplus'                        : ['off'],
+    'no-use-before-define'               : ['error', { 'functions': false, 'classes': false }],
+    'no-underscore-dangle'               : ['off'], // <<< MongoDB Ids (_id) fix
 
-    curly                 : [ 'error', 'multi', 'consistent' ],
-    complexity            : [ 'error', 10 ],
-
-    'no-multi-spaces'               : 'off',
-    'padded-blocks'                 : 'off',
-    'spaced-comment'                : 'off',
-    'promise/avoid-new'             : 'off',
-    'require-await'                 : 'error',
-    'prefer-promise-reject-errors'  : 'error',
-    'no-return-await'               : 'error',
-    'no-undef'                      : 'error',
-    'no-delete-var'                 : 'error',
-    'handle-callback-err'           : 'error',
-    'global-require'                : 'error',
-    'block-spacing'                 : 'error',
-    'no-multiple-empty-lines'       : 'error',
-    'no-multi-assign'               : 'error',
-    'no-whitespace-before-property' : 'error',
-    'no-nested-ternary'             : 'error',
-    'prefer-const'                  : 'error',
-    'no-useless-computed-key'       : 'error',
-    'no-useless-constructor'        : 'error',
-    'no-useless-rename'             : 'error',
-    'arrow-spacing'                 : 'error',
-    'no-var'                        : 'error',
-    'eqeqeq'                        : 'off',
-
-    'arrow-body-style'         : [ 'error' ],
-    'max-statements'           : [ 'error', 30 ],
-    'max-params'               : [ 'error', 3 ],
-    'max-nested-callbacks'     : [ 'error', 3 ],
-    'max-depth'                : [ 'error', 4 ],
-    'dot-location'             : [ 'error', 'property' ],
-    'wrap-iife'                : [ 'error', 'any' ],
-    'comma-style'              : [ 'error', 'last' ],
-    'comma-dangle'             : [ 'error', 'never' ],
-    'func-call-spacing'        : [ 'error', 'never' ],
-    'object-curly-spacing'     : [ 'error', 'always' ],
-    'quote-props'              : [ 'error', 'as-needed' ],
-    'padded-blocks'            : [ 'error', 'never' ],
-    'space-in-parens'          : [ 'error', 'never' ],
-    'object-shorthand'         : [ 'error', 'always' ],
-    'space-before-blocks'      : [ 'error', 'never' ],
-    'computed-property-spacing': [ 'error', 'never' ],
-
-    quotes    : [ 'error', 'single' ],
-    indent    : [ 'error', 2 ],
-    camelcase : [ 'error', { properties: 'always' } ],
-
-    'array-bracket-spacing': [ 'error', 'always'    , { singleValue: true } ],
-    'brace-style'          : [ 'error', 'stroustrup', { allowSingleLine: true } ],
-    'comma-spacing'        : [ 'error', { before: false, after : true } ],
-    'no-trailing-spaces'   : [ 'error', { skipBlankLines: true } ],
-    'object-curly-newline' : [ 'error', { consistent: true } ],
-    'no-duplicate-imports' : [ 'error', { includeExports: true } ],
-    'prefer-arrow-callback': [ 'error', { allowNamedFunctions: true } ],
-
-    'func-style' : [ 'error', 'declaration', { allowArrowFunctions: true } ],
-    'key-spacing': [ 'error', { align: { beforeColon: false, afterColon : true, on: 'colon', mode: 'strict' } } ],
-
-    'padding-line-between-statements': [
-      'error',
-      { blankLine: 'always', prev     : [ 'const', 'let', 'var' ], next: '*' },
-      { blankLine: 'any'   , prev     : [ 'const', 'let', 'var' ], next: [ 'const', 'let', 'var' ] }
+    // vvv airbnb-base overrides fix vvv
+    'import/extensions'                  : ['error', 'ignorePackages', {
+      'js' : 'never',
+      'vue': 'never'
+    }]
+    // ^^^ airbnb-base overrides fix ^^^
+  },
+  settings: {
+    'import/resolver': { 
+      alias: {
+        map :[
+          ["@roles", "./configs/roles.js"],
+        ]
+      },
+      nuxt:{ }, // <<< airbnb-base overrides fix
+    },
+    'import/core-modules': [ 
+      'vue',
+      'vuex'
     ]
   }
 }

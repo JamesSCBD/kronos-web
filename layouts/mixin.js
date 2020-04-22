@@ -1,17 +1,16 @@
-export default { mounted }
+export default { mounted };
 
-function mounted (){
+function mounted() {
   window.document.addEventListener('$me', () => {
-    this.$root.$emit('$me', this.$me)
-    updateChildren(this)
-  })
+    this.$root.$emit('$me', this.$me);
+    updateChildren(this);
+  });
 }
 
-function updateChildren (vueComp){
-  const { $children } = vueComp
+function updateChildren(vueComp) {
+  const { $children } = vueComp;
 
-  vueComp.$forceUpdate()
+  vueComp.$forceUpdate();
 
-  for (const childComp of $children)
-    updateChildren(childComp)
+  for (const childComp of $children) updateChildren(childComp); // eslint-disable-line no-restricted-syntax
 }

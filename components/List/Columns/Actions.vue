@@ -10,15 +10,15 @@
 </template>
 
 <script>
-import { CIcon } from '@coreui/vue'
+import { CIcon } from '@coreui/vue';
 
 export default {
   components: { CIcon },
   props     : {
     identifier: { type: String, required: true },
-    remove    : { type: [ Function, undefined ],  default: undefined },
-    editPath  : { type: String, default: '' }
-  }
-}
+    remove    : { type: [ Function, undefined ], default: undefined },
+    editPath  : { type: String, default: '' },
+  },
+};
 
 </script>

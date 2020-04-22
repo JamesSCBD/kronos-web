@@ -11,24 +11,26 @@
 </template>
 
 <script>
-import { CSidebar, CSidebarBrand, CSidebarMinimizer } from '@coreui/vue'
-import { mapGetters, mapMutations } from 'vuex'
-import   Nav from './Nav'
+import { mapGetters, mapMutations } from 'vuex';
+import { CSidebar, CSidebarBrand, CSidebarMinimizer } from '@coreui/vue';
+import Nav from './Nav';
 
 export default {
   name      : 'KSidebar',
-  components: { CSidebar, CSidebarBrand, CSidebarMinimizer, Nav },
-  computed  : {
+  components: {
+    CSidebar, CSidebarBrand, CSidebarMinimizer, Nav,
+  },
+  computed: {
     ...mapGetters({
       isMin : 'coreui/isMin',
-      isShow: 'coreui/isShow'
-    })
+      isShow: 'coreui/isShow',
+    }),
   },
   methods: {
     ...mapMutations({
       toggleShow: 'coreui/sideBarShowToggle',
-      toggleMin : 'coreui/sideBarMinToggle'
-    })
-  }
-}
+      toggleMin : 'coreui/sideBarMinToggle',
+    }),
+  },
+};
 </script>

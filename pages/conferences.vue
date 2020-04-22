@@ -9,8 +9,8 @@
 </template>
 
 <script>
-import { readOnly } from '@roles'
-import   List       from '@components/list/ConferencesList'
+import { readOnly } from '@roles';
+import List from '~/components/list/ConferencesList';
 
 export default {
   name      : 'Conferences',
@@ -18,24 +18,23 @@ export default {
   auth      : readOnly,
   data      : () => ({ loading: false }),
   computed  : { totalRows: rows },
-  methods   : { tableItems: search }
-}
+  methods   : { tableItems: search },
+};
 
-async function search (ctx){
+async function search() {
   try {
-    this.loading = true
+    this.loading = true;
 
-    return await this.$kronosApi.getConferences()
-  }
-  finally {
-    this.loading = false
+    return await this.$kronosApi.getConferences();
+  } finally {
+    this.loading = false;
   }
 }
 
 // ===================
 // Get total number of rows
 // ===================
-function rows (){
-  return 0
+function rows() {
+  return 0;
 }
 </script>
