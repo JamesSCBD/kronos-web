@@ -43,12 +43,6 @@
                   :show-no-results="false"
                   :searchable="false"
                 >
-                  <template slot="tag" slot-scope="{ option, remove }">
-                    <span class="custom__tag">
-                      <span>{{ option.Code }}</span>
-                      <span class="custom__remove" @click="remove(option)">❌</span>
-                    </span>
-                  </template>
                   <template slot="selection" slot-scope="{ values }">
                     <span
                       v-if="values.length > 2"
@@ -79,12 +73,6 @@
                   :close-on-select="false"
                   :show-no-results="false"
                 >
-                  <template slot="tag" slot-scope="{ option, remove }">
-                    <span class="custom__tag">
-                      <span>{{ option.code }}</span>
-                      <span class="custom__remove" @click="remove(option)">❌</span>
-                    </span>
-                  </template>
                   <template slot="selection" slot-scope="{ values }">
                     <span
                       v-if="values.length > 2"
@@ -118,12 +106,6 @@
               :clear-on-select="false"
               :close-on-select="true"
             >
-              <template slot="tag" slot-scope="{ option, remove }">
-                <span class="custom__tag">
-                  <span>{{ option.Title }}</span>
-                  <span class="custom__remove" @click="remove(option)">&times;</span>
-                </span>
-              </template>
               <template slot="selection" slot-scope="{ values }">
                 <span
                   v-if="values.length > 1"
@@ -180,12 +162,6 @@
                   :clear-on-select="false"
                   :close-on-select="false"
                 >
-                  <template slot="tag" slot-scope="{ option, remove }">
-                    <span class="custom__tag">
-                      <span>{{ option.Name }}</span>
-                      <span class="custom__remove" @click="remove(option)">❌</span>
-                    </span>
-                  </template>
                   <template slot="selection" slot-scope="{ values }">
                     <span
                       v-if="values.length > 1"

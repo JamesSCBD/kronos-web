@@ -1,0 +1,92 @@
+@mixin Opacity($value){
+  $IEValue: $value*100;
+  opacity: $value;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity="+$IEValue+")";
+  filter: alpha(opacity=$IEValue);
+}
+
+@mixin transform($property) {
+  -webkit-transform: $property; 
+  -ms-transform: $property;
+  transform: $property;
+}
+
+.page-enter-active, .page-leave-active {
+  @include transition(opacity 0.2s ease);
+}
+.page-enter, .page-leave-to {
+  @include Opacity(0);
+}
+.table-responsive-md {
+  overflow-y: auto;
+}
+.table .thead-light th {
+  font-size: 13px;
+  vertical-align: middle;
+}
+@media (min-width: 992px) { 
+  .c-header.c-header-with-subheader{
+    max-height: 56px;
+  }
+}
+@media (max-width: 426px) { 
+  .c-header-brand {
+    height: 20px;
+    margin-top: 10px;
+  }
+  .c-header.c-header-with-subheader {
+    height: 140px;
+  }
+  .c-header.c-header-with-subheader .c-header-nav {
+    height: 38px;
+    margin-right: 15px !important ;
+  }
+  .vue-avatar--wrapper {
+    width: 30px !important;
+    height: 29px !important;
+    font-size: $font-size-base !important;
+  }
+  .c-subheader {
+    flex-direction: column;
+    height: auto;
+    padding: 13px 0 0 0;
+  }
+  .c-subheader .breadcrumb {
+    margin-bottom: 0px;
+  }
+  .c-subheader .col-4, .c-subheader .col-8 {
+    width: 100%;
+    max-width: 100%;
+    flex: 100%;
+  }
+  .c-header-fixed.c-header-with-subheader ~ .c-body{
+    padding: 140px 0 0 0;
+  }
+  select#perPageSelect {
+    margin-bottom: 10px;
+  }
+}
+.c-header-fixed.c-header-with-subheader ~ .c-body{
+  overflow: hidden;
+}
+.card-header > .c-icon:first-child {
+  margin-right: 0.1rem;
+  margin-top: 0.1rem;
+  vertical-align: top;
+  width: 1.2rem;
+  height: 1.2rem;
+  font-size: 1.2rem;
+}
+
+.normal-flag.flag{
+  margin: -25px !important;
+  @include transform(scale(0.3 !important));
+}
+
+/** FIlter Sec  Design  **/
+.filter_Sec {
+  margin: 15px;
+}
+.filter_Sec .custom-checkbox {
+  margin-top: 5px;
+}

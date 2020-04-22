@@ -26,118 +26,17 @@
 
 
 // Here you can add other styles
-.page-enter-active, .page-leave-active {
-  transition: opacity .3s;
-}
-.page-enter, .page-leave-to {
-  opacity: 0;
-}
-
-.multiselect__content span {
-  white-space: normal;
-  word-break: break-all;
-  line-height: normal;
-}
-.table-responsive-md {
-  overflow-y: auto;
-}
-.table .thead-light th {
-  font-size: 13px;
-  vertical-align: middle;
-}
-@media (min-width: 992px) { 
-  .c-header.c-header-with-subheader{
-    max-height: 56px;
-  }
-}
-@media (max-width: 426px) { 
-  .c-header-brand {
-    height: 20px;
-    margin-top: 10px;
-  }
-  .c-header.c-header-with-subheader {
-    height: 140px;
-  }
-  .c-header.c-header-with-subheader .c-header-nav {
-    height: 38px;
-    margin-right: 15px !important;
-  }
-  .vue-avatar--wrapper {
-    width: 30px !important;
-    height: 29px !important;
-    font-size: 13px !important;
-  }
-  .c-subheader {
-    flex-direction: column;
-    height: auto;
-    padding-bottom: 13px;
-  }
-  .c-subheader .breadcrumb {
-    margin-bottom: 0;
-  }
-  .c-subheader .col-4, .c-subheader .col-8 {
-    width: 100%;
-    max-width: 100%;
-    flex: 100%;
-  }
-  .c-header-fixed.c-header-with-subheader ~ .c-body{
-    padding-top: 140px;
-  }
-  select#perPageSelect {
-    margin-bottom: 10px;
-  }
-}
-.c-header-fixed.c-header-with-subheader ~ .c-body{
-  overflow: hidden;
-}
-.card-header > .c-icon:first-child {
-  margin-right: 0.1rem;
-  margin-top: 0.1rem;
-  vertical-align: top;
-  width: 1.2rem;
-  height: 1.2rem;
-  font-size: 1.2rem;
-}
-
-.normal-flag.flag{
-  margin: -25px !important;
-  transform: scale(.3) !important;
-  -ms-transform: scale(.3) !important;
-  -webkit-transform: scale(.3) !important;
-  -moz-transform: scale(.3) !important;
-}
 .multiselect__single{
-  margin-bottom: 6px;
-  margin-top: 2px;
-  font-size: 13px;
-
-}
-.custom__tag {
-  display: inline-block;
-  padding: 3px 4px 3px 4px;
-  border: 1px solid #d8dbe0;
-  background: #ffffff;
-  margin-right: 8px;
-  margin-bottom: 7px;
-  border-radius: 3px;
-  cursor: pointer;
-  margin-top: 1px;
-}
-
-
-/** FIlter Sec  Design  **/
-.filter_Sec {
-  margin-bottom: 15px;
-}
-.filter_Sec .custom-checkbox {
-  margin-top: 5px;
+  margin-bottom: $input-padding-y;
+  margin-top: $dropdown-spacer;
+  font-size: $font-size-base;
 }
 
 .pr-0 select.custom-select, .pr-0 .multiselect__tags {
-  border-radius: 0.25rem 0 0 0.25rem;
+  border-radius: $input-border-radius 0 0 $input-border-radius;
 }
 .pl-0 select.custom-select, .pl-0 .multiselect__tags {
-  border-radius: 0 0.25rem 0.25rem 0;
+  border-radius: 0 $input-border-radius $input-border-radius 0;
 }
 .filter_Sec .multiselect__element .multiselect__option {
   padding-left: 40px;
@@ -145,8 +44,8 @@
 .filter_Sec .multiselect__element .multiselect__option.multiselect__option--selected:before {
   content: "";
   position: absolute;
-  height: 15px;
-  width: 15px;
+  height: $font-size-base;
+  width: $font-size-base;
   background-image: url('../images/check_mark_icn.png');
   left: 10px;
   top: 0;
@@ -156,10 +55,6 @@
   background-repeat: no-repeat;
   background-position: left center;
 }
-.filter_Sec .multiselect__strong {
-  font-size: 10px;
-  margin-top: 2px;
-}
 .filter_Sec .multiselect__option--selected:after, .filter_Sec .multiselect__option--highlight:after{
   display: none;
 }
@@ -167,14 +62,6 @@
   padding: 8px;
   font-size: 12px;
   min-height: auto;
-}
-.filter_Sec .custom__tag {
-  font-size: 11px;
-}
-.filter_Sec .custom__tag .custom__remove {
-  font-size: 12px;
-  margin-top: 3px;
-  margin-left: 5px;
 }
 .multiselect__clear {
   position: absolute;
@@ -191,15 +78,8 @@
   position: absolute;
   font-size: 21px;
   color: #aaa;
-  top: 2px;
+  top: $dropdown-spacer;
   right: 0;
-  font-weight: 600;
+  font-weight: $font-weight-bold;
   line-height: 32px;
 }
-
-.multiselect__option--disabled {
-  background: white!important;
-  cursor: text;
-  pointer-events: none;
-}
-
