@@ -1,12 +1,12 @@
 /* eslint-disable no-param-reassign */
-const _state = () => ({
+const $state = () => ({
   sideBar: {
     show: true,
     min : false,
   },
 });
 
-const _getters = {
+const $getters = {
   isMin({ sideBar }) {
     return sideBar.min;
   },
@@ -16,7 +16,7 @@ const _getters = {
   },
 };
 
-const _mutations = {
+const $mutations = {
   sideBarShowToggle(state) {
     state.sideBar.show = !state.sideBar.show;
   },
@@ -26,7 +26,7 @@ const _mutations = {
 };
 
 export {
-  _state as state,
-  _mutations as mutations,
-  _getters as getters,
+  $state     as state,
+  $getters   as getters,
+  $mutations as mutations,
 };

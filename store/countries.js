@@ -1,11 +1,11 @@
 /* eslint-disable no-param-reassign */
 import _ from 'lodash';
 
-export const _state = () => ({
+export const $state = () => ({
   countries: [],
 });
 
-export const _getters = {
+export const $getters = {
 
   list(state) { return state.countries; },
 
@@ -18,13 +18,13 @@ export const _getters = {
   },
 };
 
-export const _mutations = {
+export const $mutations = {
   setList(state, countries = []) {
     state.countries = _.sortBy(countries, (c) => c.Name.toLowerCase());
   },
 };
 
-export const _actions = {
+export const $actions = {
 
   async initialize({ commit }) {
     const countries = await this.$kronosApi.getCountries();
@@ -36,8 +36,8 @@ export const _actions = {
 };
 
 export {
-  _state as state,
-  _mutations as mutations,
-  _getters as getters,
-  _actions as actions,
+  $state     as state,
+  $getters   as getters,
+  $actions   as actions,
+  $mutations as mutations,
 };

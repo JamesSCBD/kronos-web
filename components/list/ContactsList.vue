@@ -193,12 +193,12 @@ async function searchContacts() {
 
     this.totalRows = 1234; // TODO
 
-    const _this = this;
+    const thisComponent = this;
 
     this.contacts = rows.map((r) => ({
       ...r,
       get Selected() {
-        return _this.isContactSelected(this.ContactUID);
+        return thisComponent.isContactSelected(this.ContactUID);
       },
     }));
     return this.contacts;

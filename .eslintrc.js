@@ -28,7 +28,7 @@ module.exports = {
     'array-bracket-spacing'              : ['error', 'always', {arraysInArrays:false, objectsInArrays:false}],
     'no-plusplus'                        : ['off'],
     'no-use-before-define'               : ['error', { 'functions': false, 'classes': false }],
-    'no-underscore-dangle'               : ['off'], // <<< MongoDB Ids (_id) fix
+    'no-underscore-dangle'               : ['error', { "allow": ["_id" ] }], // <<< MongoDB Ids (_id) fix
 
     // vvv airbnb-base overrides fix vvv
     'import/extensions'                  : ['error', 'ignorePackages', {

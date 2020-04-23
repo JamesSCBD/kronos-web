@@ -1,13 +1,13 @@
 /* eslint-disable no-param-reassign */
 import _ from 'lodash';
 
-const _state = () => ({
+const $state = () => ({
   conferences       : [],
   selectedConference: null,
   activeEvents      : [],
 });
 
-const _getters = {
+const $getters = {
 
   list({ conferences }) {
     return conferences;
@@ -52,7 +52,7 @@ const _getters = {
   },
 };
 
-const _mutations = {
+const $mutations = {
 
   setList(state, conferences = []) {
     state.conferences = conferences;
@@ -70,17 +70,17 @@ const _mutations = {
   },
 };
 
-const _actions = {
+const $actions = {
 
   async initialize({ dispatch, commit }, defaultConf) {
     const conferences = await this.$kronosApi.getConferences();
 
     commit('setList', conferences);
 
-    const _idOrCode = (defaultConf || {})._id || defaultConf;
-    let conference  = null;
+    const idOrCode = (defaultConf || {})._id || defaultConf;
+    let conference = null;
 
-    if (_idOrCode) conference = conferences.find((c) => c._id === _idOrCode || c.code === _idOrCode);
+    if (idOrCode) conference = conferences.find((c) => c._id === idOrCode || c.code === idOrCode);
     if (!conference) [ conference ] = conferences;
 
     await dispatch('setSelected', conference);
@@ -130,8 +130,8 @@ async function loadActiveEvents(conference) {
 }
 
 export {
-  _state as state,
-  _mutations as mutations,
-  _getters as getters,
-  _actions as actions,
+  $state     as state,
+  $getters   as getters,
+  $actions   as actions,
+  $mutations as mutations,
 };

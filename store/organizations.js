@@ -1,12 +1,12 @@
 /* eslint-disable no-param-reassign */
 import _ from 'lodash';
 
-const _state = () => ({
+const $state = () => ({
   organizationCache: [],
   organizationTypes: [],
 });
 
-const _mutations = {
+const $mutations = {
   setTypes(state, types = []) {
     state.organizationTypes = _.sortBy(types, (c) => c.Title.toLowerCase());
   },
@@ -15,7 +15,7 @@ const _mutations = {
   },
 };
 
-const _getters = {
+const $getters = {
 
   types({ organizationTypes }) {
     return organizationTypes;
@@ -30,7 +30,7 @@ const _getters = {
   },
 };
 
-const _actions = {
+const $actions = {
   async initialize({ commit }) {
     const types = await this.$kronosApi.getOrganizationTypes();
 
@@ -58,8 +58,8 @@ const _actions = {
 };
 
 export {
-  _state as state,
-  _mutations as mutations,
-  _getters as getters,
-  _actions as actions,
+  $state     as state,
+  $getters   as getters,
+  $actions   as actions,
+  $mutations as mutations,
 };
