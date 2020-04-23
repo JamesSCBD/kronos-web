@@ -275,7 +275,7 @@ import { readOnly } from '@roles';
 import { BFormInput, BFormCheckbox } from 'bootstrap-vue';
 import Multiselect from 'vue-multiselect';
 import _ from 'lodash';
-import ContactsList from '~/components/list/ContactsList';
+import ContactsList from '~/components/List/ContactsList';
 
 const Flags = [
   { Title: 'Funded', Code: 'funded' },

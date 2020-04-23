@@ -10,7 +10,7 @@
 
 <script>
 import { readOnly } from '@roles';
-import List from '~/components/list/ConferencesList';
+import List from '~/components/List/ConferencesList';
 
 export default {
   name      : 'Conferences',

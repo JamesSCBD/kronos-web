@@ -225,7 +225,7 @@ import { readOnly } from '@roles';
 import { BFormInput, BFormCheckbox } from 'bootstrap-vue';
 import Multiselect from 'vue-multiselect';
 import _ from 'lodash';
-import List from '~/components/list/OrganizationsList';
+import List from '~/components/List/OrganizationsList';
 
 export default {
   name      : 'Organizations',
