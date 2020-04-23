@@ -17,7 +17,7 @@
 
 <script>
 import mixin from './mixin';
-import { KHeader, KFooter, KSidebar } from '~/components/Kronos';
+import { KHeader, KFooter, KSidebar } from '~/components/kronos';
 
 export default {
   name      : 'Default',

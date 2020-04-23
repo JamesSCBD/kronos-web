@@ -83,7 +83,7 @@
 <script>
 import _ from 'lodash';
 import { mapGetters, mapActions } from 'vuex';
-import { CountryCol, EmailCol } from './Columns';
+import { CountryCol, EmailCol } from './columns';
 import mixin from './mixin';
 import pager from '~/components/controls/Pager';
 
