@@ -30,36 +30,7 @@
           <div class="row">
             <div class="col-md-7 col-sm-7 col-xs-12 pr-0">
               <div class="form-group">
-                <multiselect
-                  v-model="selectedEvents"
-                  label="Code"
-                  track-by="EventUID"
-                  placeholder="Meetings"
-                  open-direction="bottom"
-                  :options="eventOptions"
-                  group-values="events"
-                  group-label="title"
-                  :group-select="false"
-                  :multiple="true"
-                  :clear-on-select="false"
-                  :close-on-select="false"
-                  :show-no-results="false"
-                  :searchable="true"
-                >
-                  <template slot="selection" slot-scope="{ values }">
-                    <span
-                      v-if="values.length > 2"
-                      class="multiselect__single"
-                    >{{ values.length }} meetings selected</span>
-                  </template>
-                  <template slot="clear">
-                    <div
-                      v-if="selectedEvents.length"
-                      class="multiselect__clear"
-                      @mousedown.prevent.stop="selectedEvents = null"
-                    />
-                  </template>
-                </multiselect>
+                <EventSelector :v-model.sync="selectedEvents" />
               </div>
             </div>
             <div class="col-md-5 col-sm-5 col-xs-12 pl-0">
@@ -276,6 +247,7 @@ import { BFormInput, BFormCheckbox } from 'bootstrap-vue';
 import Multiselect from 'vue-multiselect';
 import _ from 'lodash';
 import ContactsList from '~/components/list/ContactsList';
+import EventSelector from '~/components/controls/selectors/EventSelector';
 
 const Flags = [
   { Title: 'Funded', Code: 'funded' },
@@ -298,6 +270,7 @@ export default {
     BFormInput,
     BFormCheckbox,
     Multiselect,
+    EventSelector,
   },
   data() {
     return {
@@ -319,13 +292,11 @@ export default {
     flagOptions              : { get: () => Flags },
     attendanceOptions        : { get: () => Attendances },
     countryScopeOptions      : { get: () => CountryScopes },
-    eventOptions             : getEventOptions,
     ...mapGetters({
       countryOptions               : 'countries/list',
       organizationTypesOptions     : 'organizations/types',
       selectedConference           : 'conferences/selected',
       majorEvents                  : 'conferences/majorEvents',
-      events                       : 'conferences/events',
       getCachedEventById           : 'conferences/getEventById',
       getCachedCountryByCode       : 'countries/getCountryByCode',
       getCachedOrganizationById    : 'organizations/getOrganizationById',
@@ -491,47 +462,13 @@ function setSelectedAttendances(values) {
 // Meetings //
 // ////////////
 function getSelectedEvents() {
-  const ids = asArray(this.queryString('event'));
-
-  return ids.map((id) => this.getCachedEventById(id) || { EventUID: id, isMissing: true });
+  return asArray(this.queryString('event')) || null;
 }
 
 function setSelectedEvents(values) {
-  const ids = asArray(values).map((o) => o.EventUID);
+  const ids = asArray(values) || null;
 
   this.queryString('event', ids);
-}
-
-function getEventOptions() {
-  const now = new Date();
-
-  const options = [{
-    title : 'Main meetings',
-    events: _(this.events)
-      .filter((e) => e.isMajor)
-      .orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ])
-      .value(),
-  }, {
-    title : 'Parallel meetings',
-    events: _(this.events)
-      .filter((e) => e.isMinor)
-      .orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ])
-      .value(),
-  }, {
-    title : 'Future meetings',
-    events: _(this.events)
-      .filter((e) => !e.isMajor && !e.isMinor && new Date(e.EndDate) > now)
-      .orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ])
-      .value(),
-  }, {
-    title : 'Recent past meetings',
-    events: _(this.events)
-      .filter((e) => !e.isMajor && !e.isMinor && new Date(e.EndDate) <= now)
-      .orderBy([ 'EndDate', 'StartDate', 'Code' ], [ 'desc', 'asc', 'asc' ])
-      .value(),
-  }];
-
-  return _.filter(options, (o) => o.events.length);
 }
 
 // ===================
@@ -542,7 +479,7 @@ function buildQuery() {
     FreeText               : this.freeText,
     Governments            : this.selectedCountries.map((o) => o.Code),
     OrganizationUIDs       : this.selectedOrganizations.map((o) => o.OrganizationUID),
-    EventUIDs              : this.selectedEvents.map((o) => o.EventUID),
+    EventUIDs              : this.selectedEvents,
     EventRegistrationStatus: this.selectedAttendances.reduce((r, v) => r + v.value, 0) || undefined,
   });
 
