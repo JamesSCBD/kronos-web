@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import _ from 'lodash';
 
 export const $state = () => ({
@@ -18,11 +17,13 @@ export const $getters = {
   },
 };
 
+/* eslint-disable no-param-reassign */
 export const $mutations = {
   setList(state, countries = []) {
     state.countries = _.sortBy(countries, (c) => c.Name.toLowerCase());
   },
 };
+/* eslint-enable no-param-reassign */
 
 export const $actions = {
 

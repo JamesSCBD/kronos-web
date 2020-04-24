@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import _ from 'lodash';
 
 const $state = () => ({
@@ -52,6 +51,7 @@ const $getters = {
   },
 };
 
+/* eslint-disable no-param-reassign */
 const $mutations = {
 
   setList(state, conferences = []) {
@@ -69,6 +69,7 @@ const $mutations = {
     state.activeEvents = [];
   },
 };
+/* eslint-enable no-param-reassign */
 
 const $actions = {
 

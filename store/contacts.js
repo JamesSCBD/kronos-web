@@ -1,10 +1,10 @@
-/* eslint-disable no-param-reassign */
 import _ from 'lodash';
 
 const $state = () => ({
   selectedContacts: [],
 });
 
+/* eslint-disable no-param-reassign */
 const $mutations = {
 
   clear(state) {
@@ -27,6 +27,7 @@ const $mutations = {
     state.selectedContacts = state.selectedContacts.filter((c) => c.ContactUID !== contactUID);
   },
 };
+/* eslint-enable no-param-reassign */
 
 const $getters = {
 

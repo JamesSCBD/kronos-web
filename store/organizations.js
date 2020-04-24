@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import _ from 'lodash';
 
 const $state = () => ({
@@ -6,6 +5,7 @@ const $state = () => ({
   organizationTypes: [],
 });
 
+/* eslint-disable no-param-reassign */
 const $mutations = {
   setTypes(state, types = []) {
     state.organizationTypes = _.sortBy(types, (c) => c.Title.toLowerCase());
@@ -14,6 +14,7 @@ const $mutations = {
     state.organizationCache = _.unionBy(organizations, state.organizationCache, (o) => o.OrganizationUID);
   },
 };
+/* eslint-enable no-param-reassign */
 
 const $getters = {
 

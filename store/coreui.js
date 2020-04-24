@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 const $state = () => ({
   sideBar: {
     show: true,
@@ -16,6 +15,7 @@ const $getters = {
   },
 };
 
+/* eslint-disable no-param-reassign */
 const $mutations = {
   sideBarShowToggle(state) {
     state.sideBar.show = !state.sideBar.show;
@@ -24,6 +24,7 @@ const $mutations = {
     state.sideBar.min = !state.sideBar.min;
   },
 };
+/* eslint-enable no-param-reassign */
 
 export {
   $state     as state,
