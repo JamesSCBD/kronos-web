@@ -6,9 +6,8 @@ export default {
   methods,
   props: {
     multiple: {
-      type    : Boolean,
-      required: true,
-      default : true,
+      type   : Boolean,
+      default: true,
     },
   },
 };

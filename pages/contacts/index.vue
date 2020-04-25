@@ -149,31 +149,7 @@
           <div class="row">
             <div class="col-md-7 col-sm-6 col-xs-12 pr-0">
               <div class="form-group">
-                <multiselect
-                  v-model="selectedCountries"
-                  label="Name"
-                  track-by="Code"
-                  placeholder="Country"
-                  :options="countryOptions"
-                  :multiple="true"
-                  :searchable="true"
-                  :clear-on-select="false"
-                  :close-on-select="false"
-                >
-                  <template slot="selection" slot-scope="{ values }">
-                    <span
-                      v-if="values.length > 1"
-                      class="multiselect__single"
-                    >{{ values.length }} countries selected</span>
-                  </template>
-                  <template slot="clear">
-                    <div
-                      v-if="selectedCountries.length"
-                      class="multiselect__clear"
-                      @mousedown.prevent.stop="selectedCountries = null"
-                    />
-                  </template>
-                </multiselect>
+                <CountrySelector v-model="selectedCountries" />
               </div>
             </div>
             <div class="col-md-5 col-sm-6 col-xs-12 pl-0">
@@ -248,6 +224,8 @@ import Multiselect from 'vue-multiselect';
 import _ from 'lodash';
 import ContactsList from '~/components/list/ContactsList';
 import EventSelector from '~/components/controls/selectors/EventSelector';
+import CountrySelector from '~/components/controls/selectors/CountrySelector';
+
 
 const Flags = [
   { Title: 'Funded', Code: 'funded' },
@@ -271,6 +249,7 @@ export default {
     BFormCheckbox,
     Multiselect,
     EventSelector,
+    CountrySelector,
   },
   data() {
     return {
@@ -351,13 +330,11 @@ function setBroadSearch(values) {
 // /////////////
 
 function getSelectedCountries() {
-  const codes = asArray(this.queryString('country'));
-
-  return codes.map((code) => this.getCachedCountryByCode(code) || { Code: code, isMissing: true });
+  return asArray(this.queryString('country')) || null;
 }
 
 function setSelectedCountries(values) {
-  const codes = asArray(values).map((o) => o.Code);
+  const codes = asArray(values) || null;
 
   this.queryString('country', codes);
 }
@@ -477,7 +454,7 @@ function setSelectedEvents(values) {
 function buildQuery() {
   const query = cleanUp({
     FreeText               : this.freeText,
-    Governments            : this.selectedCountries.map((o) => o.Code),
+    Governments            : this.selectedCountries,
     OrganizationUIDs       : this.selectedOrganizations.map((o) => o.OrganizationUID),
     EventUIDs              : this.selectedEvents,
     EventRegistrationStatus: this.selectedAttendances.reduce((r, v) => r + v.value, 0) || undefined,
