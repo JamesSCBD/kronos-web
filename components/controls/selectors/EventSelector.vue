@@ -44,7 +44,7 @@ export default {
   components: { Multiselect },
   mixins    : [ SelectorsMixin ],
   props     : {
-    vModel: {
+    value: {
       type    : [ String, Array ],
       required: true,
       default() {
@@ -55,11 +55,11 @@ export default {
   computed: {
     selectedEvents: {
       get() {
-        return this.asArray(this.vModel).map((value) => this.events.find((option) => option.EventUID === value) || { EventUID: value, isMissing: true });
+        return this.asArray(this.value).map((value) => this.events.find((option) => option.EventUID === value) || { EventUID: value, isMissing: true });
       },
       set(events) {
         const ids = this.asArray(events).map((event) => event.EventUID);
-        this.$emit('update:vModel', this.multiple ? ids : ids[0]);
+        this.$emit('input', this.multiple ? ids : ids[0]);
       },
     },
     eventOptions: getEventOptions,

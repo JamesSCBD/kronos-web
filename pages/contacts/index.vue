@@ -30,7 +30,7 @@
           <div class="row">
             <div class="col-md-7 col-sm-7 col-xs-12 pr-0">
               <div class="form-group">
-                <EventSelector :v-model.sync="selectedEvents" />
+                <EventSelector v-model="selectedEvents" />
               </div>
             </div>
             <div class="col-md-5 col-sm-5 col-xs-12 pl-0">
@@ -179,31 +179,7 @@
         </div>
         <div class="col-md-6 col-sm-6 col-xs-12">
           <div class="form-group">
-            <multiselect
-              v-model="selectedOrganizationTypes"
-              label="Title"
-              track-by="OrganizationTypeUID"
-              placeholder="Categories..."
-              :options="organizationTypesOptions"
-              :multiple="true"
-              :searchable="true"
-              :clear-on-select="false"
-              :close-on-select="false"
-            >
-              <template slot="selection" slot-scope="{ values }">
-                <span
-                  v-if="values.length > 2"
-                  class="multiselect__single"
-                >{{ values.length }} categories selected</span>
-              </template>
-              <template slot="clear">
-                <div
-                  v-if="selectedOrganizationTypes.length"
-                  class="multiselect__clear"
-                  @mousedown.prevent.stop="selectedOrganizationTypes = null"
-                />
-              </template>
-            </multiselect>
+            <OrganizationTypeSelector v-model="selectedOrganizationTypes" />
           </div>
         </div>
       </div>
@@ -225,6 +201,7 @@ import _ from 'lodash';
 import ContactsList from '~/components/list/ContactsList';
 import EventSelector from '~/components/controls/selectors/EventSelector';
 import CountrySelector from '~/components/controls/selectors/CountrySelector';
+import OrganizationTypeSelector from '~/components/controls/selectors/OrganizationTypeSelector';
 
 
 const Flags = [
@@ -250,6 +227,7 @@ export default {
     Multiselect,
     EventSelector,
     CountrySelector,
+    OrganizationTypeSelector,
   },
   data() {
     return {
@@ -273,7 +251,6 @@ export default {
     countryScopeOptions      : { get: () => CountryScopes },
     ...mapGetters({
       countryOptions               : 'countries/list',
-      organizationTypesOptions     : 'organizations/types',
       selectedConference           : 'conferences/selected',
       majorEvents                  : 'conferences/majorEvents',
       getCachedEventById           : 'conferences/getEventById',
@@ -356,13 +333,11 @@ function setSelectedCountryScope(value) {
 // ////////////////
 
 function getSelectedOrganizationTypes() {
-  const ids = asArray(this.queryString('type'));
-
-  return ids.map((id) => this.getCachedOrganizationTypeById(id) || { OrganizationTypeUID: id, isMissing: true });
+  return asArray(this.queryString('type')) || null;
 }
 
 function setSelectedOrganizationTypes(values) {
-  const ids = asArray(values).map((o) => o.OrganizationTypeUID);
+  const ids = asArray(values) || null;
 
   this.queryString('type', ids);
 }
