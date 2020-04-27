@@ -9,7 +9,7 @@
       :multiple="multiple"
       :searchable="true"
       :clear-on-select="false"
-      :close-on-select="false"
+      :close-on-select="!multiple"
     >
       <template slot="selection" slot-scope="{ values }">
         <span
