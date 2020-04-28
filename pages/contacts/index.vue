@@ -87,25 +87,7 @@
             </div>
             <div class="col-md-5 col-sm-6 col-xs-12 pl-0">
               <div class="form-group">
-                <multiselect
-                  v-model="selectedCountryScope"
-                  label="Title"
-                  track-by="Code"
-                  placeholder="Scope"
-                  :options="countryScopeOptions"
-                  :multiple="false"
-                  :searchable="false"
-                  :clear-on-select="false"
-                  :close-on-select="true"
-                >
-                  <template slot="clear">
-                    <div
-                      v-if="selectedCountryScope.Code"
-                      class="multiselect__clear"
-                      @mousedown.prevent.stop="selectedCountryScope = null"
-                    />
-                  </template>
-                </multiselect>
+                <CountryScopeSelector v-model="selectedCountryScope" />
               </div>
             </div>
           </div>
@@ -137,6 +119,7 @@ import CountrySelector from '~/components/controls/selectors/CountrySelector';
 import OrganizationSelector from '~/components/controls/selectors/OrganizationSelector';
 import OrganizationTypeSelector from '~/components/controls/selectors/OrganizationTypeSelector';
 import RegistrationStatusSelector from '~/components/controls/selectors/RegistrationStatusSelector';
+import CountryScopeSelector from '~/components/controls/selectors/CountryScopeSelector';
 
 
 const Flags = [
@@ -160,6 +143,7 @@ export default {
     OrganizationSelector,
     OrganizationTypeSelector,
     RegistrationStatusSelector,
+    CountryScopeSelector,
   },
   computed: {
     query                    : buildQuery,
@@ -229,13 +213,11 @@ function setSelectedCountries(values) {
 }
 
 function getSelectedCountryScope() {
-  const code = asArray(this.queryString('scope'))[0];
-
-  return this.countryScopeOptions.find((c) => c.Code === code) || { Code: code, isMissing: true };
+  return asArray(this.queryString('scope'))[0] || null;
 }
 
 function setSelectedCountryScope(value) {
-  const codes = asArray(value).map((o) => o.Code);
+  const codes = asArray(value) || null;
 
   this.queryString('scope', codes);
 }
@@ -319,7 +301,7 @@ function buildQuery() {
   });
 
   if (query.FreeText) { query.IsBroadSearch = this.isBroadSearch || undefined; }
-  if (query.Governments) { query.CountryScope = (this.selectedCountryScope || {}).value; }
+  if (query.Governments) { query.CountryScope = (this.selectedCountryScope || undefined); }
 
   if (this.selectedFlags.some((o) => o.Code === 'funded')) { query.IsFunded = true; }
 
