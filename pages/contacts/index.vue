@@ -35,33 +35,7 @@
             </div>
             <div class="col-md-5 col-sm-5 col-xs-12 pl-0">
               <div class="form-group">
-                <multiselect
-                  v-model="selectedAttendances"
-                  label="Title"
-                  track-by="Value"
-                  placeholder="Attendance "
-                  open-direction="bottom"
-                  :options="attendanceOptions"
-                  :multiple="true"
-                  :clear-on-select="false"
-                  :close-on-select="false"
-                  :show-no-results="false"
-                >
-                  <template slot="tag" slot-scope="{ option, remove }">
-                    <span class="multiselect__tag">
-                      <span>{{ option.Title.substr(0,3) }}</span>
-                      <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="remove(option)" />
-                    </span>
-                  </template>
-
-                  <template slot="clear">
-                    <div
-                      v-if="selectedAttendances.length"
-                      class="multiselect__clear"
-                      @mousedown.prevent.stop="selectedAttendances = null"
-                    />
-                  </template>
-                </multiselect>
+                <RegistrationStatusSelector v-model="selectedAttendances" />
               </div>
             </div>
           </div>
@@ -70,48 +44,7 @@
       <div class="row">
         <div class="col-md-6 col-sm-6 col-xs-12">
           <div class="form-group">
-            <multiselect
-              v-model="selectedOrganizations"
-              label="OrganizationName"
-              track-by="OrganizationUID"
-              placeholder="Search organization"
-              open-direction="bottom"
-              :options="organizationOptions"
-              :multiple="true"
-              :searchable="true"
-              :loading="isLoadingOrganization"
-              :internal-search="false"
-              :clear-on-select="false"
-              :close-on-select="false"
-              :max-height="300"
-              @search-change="onOrganizationTextChange"
-            >
-              <template slot="option" slot-scope="props">
-                <span class="float-right">{{ props.option.Score }}</span>
-                <span>{{ props.option.OrganizationName }}</span>
-                <b v-if="props.option.OrganizationAcronym">{{ props.option.OrganizationAcronym }}</b>
-                <i v-if="props.option.MemberCount>=0">({{ props.option.MemberCount }})</i>
-              </template>
-              <template slot="tag" slot-scope="{ option, remove }">
-                <span class="multiselect__tag">
-                  <span>{{ option.OrganizationAcronym || option.OrganizationName }}</span>
-                  <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="remove(option)" />
-                </span>
-              </template>
-              <template slot="selection" slot-scope="{ values }">
-                <span
-                  v-if="values.length > 3"
-                  class="multiselect__single"
-                >{{ values.length }} organizations selected</span>
-              </template>
-              <template slot="clear">
-                <div
-                  v-if="selectedOrganizations.length"
-                  class="multiselect__clear"
-                  @mousedown.prevent.stop="selectedOrganizations = null"
-                />
-              </template>
-            </multiselect>
+            <OrganizationSelector v-model="selectedOrganizations" />
           </div>
         </div>
         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -193,7 +126,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex';
+import { mapGetters } from 'vuex';
 import { readOnly } from '@roles';
 import { BFormInput, BFormCheckbox } from 'bootstrap-vue';
 import Multiselect from 'vue-multiselect';
@@ -201,18 +134,15 @@ import _ from 'lodash';
 import ContactsList from '~/components/list/ContactsList';
 import EventSelector from '~/components/controls/selectors/EventSelector';
 import CountrySelector from '~/components/controls/selectors/CountrySelector';
+import OrganizationSelector from '~/components/controls/selectors/OrganizationSelector';
 import OrganizationTypeSelector from '~/components/controls/selectors/OrganizationTypeSelector';
+import RegistrationStatusSelector from '~/components/controls/selectors/RegistrationStatusSelector';
 
 
 const Flags = [
   { Title: 'Funded', Code: 'funded' },
 ];
 
-const Attendances   = [
-  { Title: 'Nominated',  Value: 1 << 0 }, // eslint-disable-line no-bitwise
-  { Title: 'Accredited', Value: 1 << 1 }, // eslint-disable-line no-bitwise
-  { Title: 'Registered', Value: 1 << 2 }, // eslint-disable-line no-bitwise
-];
 const CountryScopes = [
   { Title: 'Goverment', Code: 'GOV' },
   { Title: 'Country (Address)', Code: 'CTR' },
@@ -227,13 +157,9 @@ export default {
     Multiselect,
     EventSelector,
     CountrySelector,
+    OrganizationSelector,
     OrganizationTypeSelector,
-  },
-  data() {
-    return {
-      isLoadingOrganization: false,
-      organizationOptions  : [],
-    };
+    RegistrationStatusSelector,
   },
   computed: {
     query                    : buildQuery,
@@ -247,27 +173,13 @@ export default {
     selectedFlags            : { get: getSelectedFlags, set: setSelectedFlags },
     selectedAttendances      : { get: getSelectedAttendances, set: setSelectedAttendances },
     flagOptions              : { get: () => Flags },
-    attendanceOptions        : { get: () => Attendances },
     countryScopeOptions      : { get: () => CountryScopes },
     ...mapGetters({
-      countryOptions               : 'countries/list',
-      selectedConference           : 'conferences/selected',
-      majorEvents                  : 'conferences/majorEvents',
-      getCachedEventById           : 'conferences/getEventById',
-      getCachedCountryByCode       : 'countries/getCountryByCode',
-      getCachedOrganizationById    : 'organizations/getOrganizationById',
-      getCachedOrganizationTypeById: 'organizations/getTypeById',
+      majorEvents: 'conferences/majorEvents',
     }),
-  },
-  created() {
-    initOrganizationCache.call(this);
   },
   methods: {
-    onOrganizationTextChange: _.debounce(searchOrganizations, 400),
     queryString,
-    ...mapActions({
-      getOrganizations: 'organizations/getOrganizations',
-    }),
   },
   auth: readOnly,
 };
@@ -343,39 +255,13 @@ function setSelectedOrganizationTypes(values) {
 }
 
 function getSelectedOrganizations() {
-  const ids = asArray(this.queryString('organization'));
-
-  return ids.map((id) => this.getCachedOrganizationById(id) || { OrganizationUID: id, isMissing: true });
+  return asArray(this.queryString('organization')) || null;
 }
 
 function setSelectedOrganizations(values) {
-  const ids = asArray(values).map((o) => o.OrganizationUID);
+  const ids = asArray(values) || null;
 
   this.queryString('organization', ids);
-}
-
-async function searchOrganizations(text) {
-  try {
-    this.isLoadingOrganization = true;
-    let foundOrganizations     = this.organizationOptions;
-
-    if (text) {
-      this.organizationOptions = this.selectedOrganizations;
-      foundOrganizations       = await this.getOrganizations({ FreeText: text, limit: 25 });
-    }
-
-    this.organizationOptions = _.unionBy(this.selectedOrganizations, foundOrganizations, (o) => o.OrganizationUID);
-  } finally {
-    this.isLoadingOrganization = false;
-  }
-}
-
-async function initOrganizationCache() {
-  const missingOrganizations = this.selectedOrganizations.filter((o) => o.isMissing);
-
-  if (missingOrganizations.length) {
-    this.organizationOptions = await this.getOrganizations({ OrganizationUIDs: missingOrganizations.map((o) => o.OrganizationUID) });
-  }
 }
 
 // /////////
@@ -399,14 +285,11 @@ function setSelectedFlags(values) {
 // //////////////
 
 function getSelectedAttendances() {
-  const ids = asArray(this.queryString('attendance'));
-
-  return ids.map((id) => this.attendanceOptions.find((o) => o.Value === id) || { Value: id, isMissing: true });
+  return asArray(this.queryString('attendance')).map((i) => Number(i)) || null;
 }
 
 function setSelectedAttendances(values) {
-  const ids = asArray(values).map((o) => o.Value);
-
+  const ids = asArray(values) || null;
   this.queryString('attendance', ids);
 }
 
@@ -430,9 +313,9 @@ function buildQuery() {
   const query = cleanUp({
     FreeText               : this.freeText,
     Governments            : this.selectedCountries,
-    OrganizationUIDs       : this.selectedOrganizations.map((o) => o.OrganizationUID),
+    OrganizationUIDs       : this.selectedOrganizations,
     EventUIDs              : this.selectedEvents,
-    EventRegistrationStatus: this.selectedAttendances.reduce((r, v) => r + v.value, 0) || undefined,
+    EventRegistrationStatus: this.selectedAttendances.reduce((r, v) => r + v, 0) || undefined,
   });
 
   if (query.FreeText) { query.IsBroadSearch = this.isBroadSearch || undefined; }

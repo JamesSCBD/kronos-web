@@ -12,7 +12,7 @@
       :group-select="false"
       :multiple="multiple"
       :clear-on-select="false"
-      :close-on-select="false"
+      :close-on-select="!multiple"
       :show-no-results="false"
       :searchable="true"
     >
