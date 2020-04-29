@@ -1,21 +1,14 @@
 <template>
   <div>
-    <div class="paginationRow">
-      <BFormSelect id="perPageSelect" v-model="perPage" :options="pageOptions" />
-      <BPagination
-        v-model="currentPage"
-        :total-rows="totalRows"
-        :per-page="perPage"
-        prev-text="Prev"
-        next-text="Next"
-        aria-controls="KContactsList"
-        limit="1"
-        hide-goto-end-buttons
-      />
-    </div>
+    <pager
+      :page.sync="page"
+      :page-size.sync="pageSize"
+      :record-count="totalRows"
+      :sync-query-string="true"
+    />
     <BTable
       id="KOrganizationList"
-      :items="tableItems"
+      :items="searchOrganizations"
       :fields="columns"
       :busy="loading"
       class="mb-0 table-outline list"
@@ -23,22 +16,24 @@
       hover
       head-variant="light"
       sort-icon-left
-      :per-page="perPage"
-      :current-page="currentPage"
-      :filter="filter"
+      :per-page="pageSize"
+      :current-page="page"
+      :filter="baseQuery"
     >
       <!-- https://bootstrap-vue.js.org/docs/components/table#scoped-field-slots -->
 
+      <template v-slot:table-busy>
+        <div class="text-center text-danger my-2">
+          <CIcon name="circleNotch" class="fa-spin fa-3x fa-fw" />
+          <strong>Loading...</strong>
+        </div>
+      </template>
       <template v-slot:cell(Country)="{value}">
         <CountryCol v-if="value" :code="value" />
       </template>
 
       <template v-slot:cell(Government)="{value}">
         <CountryCol v-if="value" :code="value" />
-      </template>
-
-      <template v-slot:cell(identifier)="{value}">
-        <ActionsCol v-if="value" :identifier="value" :edit-path="editPath+value" :remove="remove" />
       </template>
 
       <template v-slot:cell(OrganizationTypeUID)="{value}">
@@ -53,47 +48,83 @@
 </template>
 
 <script>
+import _ from 'lodash';
 import mixin from './mixin';
+import pager from '~/components/controls/Pager';
 
-const columns = [
-  { key: 'OrganizationName', label: 'Organization' },
-  { key: 'OrganizationAcronym', label: 'Acronym' },
-  { key: 'OrganizationTypeUID', label: 'Type' },
-  { key: 'Government', label: 'Government' },
-  { key: 'IsValidated', label: 'IsValidated' },
-  { key: 'MemberCount', label: 'Member Count' },
-  // { key: 'EventCount', label: '# of Events' },
-  { key: 'Country', label: 'Country', class: 'text-center' },
-  { key: 'Score', label: 'Rank' },
+const baseColumns = [
+  { key: 'OrganizationName', label: 'Organization', sortable: true },
+  { key: 'OrganizationAcronym', label: 'Acronym', sortable: true },
+  { key: 'OrganizationTypeUID', label: 'Type', sortable: true },
+  { key: 'Government', label: 'Government', sortable: true },
+  { key: 'IsValidated', label: 'Validated', sortable: true },
+  { key: 'MemberCount', label: 'Member Count', sortable: true },
+  {
+    key: 'Country', label: 'Country', class: 'text-center', sortable: true,
+  },
+  { key: 'Code', label: 'ID', sortable: true },
+  { key: 'Score', label: 'Rank', sortable: true },
 ];
 
 export default {
-  name   : 'OrganizationsList',
-  mixins : [ mixin ],
-  data,
-  methods: { remove },
+  name      : 'OrganizationsList',
+  components: { pager },
+  mixins    : [ mixin ],
+  props     : {
+    baseQuery: { type: Object, default: () => ({}) },
+  },
+  data() {
+    return {
+      loading  : false,
+      columns  : [ ...baseColumns ],
+      totalRows: 0,
+      page     : 1,
+      pageSize : 25,
+    };
+  },
+  methods: { searchOrganizations, buildQuery },
 };
 
-function data() {
-  const { conferenceCode } = this.$route.params;
-  const editPath           = `/${conferenceCode}/organizations/`;
-  const currentPage        = 1;
+//= ================================
+//
+//= ================================
+async function searchOrganizations() {
+  try {
+    this.loading = true;
+    const query  = this.buildQuery();
 
-  const perPage     = 25;
-  const pageOptions = [
-    { value: 25, text: '25/page' },
-    { value: 50, text: '50/page' },
-    { value: 100, text: '100/page' },
-    { value: 250, text: '250/page' },
-  ];
+    if (!query) return [];
 
-  return {
-    columns, editPath, currentPage, perPage, pageOptions,
-  };
+    const rows = await this.$kronosApi.getOrganizations(query);
+
+    this.totalRows = 1234; // TODO
+
+
+    return rows.map((r) => ({
+      ...r,
+    }));
+  } finally {
+    this.loading = false;
+  }
 }
 
-function remove(identifier) {
-  alert(`delete org ${identifier}`);
+//= ================================
+//
+//= ================================
+function buildQuery() {
+  const query = _(this.baseQuery || {}).omitBy(_.isNil).value();
+
+  if (_.isEmpty(query)) { return null; }
+
+  const limit = this.pageSize;
+  const skip  = this.pageSize * (this.page - 1);
+
+  if (limit) { query.limit = limit; }
+  if (skip) { query.skip = skip; }
+
+  // todo sort
+
+  return query;
 }
 </script>
 <style scoped>

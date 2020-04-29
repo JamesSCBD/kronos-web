@@ -1,18 +1,22 @@
 <template>
   <div class="text-left">
-    {{ getOrganizationNameById(organizationTypeId) }}
+    {{ getOrganizationTypeNameById(organizationTypeId) }}
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 
 export default {
-  components: { },
-  props     : { organizationTypeId: { type: String, required: true } },
-  methods   : { getOrganizationNameById },
+  props   : { organizationTypeId: { type: String, required: true } },
+  computed: {
+    ...mapGetters({ getTypeById: 'organizations/getTypeById' }),
+  },
+  methods: { getOrganizationTypeNameById },
 };
 
-function getOrganizationNameById(organizationTypeId) {
-  return this.$store.getters['organizations/typeNameById'](organizationTypeId);
+function getOrganizationTypeNameById(organizationTypeId) {
+  const  organizationType = this.getTypeById(organizationTypeId);
+  return  (organizationType || {}).Title || organizationTypeId;
 }
 </script>

@@ -126,11 +126,6 @@ const Flags = [
   { Title: 'Funded', Code: 'funded' },
 ];
 
-const CountryScopes = [
-  { Title: 'Goverment', Code: 'GOV' },
-  { Title: 'Country (Address)', Code: 'CTR' },
-];
-
 export default {
   name      : 'Contacts',
   components: {
@@ -157,7 +152,6 @@ export default {
     selectedFlags            : { get: getSelectedFlags, set: setSelectedFlags },
     selectedAttendances      : { get: getSelectedAttendances, set: setSelectedAttendances },
     flagOptions              : { get: () => Flags },
-    countryScopeOptions      : { get: () => CountryScopes },
     ...mapGetters({
       majorEvents: 'conferences/majorEvents',
     }),

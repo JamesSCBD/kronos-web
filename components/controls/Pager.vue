@@ -118,20 +118,3 @@ function saveQueryString() {
   this.$router.push({ query: newQueryString });
 }
 </script>
-<style scoped>
-.paginationRow {
-  display: inline-block;
-  width: 100%;
-  text-align: right;
-}
-
-select#page-size {
-  display: inline;
-  width: auto;
-  margin: 0px 5px;
-}
-ul.pagination.b-pagination {
-  width: auto;
-  float: right;
-}
-</style>

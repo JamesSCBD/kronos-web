@@ -90,3 +90,20 @@
 .filter_Sec .custom-checkbox {
   margin-top: 5px;
 }
+
+.paginationRow {
+  display: inline-block;
+  width: 100%;
+  text-align: right;
+}
+
+/** Pager css class **/
+select#page-size {
+  display: inline;
+  width: auto;
+  margin: 0px 5px;
+}
+ul.pagination.b-pagination {
+  width: auto;
+  float: right;
+}

@@ -11,7 +11,7 @@
               <div class="form-group">
                 <BFormInput
                   id="filterInput"
-                  v-model="searchTagInput"
+                  v-model="freeText"
                   type="search"
                   placeholder="Name / Acronym / #KEYWORD"
                 />
@@ -19,7 +19,7 @@
             </div>
             <div class="col-md-4 col-sm-5 col-xs-12">
               <div class="form-group">
-                <BFormCheckbox v-model="filter.isBroadSearch">
+                <BFormCheckbox v-model="isBroadSearch">
                   Broad search
                 </BFormCheckbox>
               </div>
@@ -30,63 +30,12 @@
           <div class="row">
             <div class="col-md-7 col-sm-7 col-xs-12 pr-0">
               <div class="form-group">
-                <multiselect
-                  v-model="filter.selectedMeetings"
-                  label="Code"
-                  track-by="Code"
-                  placeholder="Meetings"
-                  open-direction="bottom"
-                  :options="meetingsOptions"
-                  :multiple="true"
-                  :clear-on-select="false"
-                  :close-on-select="false"
-                  :show-no-results="false"
-                  :searchable="false"
-                >
-                  <template slot="selection" slot-scope="{ values }">
-                    <span
-                      v-if="values.length > 2"
-                      class="multiselect__single"
-                    >{{ values.length }} meetings selected</span>
-                  </template>
-                  <template slot="clear">
-                    <div
-                      v-if="filter.selectedMeetings.length"
-                      class="multiselect__clear"
-                      @mousedown.prevent.stop="clearSelectedOptions('meetings')"
-                    />
-                  </template>
-                </multiselect>
+                <EventSelector v-model="selectedEvents" />
               </div>
             </div>
             <div class="col-md-5 col-sm-5 col-xs-12 pl-0">
               <div class="form-group">
-                <multiselect
-                  v-model="filter.selectedAttendance"
-                  label="name"
-                  track-by="value"
-                  placeholder="Attendance "
-                  open-direction="bottom"
-                  :options="attendanceOptions"
-                  :multiple="true"
-                  :clear-on-select="false"
-                  :close-on-select="false"
-                  :show-no-results="false"
-                >
-                  <template slot="selection" slot-scope="{ values }">
-                    <span
-                      v-if="values.length > 2"
-                      class="multiselect__single"
-                    >{{ values.length }} attendance selected</span>
-                  </template>
-                  <template slot="clear">
-                    <div
-                      v-if="filter.selectedAttendance.length"
-                      class="multiselect__clear"
-                      @mousedown.prevent.stop="clearSelectedOptions('attendance')"
-                    />
-                  </template>
-                </multiselect>
+                <RegistrationStatusSelector v-model="selectedAttendances" />
               </div>
             </div>
           </div>
@@ -95,54 +44,22 @@
       <div class="row">
         <div class="col-md-6 col-sm-6 col-xs-12">
           <div class="form-group">
-            <multiselect
-              v-model="filter.selectedOrganizationTypes"
-              label="Title"
-              track-by="OrganizationTypeUID"
-              placeholder="Categories"
-              :options="organizationTypeOptions"
-              :multiple="true"
-              :searchable="false"
-              :clear-on-select="false"
-              :close-on-select="true"
-            >
-              <template slot="selection" slot-scope="{ values }">
-                <span
-                  v-if="values.length > 1"
-                  class="multiselect__single"
-                >{{ values.length }} organization type selected</span>
-              </template>
-              <template slot="clear">
-                <div
-                  v-if="filter.selectedOrganizationTypes.length"
-                  class="multiselect__clear"
-                  @mousedown.prevent.stop="clearSelectedOptions('organization-type')"
-                />
-              </template>
-            </multiselect>
+            <OrganizationTypeSelector v-model="selectedOrganizationTypes" />
           </div>
         </div>
         <div class="col-md-6 col-sm-6 col-xs-12">
           <div class="form-group">
             <multiselect
-              v-model="filter.selectedValidationStatus"
-              label="name"
-              track-by="value"
-              placeholder="Validation Status"
+              v-model="selectedValidationStatus"
+              label="Title"
+              track-by="Value"
+              placeholder="Status"
               :options="validationStatusOptions"
               :multiple="false"
               :searchable="false"
               :clear-on-select="false"
               :close-on-select="true"
-            >
-              <template slot="clear">
-                <div
-                  v-if="filter.selectedValidationStatus !== ''"
-                  class="multiselect__clear"
-                  @mousedown.prevent.stop="clearSelectedOptions('validation')"
-                />
-              </template>
-            </multiselect>
+            />
           </div>
         </div>
       </div>
@@ -151,54 +68,12 @@
           <div class="row">
             <div class="col-md-7 col-sm-6 col-xs-12 pr-0">
               <div class="form-group">
-                <multiselect
-                  v-model="filter.selectedCountry"
-                  label="Name"
-                  track-by="Code"
-                  placeholder="Country"
-                  :options="countryOptions"
-                  :multiple="true"
-                  :searchable="true"
-                  :clear-on-select="false"
-                  :close-on-select="false"
-                >
-                  <template slot="selection" slot-scope="{ values }">
-                    <span
-                      v-if="values.length > 1"
-                      class="multiselect__single"
-                    >{{ values.length }} country selected</span>
-                  </template>
-                  <template slot="clear">
-                    <div
-                      v-if="filter.selectedCountry.length"
-                      class="multiselect__clear"
-                      @mousedown.prevent.stop="clearSelectedOptions('country')"
-                    />
-                  </template>
-                </multiselect>
+                <CountrySelector v-model="selectedCountries" />
               </div>
             </div>
             <div class="col-md-5 col-sm-6 col-xs-12 pl-0">
               <div class="form-group">
-                <multiselect
-                  v-model="filter.selectedScop"
-                  label="name"
-                  track-by="value"
-                  placeholder="Scope"
-                  :options="scopeOptions"
-                  :multiple="false"
-                  :searchable="false"
-                  :clear-on-select="false"
-                  :close-on-select="true"
-                >
-                  <template slot="clear">
-                    <div
-                      v-if="filter.selectedScop !== ''"
-                      class="multiselect__clear"
-                      @mousedown.prevent.stop="clearSelectedOptions('scope')"
-                    />
-                  </template>
-                </multiselect>
+                <CountryScopeSelector v-model="selectedCountryScope" />
               </div>
             </div>
           </div>
@@ -208,12 +83,7 @@
     </div>
     <div class="row">
       <div class="col-12">
-        <List
-          :table-items="tableItems"
-          :loading="loading"
-          :total-rows="totalRows"
-          :filter="filter"
-        />
+        <OrganizationsList :base-query="query" />
       </div>
     </div>
   </div>
@@ -225,229 +95,209 @@ import { readOnly } from '@roles';
 import { BFormInput, BFormCheckbox } from 'bootstrap-vue';
 import Multiselect from 'vue-multiselect';
 import _ from 'lodash';
-import List from '~/components/list/OrganizationsList';
+import OrganizationsList from '~/components/list/OrganizationsList';
+import EventSelector from '~/components/controls/selectors/EventSelector';
+import RegistrationStatusSelector from '~/components/controls/selectors/RegistrationStatusSelector';
+import OrganizationTypeSelector from '~/components/controls/selectors/OrganizationTypeSelector';
+import CountrySelector from '~/components/controls/selectors/CountrySelector';
+import CountryScopeSelector from '~/components/controls/selectors/CountryScopeSelector';
+
+const validationStatus = [
+  { Title: 'Validated', Value: 'true' },
+  { Title: 'Not Validated', Value: 'false' },
+];
 
 export default {
   name      : 'Organizations',
   components: {
-    List, BFormInput, Multiselect, BFormCheckbox,
+    OrganizationsList,
+    BFormInput,
+    BFormCheckbox,
+    Multiselect,
+    EventSelector,
+    RegistrationStatusSelector,
+    OrganizationTypeSelector,
+    CountrySelector,
+    CountryScopeSelector,
   },
-  data    : initData,
   computed: {
+    query                    : buildQuery,
+    freeText                 : { get: getFreeText, set: _.debounce(setFreeText, 400) },
+    isBroadSearch            : { get: getBroadSearch, set: setBroadSearch },
+    selectedEvents           : { get: getSelectedEvents, set: setSelectedEvents },
+    selectedAttendances      : { get: getSelectedAttendances, set: setSelectedAttendances },
+    selectedOrganizationTypes: { get: getSelectedOrganizationTypes, set: setSelectedOrganizationTypes },
+    selectedCountries        : { get: getSelectedCountries, set: setSelectedCountries },
+    selectedCountryScope     : { get: getSelectedCountryScope, set: setSelectedCountryScope },
+    selectedValidationStatus : { get: getSelectedValidationStatus, set: setSelectedValidationStatus },
+    validationStatusOptions  : { get: () => validationStatus },
     ...mapGetters({
-      countryOptions         : 'countries/list',
-      organizationTypeOptions: 'organizations/types',
+      majorEvents: 'conferences/majorEvents',
     }),
   },
-  watch: {
-    searchTagInput: _.debounce(onSearchTextChanged, 400),
+  methods: {
+    queryString,
   },
-  mounted,
-  methods: { tableItems: search, clearSelectedOptions, isFiltersApplied },
-  auth   : readOnly,
+  auth: readOnly,
 };
 
-// ===================
-//
-// ===================
-function initData() {
-  return {
-    loading  : false,
-    totalRows: 0,
-    filter   : {
-      name                     : '',
-      isBroadSearch            : false,
-      selectedMeetings         : [],
-      selectedAttendance       : [],
-      selectedValidationStatus : '',
-      selectedCountry          : [],
-      selectedScop             : '',
-      selectedOrganizationTypes: [],
-    },
-    scopeOptions: [
-      { name: 'Goverment', value: 'GOV' },
-      { name: 'Country (Address)', value: 'CTR' },
-    ],
-    attendanceOptions: [
-      { Title: 'Nominated',  Value: 1 << 0 }, // eslint-disable-line no-bitwise
-      { Title: 'Accredited', Value: 1 << 1 }, // eslint-disable-line no-bitwise
-      { Title: 'Registered', Value: 1 << 2 }, // eslint-disable-line no-bitwise
-    ],
-    meetingsOptions        : [],
-    validationStatusOptions: [
-      { name: 'Any', value: undefined },
-      { name: 'Validated', value: true },
-      { name: 'Not Validated', value: false },
-    ],
-    searchTagInput: '',
-  };
+// /////////////
+// FreeText //
+// ////////////
+function getFreeText() {
+  const text = asArray(this.queryString('text'))[0];
+
+  return text || '';
 }
 
-function onSearchTextChanged(value) {
-  this.filter.name = value;
+function setFreeText(values) {
+  const text = asArray(values)[0] || '';
+
+  this.queryString('text', text);
 }
 
-async function mounted() {
-  this.meetingsOptions = await getMajorMinorMeetings(this);
+// ///////////////
+// BroadSearch //
+// ///////////////
+function getBroadSearch() {
+  const value = asArray(this.queryString('broad'))[0];
+
+  return [ 'true', '1' ].includes(value);
 }
 
-async function getMajorMinorMeetings(_this) {
-  const majorEventIDs = [];
-  const minorEventIDs = [];
+function setBroadSearch(values) {
+  const value = asArray(values)[0];
 
-  const majorMeetingsData = _this.$store.getters['conferences/selected'].MajorEventIDs;
-  const minorMeetingsData = _this.$store.getters['conferences/selected'].MinorEventIDs;
-
-  majorMeetingsData.forEach((element) => {
-    majorEventIDs.push(`00000000${element}`);
-  });
-
-  minorMeetingsData.forEach((element) => {
-    minorEventIDs.push(`00000000${element}`);
-  });
-
-  const majorMeetings = await _this.$kronosApi.getMeetings({
-    EvenUIDs: majorEventIDs,
-  });
-
-  const minorMeetings = await _this.$kronosApi.getMeetings({
-    EvenUIDs: minorEventIDs,
-  });
-
-  const meetingDivider = [
-    {
-      EventUID   : '00000000000000000000000000000000',
-      Code       : '-----------------------------',
-      Title      : '-----------------------------',
-      $isDisabled: true,
-    },
-  ];
-
-  return majorMeetings.concat(meetingDivider).concat(minorMeetings);
+  this.queryString('broad', value || null);
 }
 
-// ===================
-//
-// ===================
-async function search(ctx) {
-  try {
-    if (isFiltersApplied(this)) {
-      this.loading = true;
-
-      const query = buildQuery(ctx);
-
-      const rows = await this.$kronosApi.getOrganizations(query);
-
-      this.totalRows = getTotalRows(ctx, this, rows.length);
-      return rows.map((r) => ({ ...r, identifier: r.OrganizationUID }));
-    }
-
-    ctx.currentPage = 1;
-    this.totalRows  = 0;
-    return [];
-  } finally {
-    // TODO Handle error
-    this.loading = false;
-  }
+// ////////////
+// Meetings //
+// ////////////
+function getSelectedEvents() {
+  return asArray(this.queryString('event')) || null;
 }
 
-function isFiltersApplied(_this) {
-  if (
-    _this.filter.name
-    || _this.filter.isBroadSearch
-    || _this.filter.selectedMeetings.length
-    || _this.filter.selectedOrganizationTypes.length
-    || _this.filter.selectedCountry.length
-    || _this.filter.selectedValidationStatus
-    || _this.filter.selectedAttendance.length
-    || _this.filter.selectedScop
-  ) { return true; }
-  return false;
+function setSelectedEvents(values) {
+  const ids = asArray(values) || null;
+
+  this.queryString('event', ids);
 }
 
-// ===================
-// Get total number of rows
-// ===================
-function getTotalRows(ctx, _this, _rowsLength) {
-  if (_rowsLength < ctx.perPage) { return ctx.perPage * ctx.currentPage; }
-  return ctx.perPage * ctx.currentPage + 1;
+// ///////////////
+// Attendances //
+// //////////////
+
+function getSelectedAttendances() {
+  return asArray(this.queryString('attendance')).map((i) => Number(i)) || null;
+}
+
+function setSelectedAttendances(values) {
+  const ids = asArray(values) || null;
+  this.queryString('attendance', ids);
+}
+
+// ////////////////
+// organization //
+// ////////////////
+
+function getSelectedOrganizationTypes() {
+  return asArray(this.queryString('type')) || null;
+}
+
+function setSelectedOrganizationTypes(values) {
+  const ids = asArray(values) || null;
+
+  this.queryString('type', ids);
+}
+
+// /////////////
+// Countries //
+// /////////////
+
+function getSelectedCountries() {
+  return asArray(this.queryString('country')) || null;
+}
+
+function setSelectedCountries(values) {
+  const codes = asArray(values) || null;
+
+  this.queryString('country', codes);
+}
+
+function getSelectedCountryScope() {
+  return asArray(this.queryString('scope'))[0] || null;
+}
+
+function setSelectedCountryScope(value) {
+  const codes = asArray(value) || null;
+
+  this.queryString('scope', codes);
+}
+
+// ////////////////////
+// Validation Status //
+// ///////////////////
+
+function getSelectedValidationStatus() {
+  const value = asArray(this.queryString('status')) || null;
+  return value.map((x) => this.validationStatusOptions.find((c) => c.Value === x) || { Value: value, isMissing: true });
+}
+
+function setSelectedValidationStatus(value) {
+  const values = asArray(value).map((o) => o.Value);
+
+  this.queryString('status', values);
 }
 
 // ===================
 // Build Query to pass to kronos api
 // ===================
-function buildQuery({ filter, perPage, currentPage }) {
-  // TODO:
+function buildQuery() {
+  const query = cleanUp({
+    FreeText               : this.freeText,
+    EventUIDs              : this.selectedEvents,
+    EventRegistrationStatus: this.selectedAttendances.reduce((r, v) => r + v, 0) || undefined,
+    TypeUIDs               : this.selectedOrganizationTypes,
+    Governments            : this.selectedCountries,
+    IsValidated            : (this.selectedValidationStatus[0] || {}).Value,
+  });
 
-  // apply List standard paramters: filter, sortBy, sortDesc, perPage, currentPage
-  // and contact search filter to KronosQuery
-  const skipRecord = currentPage > 0 ? (currentPage - 1) * perPage : 0;
-  const query      = {
-    FreeText               : filter.name || undefined,
-    CountryScope           : filter.selectedScop.value || undefined,
-    EventUIDs              : getSelectedMeetingsIds(filter),
-    TypeUIDs               : getOrganizationTypeIds(filter),
-    EventRegistrationStatus: getAttendanceValue(filter),
-    Governments            : getCountryCodes(filter),
-    IsValidated            : filter.selectedValidationStatus.value,
-    limit                  : perPage || 25,
-    skip                   : skipRecord,
-  };
+  if (query.FreeText) { query.IsBroadSearch = this.isBroadSearch || undefined; }
+  if (query.Governments) { query.CountryScope = (this.selectedCountryScope || undefined); }
+  if (!_.isEmpty(cleanUp(query))) {
+    query.StatusForEventUIDs = _(this.majorEvents.map((o) => o.EventUID)).union(query.EventUIDs).compact().value();
 
-  return query;
-}
-
-function getOrganizationTypeIds(filter) {
-  return filter.selectedOrganizationTypes.length
-    ? filter.selectedOrganizationTypes.map((o) => o.OrganizationTypeUID)
-    : undefined;
-}
-
-function getCountryCodes(filter) {
-  return filter.selectedCountry.length
-    ? filter.selectedCountry.map((c) => c.Code)
-    : undefined;
-}
-
-function getAttendanceValue(filter) {
-  let registrationStatus = 0;
-
-  if (filter.selectedAttendance !== undefined) {
-    filter.selectedAttendance.forEach((element) => {
-      registrationStatus += element.value;
-    });
+    [ query.StatusForEventUID1,
+      query.StatusForEventUID2,
+      query.StatusForEventUID3,
+      query.StatusForEventUID4 ] = query.StatusForEventUIDs; // backward compatibility
   }
-  return registrationStatus || undefined;
+  return cleanUp(query);
 }
 
-function getSelectedMeetingsIds(filter) {
-  return filter.selectedMeetings.length
-    ? filter.selectedMeetings.map((m) => m.EventUID)
-    : undefined;
-}
+function queryString(name, value) {
+  if (value !== undefined) {
+    const params         = { [name]: value || undefined };
+    const newQueryString = { ...this.$route.query, ...params };
 
-function clearSelectedOptions(type) {
-  switch (type) {
-    case 'meetings':
-      this.filter.selectedMeetings = [];
-      break;
-    case 'attendance':
-      this.filter.selectedAttendance = [];
-      break;
-    case 'validation':
-      this.filter.selectedValidationStatus = '';
-      break;
-    case 'country':
-      this.filter.selectedCountry = [];
-      break;
-    case 'scope':
-      this.filter.selectedScop = '';
-      break;
-    case 'organization-type':
-      this.filter.selectedOrganizationTypes = [];
-      break;
-    default:
-      throw new Error('not implemented');
+    this.$router.push({ query: newQueryString });
   }
+
+  return this.$route.query[name];
+}
+
+function asArray(data) {
+  return _([ data ])
+    .flatten()
+    .compact()
+    .value();
+}
+
+function cleanUp(obj) {
+  return _(obj).omitBy((v) => (_.isNil(v))
+    || (_.isString(v) && _.isEmpty(v))
+    || (_.isObject(v) && _.isEmpty(v))
+    || (_.isArray(v) && _.isEmpty(v))).value();
 }
 </script>
