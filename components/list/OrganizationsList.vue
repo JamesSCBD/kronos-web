@@ -28,6 +28,16 @@
           <strong>Loading...</strong>
         </div>
       </template>
+      <template v-slot:head(Selected)>
+        <BFormCheckbox
+          v-model="isAllSelected"
+          :indeterminate="isPartialySelected"
+          @change="onSelectedAll"
+        />
+      </template>
+      <template v-slot:cell(Selected)="data">
+        <BFormCheckbox v-model="data.item.Selected" @change="onSelected(data.item)" />
+      </template>
       <template v-slot:cell(Country)="{value}">
         <CountryCol v-if="value" :code="value" />
       </template>
@@ -49,10 +59,12 @@
 
 <script>
 import _ from 'lodash';
+import { mapGetters, mapActions } from 'vuex';
 import mixin from './mixin';
 import pager from '~/components/controls/Pager';
 
 const baseColumns = [
+  { key: 'Selected', label: '', sortable: false },
   { key: 'OrganizationName', label: 'Organization', sortable: true },
   { key: 'OrganizationAcronym', label: 'Acronym', sortable: true },
   { key: 'OrganizationTypeUID', label: 'Type', sortable: true },
@@ -75,14 +87,41 @@ export default {
   },
   data() {
     return {
-      loading  : false,
-      columns  : [ ...baseColumns ],
-      totalRows: 0,
-      page     : 1,
-      pageSize : 25,
+      loading      : false,
+      columns      : [ ...baseColumns ],
+      totalRows    : 0,
+      page         : 1,
+      pageSize     : 25,
+      organizations: [],
     };
   },
-  methods: { searchOrganizations, buildQuery },
+  computed: {
+    isAllSelected() {
+      return this.organizations.every((o) => this.isOrganizationSelected(o.OrganizationUID)) && this.organizations.length > 0;
+    },
+    isPartialySelected() {
+      return (this.organizations.some((o) => this.isOrganizationSelected(o.OrganizationUID)) && !this.isAllSelected);
+    },
+    selectedOrganizations() {
+      return this.organizations.filter((o) => this.isOrganizationSelected(o.OrganizationUID));
+    },
+    notSelectedOrganizations() {
+      return this.organizations.filter((o) => !this.isOrganizationSelected(o.OrganizationUID));
+    },
+    ...mapGetters({
+      isOrganizationSelected: 'organizations/isOrganizationSelected',
+    }),
+  },
+  methods: {
+    searchOrganizations,
+    buildQuery,
+    onSelected,
+    onSelectedAll,
+    ...mapActions({
+      addToSelection     : 'organizations/addToSelection',
+      removeFromSelection: 'organizations/removeFromSelection',
+    }),
+  },
 };
 
 //= ================================
@@ -90,8 +129,10 @@ export default {
 //= ================================
 async function searchOrganizations() {
   try {
-    this.loading = true;
-    const query  = this.buildQuery();
+    this.loading       = true;
+    this.organizations = [];
+
+    const query = this.buildQuery();
 
     if (!query) return [];
 
@@ -99,10 +140,15 @@ async function searchOrganizations() {
 
     this.totalRows = 1234; // TODO
 
+    const thisComponent = this;
 
-    return rows.map((r) => ({
+    this.organizations =  rows.map((r) => ({
       ...r,
+      get Selected() {
+        return thisComponent.isOrganizationSelected(this.OrganizationUID);
+      },
     }));
+    return this.organizations;
   } finally {
     this.loading = false;
   }
@@ -126,6 +172,31 @@ function buildQuery() {
 
   return query;
 }
+
+function onSelected(item) {
+  const organization = cleanOrganization(item);
+
+  if (this.isOrganizationSelected(organization.OrganizationUID)) {
+    this.removeFromSelection(organization);
+  } else {
+    this.addToSelection(organization);
+  }
+}
+
+function onSelectedAll() {
+  if (this.isAllSelected) {
+    this.selectedOrganizations.forEach((o) => this.removeFromSelection(cleanOrganization(o)));
+  } else {
+    this.notSelectedOrganizations.forEach((o) => this.addToSelection(cleanOrganization(o)));
+  }
+}
+
+function cleanOrganization(item) {
+  const { Selected, ...organization } = item;
+
+  return organization;
+}
+
 </script>
 <style scoped>
 .list {

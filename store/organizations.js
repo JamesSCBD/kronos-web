@@ -1,8 +1,9 @@
 import _ from 'lodash';
 
 const $state = () => ({
-  organizationCache: [],
-  organizationTypes: [],
+  organizationCache    : [],
+  organizationTypes    : [],
+  selectedOrganizations: [],
 });
 
 /* eslint-disable no-param-reassign */
@@ -12,6 +13,26 @@ const $mutations = {
   },
   updateOrganizationCache(state, organizations = []) {
     state.organizationCache = _.unionBy(organizations, state.organizationCache, (o) => o.OrganizationUID);
+  },
+
+  clear(state) {
+    state.selectedOrganizations = [];
+  },
+
+  add(state, organization) {
+    if (!organization) throw new Error('Organization is null / empty');
+
+    state.selectedOrganizations = _.unionBy([ organization ], state.selectedOrganizations, (o) => o.OrganizationUID);
+  },
+
+  remove(state, organization) {
+    if (!organization) throw new Error('Organization is null / empty');
+
+    const organizationUID = organization.OrganizationUID || organization; // organization object OR id
+
+    if (!organizationUID) throw new Error('OrganizationUID is null / empty');
+
+    state.selectedOrganizations = state.selectedOrganizations.filter((c) => c.OrganizationUID !== organizationUID);
   },
 };
 /* eslint-enable no-param-reassign */
@@ -28,6 +49,12 @@ const $getters = {
 
   getOrganizationById(state) {
     return (id) => state.organizationCache.find((t) => t.OrganizationUID === id);
+  },
+
+  isOrganizationSelected: ({ selectedOrganizations }) => (organization) => {
+    const organizationUID = organization.OrganizationUID || organization; // organization object OR id
+
+    return selectedOrganizations.some((c) => c.OrganizationUID === organizationUID);
   },
 };
 
@@ -54,6 +81,20 @@ const $actions = {
     if (organization) commit('updateOrganizationCache', [ organization ]);
 
     return organization;
+  },
+
+  //= ============================================
+  // Add / replace organization with the new one into the selection
+  //= ============================================
+  addToSelection({ commit }, organization) {
+    commit('add', organization);
+  },
+
+  //= ============================================
+  // Remove specified organization from the selection.
+  //= ============================================
+  removeFromSelection({ commit }, organization) {
+    commit('remove', organization);
   },
 
 };
