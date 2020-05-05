@@ -5,9 +5,7 @@
       <KHeader />
       <div class="c-body">
         <main class="c-main">
-          <div class="container-fluid">
-            <nuxt />
-          </div>
+          <nuxt />
         </main>
       </div>
       <KFooter />
