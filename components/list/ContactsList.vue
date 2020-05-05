@@ -55,26 +55,8 @@
       <template v-slot:cell(Emails)="{value}">
         <EmailCol v-if="value" :emails="value" />
       </template>
-
-      <template v-slot:cell(StatusEvent1Date)="data">
-        <span
-          :class="registrationStatuses[data.item.StatusEvent1]"
-        >{{ data.item.StatusEvent1Date | datetime }}</span>
-      </template>
-      <template v-slot:cell(StatusEvent2Date)="data">
-        <span
-          :class="registrationStatuses[data.item.StatusEvent2]"
-        >{{ data.item.StatusEvent2Date | datetime }}</span>
-      </template>
-      <template v-slot:cell(StatusEvent3Date)="data">
-        <span
-          :class="registrationStatuses[data.item.StatusEvent3]"
-        >{{ data.item.StatusEvent3Date | datetime }}</span>
-      </template>
-      <template v-slot:cell(StatusEvent4Date)="data">
-        <span
-          :class="registrationStatuses[data.item.StatusEvent4]"
-        >{{ data.item.StatusEvent4Date | datetime }}</span>
+      <template v-for="(column, index) in RegStatusColumns" v-slot:[`cell(${column.key})`]="data">
+        <RegistrationStatusCol v-if="data.item.StatusEvents" :key="column.key" :registration-status="data.item.StatusEvents[index] || {}" />
       </template>
     </BTable>
   </div>
@@ -83,7 +65,7 @@
 <script>
 import _ from 'lodash';
 import { mapGetters, mapActions } from 'vuex';
-import { CountryCol, EmailCol } from './columns';
+import { CountryCol, EmailCol, RegistrationStatusCol } from './columns';
 import mixin from './mixin';
 import pager from '~/components/controls/Pager';
 
@@ -101,17 +83,13 @@ const baseColumns = [
   { key: 'Score', label: 'Rank', sortable: true },
 ];
 
-const registrationStatuses = {
-  1: 'nominated-text',
-  2: 'accredited-text',
-  4: 'registered-text',
-};
-
 export default {
   name      : 'ContactsList',
-  components: { CountryCol, EmailCol, pager },
-  mixins    : [ mixin ],
-  props     : {
+  components: {
+    CountryCol, EmailCol, pager, RegistrationStatusCol,
+  },
+  mixins: [ mixin ],
+  props : {
     baseQuery: { type: Object, default: () => ({}) },
   },
   data() {
@@ -122,7 +100,6 @@ export default {
       page     : 1,
       pageSize : 25,
       contacts : [],
-      registrationStatuses,
     };
   },
   computed: {
@@ -141,6 +118,9 @@ export default {
     },
     notSelectedContacts() {
       return this.contacts.filter((c) => !this.isContactSelected(c.ContactUID));
+    },
+    RegStatusColumns() {
+      return this.columns.filter((column) => column.ColumnType === 'RegStatusColumn');
     },
   },
   methods: {
@@ -211,25 +191,19 @@ async function searchContacts() {
 //
 //= ================================
 function updateColumns() {
-  this.columns = [ ...baseColumns ];
-
   const query     = this.baseQuery || {};
-  const eventUIDs = _.compact([ query.StatusForEventUID1, query.StatusForEventUID2, query.StatusForEventUID3, query.StatusForEventUID4 ]);
+  const eventUIDs = query.StatusForEventUIDs || [];
 
-  if (!eventUIDs) { return; }
-
-  for (let index = 0; index < eventUIDs.length; index++) {
-    if (index < 4) {
-      this.columns = [
-        ...this.columns,
-        {
-          key     : `StatusEvent${index + 1}Date`,
-          label   : this.getEventCodeById(eventUIDs[index]),
-          sortable: true,
-        },
-      ];
+  const statusColumns = eventUIDs.map((eid, index) => (
+    {
+      key       : `StatusEvents[${index}].EventUID`,
+      label     : this.getEventCodeById(eid),
+      sortable  : true,
+      ColumnType: 'RegStatusColumn',
     }
-  }
+  ));
+
+  this.columns = [ ...baseColumns, ...statusColumns ];
 }
 
 //= ================================

@@ -32,7 +32,7 @@ export default class {
 
     const data = await this.http.get('api/v2018/contacts', { searchParams }).json();
 
-    return data;
+    return data.records;
   }
 
   // ====================
@@ -52,7 +52,7 @@ export default class {
 
     const data = await this.http.get('api/v2018/organizations', { searchParams }).json();
 
-    return data;
+    return data.records;
   }
 
   // ====================
@@ -97,8 +97,7 @@ export default class {
     const searchParams = toURLSearchParams({ q: query });
 
     const data = await this.http.get('api/v2018/events', { searchParams }).json();
-
-    return data;
+    return data.records;
   }
 }
 
