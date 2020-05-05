@@ -162,7 +162,7 @@ function setFreeText(values) {
 function getBroadSearch() {
   const value = asArray(this.queryString('broad'))[0];
 
-  return [ 'true', '1' ].includes(value);
+  return [ 'true', '1', true, 1 ].includes(value);
 }
 
 function setBroadSearch(values) {
