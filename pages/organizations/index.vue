@@ -265,14 +265,7 @@ function buildQuery() {
 
   if (query.FreeText) { query.IsBroadSearch = this.isBroadSearch || undefined; }
   if (query.Governments) { query.CountryScope = (this.selectedCountryScope || undefined); }
-  if (!_.isEmpty(cleanUp(query))) {
-    query.StatusForEventUIDs = _(this.majorEvents.map((o) => o.EventUID)).union(query.EventUIDs).compact().value();
 
-    [ query.StatusForEventUID1,
-      query.StatusForEventUID2,
-      query.StatusForEventUID3,
-      query.StatusForEventUID4 ] = query.StatusForEventUIDs; // backward compatibility
-  }
   return cleanUp(query);
 }
 
