@@ -67,10 +67,10 @@ const $actions = {
     return types;
   },
 
-  async getOrganizations({ commit }, query) {
-    const organizations = await this.$kronosApi.getOrganizations(query);
+  async queryOrganizations({ commit }, query) {
+    const organizations = await this.$kronosApi.queryOrganizations(query);
 
-    if (organizations.length) commit('updateOrganizationCache', organizations);
+    if (organizations) commit('updateOrganizationCache', organizations.records);
 
     return organizations;
   },

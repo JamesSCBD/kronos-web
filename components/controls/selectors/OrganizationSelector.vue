@@ -86,7 +86,7 @@ export default {
   created() { initOrganizationCache.call(this); },
   methods: {
     onOrganizationTextChange: _.debounce(searchOrganizations, 400),
-    ...mapActions({ getOrganizations: 'organizations/getOrganizations' }),
+    ...mapActions({ queryOrganizations: 'organizations/queryOrganizations' }),
   },
 };
 
@@ -97,7 +97,8 @@ async function searchOrganizations(text) {
 
     if (text) {
       this.organizationOptions = this.selectedOrganizations;
-      foundOrganizations       = await this.getOrganizations({ FreeText: text, limit: 25 });
+      const response           = await this.queryOrganizations({ FreeText: text, limit: 25 });
+      foundOrganizations       = response.records;
     }
 
     this.organizationOptions = _.unionBy(this.selectedOrganizations, foundOrganizations, (o) => o.OrganizationUID);
@@ -110,7 +111,8 @@ async function initOrganizationCache() {
   const missingOrganizations = this.selectedOrganizations.filter((o) => o.isMissing);
 
   if (missingOrganizations.length) {
-    this.organizationOptions = await this.getOrganizations({ OrganizationUIDs: missingOrganizations.map((o) => o.OrganizationUID) });
+    const response           = await this.queryOrganizations({ OrganizationUIDs: missingOrganizations.map((o) => o.OrganizationUID) });
+    this.organizationOptions = response.records;
   }
 }
 </script>

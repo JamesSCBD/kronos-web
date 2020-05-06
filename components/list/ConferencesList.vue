@@ -2,7 +2,7 @@
   <BTable
 
     id="KConferenceList"
-    :items="tableItems"
+    :items="searchConferences"
     :fields="columns"
     :busy="loading"
     class="mb-0 table-outline list"
@@ -53,10 +53,32 @@ export default {
   name      : 'ConferenceList',
   components: { },
   mixins    : [ mixin ],
-  data,
+  data() {
+    return {
+      columns,
+      loading: false,
+    };
+  },
+  methods: {
+    searchConferences,
+  },
 };
 
-function data() { return { columns }; }
+//= ================================
+//
+//= ================================
+async function searchConferences() {
+  try {
+    this.loading   = true;
+    const response = await this.$kronosApi.queryConferences();
+    const rows     = response.records;
+    return rows.map((r) => ({
+      ...r,
+    }));
+  } finally {
+    this.loading = false;
+  }
+}
 
 </script>
 <style scoped>

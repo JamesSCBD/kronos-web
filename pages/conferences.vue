@@ -2,7 +2,7 @@
   <div class="container-fluid">
     <div class="row ">
       <div class="col-12">
-        <List :table-items="tableItems" :loading="loading" :total-rows="totalRows" />
+        <ConferenceList />
       </div>
     </div>
   </div>
@@ -10,31 +10,12 @@
 
 <script>
 import { readOnly } from '@roles';
-import List from '~/components/list/ConferencesList';
+import ConferenceList from '~/components/list/ConferencesList';
 
 export default {
   name      : 'Conferences',
-  components: { List },
+  components: { ConferenceList },
   auth      : readOnly,
-  data      : () => ({ loading: false }),
-  computed  : { totalRows: rows },
-  methods   : { tableItems: search },
 };
 
-async function search() {
-  try {
-    this.loading = true;
-
-    return await this.$kronosApi.getConferences();
-  } finally {
-    this.loading = false;
-  }
-}
-
-// ===================
-// Get total number of rows
-// ===================
-function rows() {
-  return 0;
-}
 </script>

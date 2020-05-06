@@ -136,9 +136,10 @@ async function searchOrganizations() {
 
     if (!query) return [];
 
-    const rows = await this.$kronosApi.getOrganizations(query);
+    const response = await this.$kronosApi.queryOrganizations(query);
 
-    this.totalRows = 1234; // TODO
+    this.totalRows = response.totalRecordCount;
+    const rows     = response.records;
 
     const thisComponent = this;
 

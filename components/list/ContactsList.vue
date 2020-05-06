@@ -169,9 +169,10 @@ async function searchContacts() {
 
     if (!query) return [];
 
-    const rows = await this.$kronosApi.getContacts(query);
+    const response = await this.$kronosApi.queryContacts(query);
 
-    this.totalRows = 1234; // TODO
+    this.totalRows = response.totalRecordCount;
+    const rows     = response.records;
 
     const thisComponent = this;
 

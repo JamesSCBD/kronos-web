@@ -74,7 +74,8 @@ const $mutations = {
 const $actions = {
 
   async initialize({ dispatch, commit }, defaultConf) {
-    const conferences = await this.$kronosApi.getConferences();
+    const response    = await this.$kronosApi.queryConferences();
+    const conferences = response.records;
 
     commit('setList', conferences);
 
@@ -110,13 +111,13 @@ async function loadActiveEvents(conference) {
   const majors = ((conference || {}).MajorEventIDs || []).map((id) => `00000000${id}`);
   const minors = ((conference || {}).MinorEventIDs || []).map((id) => `00000000${id}`);
 
-  let majorEvents = this.$kronosApi.getMeetings({ EventUIDs: majors, EvenUIDs: majors }); // API error EvenUIDs
-  let minorEvents = this.$kronosApi.getMeetings({ EventUIDs: minors, EvenUIDs: minors });
-  let otherEvents = this.$kronosApi.getMeetings({ IsNeedRegistration: true, EndsAfter: threeYearsAgo });
+  let majorEvents =  this.$kronosApi.queryEvents({ EventUIDs: majors, EvenUIDs: majors }); // API error EvenUIDs
+  let minorEvents =  this.$kronosApi.queryEvents({ EventUIDs: minors, EvenUIDs: minors });
+  let otherEvents =  this.$kronosApi.queryEvents({ IsNeedRegistration: true, EndsAfter: threeYearsAgo });
 
-  majorEvents = await majorEvents;
-  minorEvents = await minorEvents;
-  otherEvents = await otherEvents;
+  majorEvents =  (await majorEvents).records;
+  minorEvents =  (await minorEvents).records;
+  otherEvents =  (await otherEvents).records;
 
   majorEvents = _.orderBy(majorEvents, [ (e) => majors.indexOf(e.EventUID) ], [ 'asc' ]);
   minorEvents = _.orderBy(minorEvents, [ (e) => minors.indexOf(e.EventUID) ], [ 'asc' ]);

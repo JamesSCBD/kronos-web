@@ -27,12 +27,12 @@ export default class {
   //
   //
   // ====================
-  async getContacts(query) {
+  async queryContacts(query) {
     const searchParams = toURLSearchParams({ q: query });
 
     const data = await this.http.get('api/v2018/contacts', { searchParams }).json();
 
-    return data.records;
+    return data;
   }
 
   // ====================
@@ -47,12 +47,12 @@ export default class {
   // ====================
   //
   // ====================
-  async getOrganizations(query) {
+  async queryOrganizations(query) {
     const searchParams = toURLSearchParams({ q: query });
 
     const data = await this.http.get('api/v2018/organizations', { searchParams }).json();
 
-    return data.records;
+    return data;
   }
 
   // ====================
@@ -76,7 +76,7 @@ export default class {
   // ====================
   //
   // ====================
-  async getConferences(query) { // eslint-disable-line class-methods-use-this
+  async queryConferences(query) { // eslint-disable-line class-methods-use-this
     // TODO Implements conference on Kronos API
 
     const searchParams = toURLSearchParams({
@@ -85,19 +85,21 @@ export default class {
     });
 
     const data = await ky.get(`${process.env.NUXT_ENV_API}/api/v2016/conferences`, { searchParams }).json();
-
-    return data;
+    return {
+      records    : data,
+      recordCount: data.length,
+    };
   }
 
   // ====================
   //
   //
   // ====================
-  async getMeetings(query) {
+  async queryEvents(query) {
     const searchParams = toURLSearchParams({ q: query });
 
     const data = await this.http.get('api/v2018/events', { searchParams }).json();
-    return data.records;
+    return data;
   }
 }
 
