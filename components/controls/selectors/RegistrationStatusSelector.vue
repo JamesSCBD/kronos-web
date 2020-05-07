@@ -11,6 +11,7 @@
       :clear-on-select="false"
       :close-on-select="!multiple"
       :show-no-results="false"
+      :disabled="disabled"
     >
       <template slot="tag" slot-scope="{ option, remove }">
         <span class="multiselect__tag">
@@ -60,6 +61,10 @@ export default {
         return Attendances.some((a) => a.Value === value);
       },
     },
+    disabled: {
+      type   : Boolean,
+      default: false,
+    },
   },
   computed: {
     selectedAttendances: {
@@ -73,5 +78,6 @@ export default {
     },
     attendanceOptions: { get: () => Attendances },
   },
+  watch: { disabled(value) { if (value) this.selectedAttendances = null; } },
 };
 </script>

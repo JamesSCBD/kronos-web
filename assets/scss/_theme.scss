@@ -59,15 +59,13 @@
     max-width: 100%;
     flex: 100%;
   }
-  .c-header-fixed.c-header-with-subheader ~ .c-body{
-    padding: 140px 0 0 0;
-  }
+    
   select#perPageSelect {
     margin-bottom: 10px;
   }
 }
 .c-header-fixed.c-header-with-subheader ~ .c-body{
-  overflow: hidden;
+  overflow-x: hidden;
 }
 .card-header > .c-icon:first-child {
   margin-right: 0.1rem;
@@ -84,11 +82,8 @@
 }
 
 /** FIlter Sec  Design  **/
-.filter_Sec {
-  margin: 15px;
-}
 .filter_Sec .custom-checkbox {
-  margin-top: 5px;
+  margin-top: 8px;
 }
 
 .paginationRow {

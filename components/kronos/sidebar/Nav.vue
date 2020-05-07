@@ -1,6 +1,6 @@
 <template>
   <CSidebarNav>
-    <BFormSelect id="page-size" v-model="conferenceId" class="form-control" :options="conferenceOptions" @change="setSelectedConference" />
+    <BFormSelect id="page-size" :value="conferenceId" class="form-control" :options="conferenceOptions" @change="setSelectedConference" />
     <CSidebarNavItem name="Dashbord" icon="tachometerAlt" :to="`/dashboard`" />
     <CSidebarNavTitle> Reg </CSidebarNavTitle>
     <CSidebarNavItem name="Contacts" icon="addressBook" :to="`/contacts`" />

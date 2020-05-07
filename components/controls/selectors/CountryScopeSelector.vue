@@ -10,6 +10,7 @@
       :searchable="false"
       :clear-on-select="false"
       :close-on-select="true"
+      :disabled="disabled"
     >
       <template slot="clear">
         <div
@@ -41,6 +42,10 @@ export default {
         return CountryScopes.some((o) => o.Code === value);
       },
     },
+    disabled: {
+      type   : Boolean,
+      default: false,
+    },
   },
   computed: {
     selectedCountryScope: {
@@ -54,7 +59,7 @@ export default {
     },
     countryScopeOptions: { get: () => CountryScopes },
   },
-
+  watch: { disabled(value) { if (value) this.selectedCountryScope = null; } },
 };
 
 function asArray(data) {

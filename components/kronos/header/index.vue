@@ -5,11 +5,11 @@
       class="ml-3 d-lg-none"
       @click="toggleShow()"
     />
-    <!-- <CToggler
+    <CToggler
       in-header
       class="ml-3 d-md-down-none"
       @click="toggleShow()"
-    /> -->
+    />
     <CHeaderBrand
 
       class="mx-auto d-lg-none"
