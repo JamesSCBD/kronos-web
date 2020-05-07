@@ -1,6 +1,7 @@
 <template>
   <div>
     <div class="paginationRow">
+      <span v-if="recordCount">{{ recordCount }} records / {{ numberOfPages }} pages</span>
       <BFormSelect
         id="page-size"
         v-model="perPage"
@@ -79,6 +80,7 @@ export default {
   computed: {
     currentPage: { get() { return this.page; }, set(value) { this.$emit('update:page', value); } },
     perPage    : { get() { return this.pageSize; }, set(value) { this.$emit('update:pageSize', value); } },
+    numberOfPages() { return Math.ceil(this.recordCount / this.pageSize); },
   },
   watch: {
     page() {

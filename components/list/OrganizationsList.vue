@@ -117,6 +117,7 @@ export default {
     buildQuery,
     onSelected,
     onSelectedAll,
+    resetPager,
     ...mapActions({
       addToSelection     : 'organizations/addToSelection',
       removeFromSelection: 'organizations/removeFromSelection',
@@ -134,7 +135,10 @@ async function searchOrganizations() {
 
     const query = this.buildQuery();
 
-    if (!query) return [];
+    if (!query) {
+      this.resetPager();
+      return [];
+    }
 
     const response = await this.$kronosApi.queryOrganizations(query);
 
@@ -196,6 +200,14 @@ function cleanOrganization(item) {
   const { Selected, ...organization } = item;
 
   return organization;
+}
+
+//= ================================
+// Pager reset to default
+//= ================================
+function resetPager() {
+  this.page      = 1;
+  this.totalRows = 0;
 }
 
 </script>

@@ -129,6 +129,7 @@ export default {
     buildQuery,
     onSelected,
     onSelectedAll,
+    resetPager,
     ...mapActions({
       addToSelection     : 'contacts/addToSelection',
       removeFromSelection: 'contacts/removeFromSelection',
@@ -167,7 +168,10 @@ async function searchContacts() {
 
     const query = this.buildQuery();
 
-    if (!query) return [];
+    if (!query) {
+      this.resetPager();
+      return [];
+    }
 
     const response = await this.$kronosApi.queryContacts(query);
 
@@ -236,6 +240,15 @@ function cleanContact(item) {
 
   return contact;
 }
+
+//= ================================
+// Pager reset to default
+//= ================================
+function resetPager() {
+  this.page      = 1;
+  this.totalRows = 0;
+}
+
 </script>
 <style scoped>
 .list {
