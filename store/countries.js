@@ -1,10 +1,10 @@
 import _ from 'lodash';
 
-export const $state = () => ({
+const $state = () => ({
   countries: [],
 });
 
-export const $getters = {
+const $getters = {
 
   list(state) { return state.countries; },
 
@@ -18,19 +18,29 @@ export const $getters = {
 };
 
 /* eslint-disable no-param-reassign */
-export const $mutations = {
-  setList(state, countries = []) {
+const SET_LIST = 'SET_LIST';
+const CLEAR    = 'CLEAR';
+
+const $mutations = {
+
+  [SET_LIST](state, countries = []) {
     state.countries = _.sortBy(countries, (c) => c.Name.toLowerCase());
+  },
+
+  [CLEAR](state) {
+    state.countries = [];
   },
 };
 /* eslint-enable no-param-reassign */
 
-export const $actions = {
+const $actions = {
 
   async initialize({ commit }) {
+    commit(CLEAR);
+
     const countries = await this.$kronosApi.getCountries();
 
-    commit('setList', countries);
+    commit(SET_LIST, countries);
 
     return countries;
   },

@@ -52,18 +52,22 @@ const $getters = {
 };
 
 /* eslint-disable no-param-reassign */
+const SET_LIST     = 'SET_LIST';
+const SET_SELECTED = 'SET_SELECTED';
+const CLEAR        = 'CLEAR';
+
 const $mutations = {
 
-  setList(state, conferences = []) {
+  [SET_LIST](state, conferences = []) {
     state.conferences = conferences;
   },
 
-  setSelected(state, { conference, events }) {
+  [SET_SELECTED](state, { conference, events }) {
     state.selectedConference = conference;
     state.activeEvents       = events;
   },
 
-  clear(state) {
+  [CLEAR](state) {
     state.conferences  = [];
     state.selected     = null;
     state.activeEvents = [];
@@ -77,7 +81,7 @@ const $actions = {
     const response    = await this.$kronosApi.queryConferences();
     const conferences = response.records;
 
-    commit('setList', conferences);
+    commit(SET_LIST, conferences);
 
     const idOrCode = (defaultConf || {})._id || defaultConf;
     let conference = null;
@@ -96,7 +100,7 @@ const $actions = {
 
     const activeEvents = await loadActiveEvents.call(this, conference);
 
-    commit('setSelected', { conference, events: activeEvents });
+    commit(SET_SELECTED, { conference, events: activeEvents });
 
     return conference;
   },

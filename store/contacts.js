@@ -5,19 +5,19 @@ const $state = () => ({
 });
 
 /* eslint-disable no-param-reassign */
+const ADD_TO_SELECTION      = 'ADD_TO_SELECTION';
+const REMOVE_FROM_SELECTION = 'REMOVE_FROM_SELECTION';
+const CLEAR                 = 'CLEAR';
+
 const $mutations = {
 
-  clear(state) {
-    state.selectedContacts = [];
-  },
-
-  add(state, contact) { // Add replace contact with the new one
+  [ADD_TO_SELECTION](state, contact) { // Add replace contact with the new one
     if (!contact) throw new Error('Contact is null / empty');
 
     state.selectedContacts = _.unionBy([ contact ], state.selectedContacts, (c) => c.ContactUID);
   },
 
-  remove(state, contact) {
+  [REMOVE_FROM_SELECTION](state, contact) {
     if (!contact) throw new Error('Contact is null / empty');
 
     const contactUID = contact.ContactUID || contact; // contact object OR id
@@ -25,6 +25,10 @@ const $mutations = {
     if (!contactUID) throw new Error('ContactUID is null / empty');
 
     state.selectedContacts = state.selectedContacts.filter((c) => c.ContactUID !== contactUID);
+  },
+
+  [CLEAR](state) {
+    state.selectedContacts = [];
   },
 };
 /* eslint-enable no-param-reassign */
@@ -44,21 +48,21 @@ const $getters = {
 
 const $actions = {
   initialize({ commit }) {
-    commit('clear');
+    commit(CLEAR);
   },
 
   //= ============================================
   // Add / replace contact with the new one into the selection
   //= ============================================
   addToSelection({ commit }, contact) {
-    commit('add', contact);
+    commit(ADD_TO_SELECTION, contact);
   },
 
   //= ============================================
   // Remove specified contact from the selection.
   //= ============================================
   removeFromSelection({ commit }, contact) {
-    commit('remove', contact);
+    commit(REMOVE_FROM_SELECTION, contact);
   },
 
 };

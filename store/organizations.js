@@ -7,25 +7,29 @@ const $state = () => ({
 });
 
 /* eslint-disable no-param-reassign */
+const SET_TYPE_LIST         = 'SET_TYPE_LIST';
+const UPDATE_CACHE          = 'UPDATE_CACHE';
+const ADD_TO_SELECTION      = 'ADD_TO_SELECTION';
+const REMOVE_FROM_SELECTION = 'REMOVE_FROM_SELECTION';
+const CLEAR                 = 'CLEAR';
+
 const $mutations = {
-  setTypes(state, types = []) {
+
+  [SET_TYPE_LIST](state, types = []) {
     state.organizationTypes = _.sortBy(types, (c) => c.Title.toLowerCase());
   },
-  updateOrganizationCache(state, organizations = []) {
+
+  [UPDATE_CACHE](state, organizations = []) {
     state.organizationCache = _.unionBy(organizations, state.organizationCache, (o) => o.OrganizationUID);
   },
 
-  clear(state) {
-    state.selectedOrganizations = [];
-  },
-
-  add(state, organization) {
+  [ADD_TO_SELECTION](state, organization) {
     if (!organization) throw new Error('Organization is null / empty');
 
     state.selectedOrganizations = _.unionBy([ organization ], state.selectedOrganizations, (o) => o.OrganizationUID);
   },
 
-  remove(state, organization) {
+  [REMOVE_FROM_SELECTION](state, organization) {
     if (!organization) throw new Error('Organization is null / empty');
 
     const organizationUID = organization.OrganizationUID || organization; // organization object OR id
@@ -33,6 +37,11 @@ const $mutations = {
     if (!organizationUID) throw new Error('OrganizationUID is null / empty');
 
     state.selectedOrganizations = state.selectedOrganizations.filter((c) => c.OrganizationUID !== organizationUID);
+  },
+  [CLEAR](state) {
+    state.organizationCache     = [];
+    state.organizationTypes     = [];
+    state.selectedOrganizations = [];
   },
 };
 /* eslint-enable no-param-reassign */
@@ -60,9 +69,11 @@ const $getters = {
 
 const $actions = {
   async initialize({ commit }) {
+    commit(CLEAR);
+
     const types = await this.$kronosApi.getOrganizationTypes();
 
-    commit('setTypes', types);
+    commit(SET_TYPE_LIST, types);
 
     return types;
   },
@@ -70,7 +81,7 @@ const $actions = {
   async queryOrganizations({ commit }, query) {
     const organizations = await this.$kronosApi.queryOrganizations(query);
 
-    if (organizations) commit('updateOrganizationCache', organizations.records);
+    if (organizations) commit(UPDATE_CACHE, organizations.records);
 
     return organizations;
   },
@@ -78,7 +89,7 @@ const $actions = {
   async getOrganizationById({ commit }, id) {
     const organization = await this.$kronosApi.getOrganization(id);
 
-    if (organization) commit('updateOrganizationCache', [ organization ]);
+    if (organization) commit(UPDATE_CACHE, [ organization ]);
 
     return organization;
   },
@@ -87,16 +98,15 @@ const $actions = {
   // Add / replace organization with the new one into the selection
   //= ============================================
   addToSelection({ commit }, organization) {
-    commit('add', organization);
+    commit(ADD_TO_SELECTION, organization);
   },
 
   //= ============================================
   // Remove specified organization from the selection.
   //= ============================================
   removeFromSelection({ commit }, organization) {
-    commit('remove', organization);
+    commit(REMOVE_FROM_SELECTION, organization);
   },
-
 };
 
 export {
