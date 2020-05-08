@@ -7,22 +7,19 @@
       <div class="card-body filter_Sec">
         <div class="row">
           <div class="col-md-6 col-sm-6 col-xs-12">
-            <div class="row">
-              <div class="col-md-8 col-sm-7 col-xs-12">
-                <div class="form-group">
-                  <BFormInput
-                    id="filterInput"
-                    v-model="freeText"
-                    type="search"
-                    placeholder="Name / Barcode / #tags"
-                  />
-                </div>
-              </div>
-              <div class="col-md-4 col-sm-5 col-xs-12">
-                <div class="form-group">
-                  <BFormCheckbox v-model="isBroadSearch">
-                    Broad search
-                  </BFormCheckbox>
+            <div class="form-group">
+              <div class="input-group mb-3">
+                <BFormInput
+                  id="filterInput"
+                  v-model="freeText"
+                  type="search"
+                  placeholder="Name / Barcode / #tags"
+                />
+                <div class="input-group-append">
+                  <span class="input-group-text">
+                    <span class="badge" :class="{ 'badge-success' : isBroadSearch }">Broad</span>
+                    <BFormCheckbox v-model="isBroadSearch" />
+                  </span>
                 </div>
               </div>
             </div>

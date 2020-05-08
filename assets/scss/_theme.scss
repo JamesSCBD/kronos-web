@@ -82,17 +82,16 @@
 }
 
 /** FIlter Sec  Design  **/
-.filter_Sec .custom-checkbox {
-  margin-top: 8px;
+.filter_Sec .badge {
+  margin-right: 5px;
 }
 
+/** Pager css class **/
 .paginationRow {
   display: inline-block;
   width: 100%;
   text-align: right;
 }
-
-/** Pager css class **/
 select#page-size {
   display: inline;
   width: auto;

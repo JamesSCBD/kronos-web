@@ -1,86 +1,87 @@
 <template>
   <div class="container-fluid">
-    <div class="filter_Sec">
-      <h5 class="sec_ttl">
-        Filter
-      </h5>
-      <div class="row">
-        <div class="col-md-6 col-sm-6 col-xs-12">
-          <div class="row">
-            <div class="col-md-8 col-sm-7 col-xs-12">
-              <div class="form-group">
+    <div class="card">
+      <div class="card-header">
+        <strong>Filter</strong>
+      </div>
+
+      <div class="card-body filter_Sec">
+        <div class="row">
+          <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="form-group">
+              <div class="input-group mb-3">
                 <BFormInput
                   id="filterInput"
                   v-model="freeText"
                   type="search"
                   placeholder="Name / Acronym / #KEYWORD"
                 />
+                <div class="input-group-append">
+                  <span class="input-group-text">
+                    <span class="badge" :class="{ 'badge-success' : isBroadSearch }">Broad</span>
+                    <BFormCheckbox v-model="isBroadSearch" />
+                  </span>
+                </div>
               </div>
             </div>
-            <div class="col-md-4 col-sm-5 col-xs-12">
-              <div class="form-group">
-                <BFormCheckbox v-model="isBroadSearch">
-                  Broad search
-                </BFormCheckbox>
+          </div>
+          <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="row">
+              <div class="col-7 pr-0">
+                <div class="form-group">
+                  <EventSelector v-model="selectedEvents" />
+                </div>
+              </div>
+              <div class="col-5 pl-0">
+                <div class="form-group">
+                  <RegistrationStatusSelector v-model="selectedAttendances" :disabled="!selectedEvents.length" />
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="col-md-6 col-sm-6 col-xs-12">
-          <div class="row">
-            <div class="col-md-7 col-sm-7 col-xs-12 pr-0">
-              <div class="form-group">
-                <EventSelector v-model="selectedEvents" />
-              </div>
-            </div>
-            <div class="col-md-5 col-sm-5 col-xs-12 pl-0">
-              <div class="form-group">
-                <RegistrationStatusSelector v-model="selectedAttendances" />
-              </div>
+        <div class="row">
+          <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="form-group">
+              <OrganizationTypeSelector v-model="selectedOrganizationTypes" />
             </div>
           </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-6 col-sm-6 col-xs-12">
-          <div class="form-group">
-            <OrganizationTypeSelector v-model="selectedOrganizationTypes" />
-          </div>
-        </div>
-        <div class="col-md-6 col-sm-6 col-xs-12">
-          <div class="form-group">
-            <multiselect
-              v-model="selectedValidationStatus"
-              label="Title"
-              track-by="Value"
-              placeholder="Status"
-              :options="validationStatusOptions"
-              :multiple="false"
-              :searchable="false"
-              :clear-on-select="false"
-              :close-on-select="true"
-            />
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-6 col-sm-6 col-xs-12">
-          <div class="row">
-            <div class="col-md-7 col-sm-6 col-xs-12 pr-0">
-              <div class="form-group">
-                <CountrySelector v-model="selectedCountries" />
-              </div>
-            </div>
-            <div class="col-md-5 col-sm-6 col-xs-12 pl-0">
-              <div class="form-group">
-                <CountryScopeSelector v-model="selectedCountryScope" />
-              </div>
+          <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="form-group">
+              <multiselect
+                v-model="selectedValidationStatus"
+                label="Title"
+                track-by="Value"
+                placeholder="Status"
+                :options="validationStatusOptions"
+                :multiple="false"
+                :searchable="false"
+                :clear-on-select="false"
+                :close-on-select="true"
+              />
             </div>
           </div>
         </div>
-        <div class="col-md-6 col-sm-6 col-xs-12" />
+        <div class="row">
+          <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="row">
+              <div class="col-7 pr-0">
+                <div class="form-group">
+                  <CountrySelector v-model="selectedCountries" />
+                </div>
+              </div>
+              <div class="col-5 pl-0">
+                <div class="form-group">
+                  <CountryScopeSelector v-model="selectedCountryScope" :disabled="!selectedCountries.length" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-sm-6 col-xs-12" />
+        </div>
       </div>
     </div>
+
     <div class="row">
       <div class="col-12">
         <OrganizationsList :base-query="query" />
@@ -255,16 +256,16 @@ function setSelectedValidationStatus(value) {
 // ===================
 function buildQuery() {
   const query = cleanUp({
-    FreeText               : this.freeText,
-    EventUIDs              : this.selectedEvents,
-    EventRegistrationStatus: this.selectedAttendances.reduce((r, v) => r + v, 0) || undefined,
-    TypeUIDs               : this.selectedOrganizationTypes,
-    Governments            : this.selectedCountries,
-    IsValidated            : (this.selectedValidationStatus[0] || {}).Value,
+    FreeText   : this.freeText,
+    EventUIDs  : this.selectedEvents,
+    TypeUIDs   : this.selectedOrganizationTypes,
+    Governments: this.selectedCountries,
+    IsValidated: (this.selectedValidationStatus[0] || {}).Value,
   });
 
-  if (query.FreeText) { query.IsBroadSearch = this.isBroadSearch || undefined; }
-  if (query.Governments) { query.CountryScope = (this.selectedCountryScope || undefined); }
+  if (query.FreeText) query.IsBroadSearch = this.isBroadSearch || undefined;
+  if (query.EventUIDs) query.EventRegistrationStatus = this.selectedAttendances.reduce((r, v) => r + v, 0) || undefined;
+  if (query.Governments) query.CountryScope = (this.selectedCountryScope || undefined);
 
   return cleanUp(query);
 }
