@@ -3,7 +3,7 @@
     <div class="col-4 p-0">
       <CBreadcrumb :items="makeCrumbs()" class="border-0" />
     </div>
-    <div class="col-8 p-0">
+    <div class="col-8 p-0 d-none">
       <ConferenceSelect />
     </div>
   </CSubheader>

@@ -1,33 +1,53 @@
 const $state = () => ({
-  sideBar: {
-    show: true,
-    min : false,
-  },
+  sidebarShow    : 'responsive',
+  sidebarMinimize: false,
 });
 
-const $getters = {
-  isMin({ sideBar }) {
-    return sideBar.min;
+/* eslint-disable no-param-reassign */
+const TOGGLE_SIDEBAR_DESKTOP   = 'toggleSidebarDesktop';
+const TOGGLE_SIDEBAR_MOBILE    = 'toggleSidebarMobile';
+const TOGGLE_SIDEBAR_MINIMIZED = 'toggleSideBarMinimized';
+const SET_SIDEBAR_RESPONSIVE   = 'setSidebarResponsive';
+
+const $mutations = {
+
+  [TOGGLE_SIDEBAR_DESKTOP](state) {
+    const sidebarOpened = [ true, 'responsive' ].includes(state.sidebarShow);
+    state.sidebarShow   = sidebarOpened ? false : 'responsive';
   },
 
-  isShow({ sideBar }) {
-    return sideBar.show;
+  [TOGGLE_SIDEBAR_MOBILE](state) {
+    const sidebarClosed = [ false, 'responsive' ].includes(state.sidebarShow);
+    state.sidebarShow   = sidebarClosed ? true : 'responsive';
+  },
+
+  [SET_SIDEBAR_RESPONSIVE](state) {
+    state.sidebarShow = 'responsive';
+  },
+
+  [TOGGLE_SIDEBAR_MINIMIZED](state) {
+    state.sidebarMinimize = !state.sidebarMinimize;
   },
 };
 
-/* eslint-disable no-param-reassign */
-const $mutations = {
-  sideBarShowToggle(state) {
-    state.sideBar.show = !state.sideBar.show;
+const $actions = {
+  toggleSidebarDesktop({ commit }) {
+    commit(TOGGLE_SIDEBAR_DESKTOP);
   },
-  sideBarMinToggle(state) {
-    state.sideBar.min = !state.sideBar.min;
+  toggleSidebarMobile({ commit }) {
+    commit(TOGGLE_SIDEBAR_MOBILE);
+  },
+  setSidebarResponsive({ commit }) {
+    commit(SET_SIDEBAR_RESPONSIVE);
+  },
+  toggleSideBarMinimized({ commit }) {
+    commit(TOGGLE_SIDEBAR_MINIMIZED);
   },
 };
 /* eslint-enable no-param-reassign */
 
 export {
   $state     as state,
-  $getters   as getters,
   $mutations as mutations,
+  $actions   as actions,
 };

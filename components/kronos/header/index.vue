@@ -1,24 +1,17 @@
 <template>
-  <CHeader fixed with-subheader light>
+  <CHeader fixed light>
     <CToggler
       in-header
       class="ml-3 d-lg-none"
-      @click="toggleShow()"
+      @click="toggleSidebarMobile()"
     />
     <CToggler
       in-header
       class="ml-3 d-md-down-none"
-      @click="toggleShow()"
+      @click="toggleSidebarDesktop()"
     />
-    <CHeaderBrand
 
-      class="mx-auto d-lg-none"
-      src="/k-logo-full-alt.svg"
-      width="190"
-      height="46"
-      alt="Kronos Logo"
-    />
-    <CHeaderNav class="d-md-down-none mr-auto">
+    <CHeaderNav class=" mr-auto">
       <CHeaderNavItem>
         <BreadCrumbs />
       </CHeaderNavItem>
@@ -33,35 +26,32 @@
 
       <DropdownAccnt />
     </CHeaderNav>
-    <SubHeader class="px-3 d-lg-none" />
   </CHeader>
 </template>
 
 <script>
-import { mapMutations } from 'vuex';
+import { mapActions } from 'vuex';
 import {
-  CHeader, CHeaderBrand, CHeaderNav, CHeaderNavItem, CHeaderNavLink, CToggler,
+  CHeader, CHeaderNav, CHeaderNavItem, CHeaderNavLink, CToggler,
 } from '@coreui/vue';
 import BreadCrumbs from './BreadCrumbs';
 import DropdownAccnt from './DropdownAccnt';
-import SubHeader from './SubHeader';
 
 export default {
   name      : 'KHeader',
   components: {
     BreadCrumbs,
-    SubHeader,
     DropdownAccnt,
     CHeader,
-    CHeaderBrand,
     CHeaderNav,
     CHeaderNavItem,
     CHeaderNavLink,
     CToggler,
   },
   methods: {
-    ...mapMutations({
-      toggleShow: 'coreui/sideBarShowToggle',
+    ...mapActions({
+      toggleSidebarDesktop: 'coreui/toggleSidebarDesktop',
+      toggleSidebarMobile : 'coreui/toggleSidebarMobile',
     }),
   },
 };

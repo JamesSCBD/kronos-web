@@ -11,6 +11,10 @@
   transform: $property;
 }
 
+body {
+  overflow-x: hidden;
+}
+
 .page-enter-active, .page-leave-active {
   @include transition(opacity 0.2s ease);
 }
@@ -74,6 +78,14 @@
   width: 1.2rem;
   height: 1.2rem;
   font-size: 1.2rem;
+}
+
+.c-sidebar-brand-full {
+  width: 150px;
+}
+
+.c-sidebar-brand-minimized {
+  width: 44px;
 }
 
 .normal-flag.flag{
