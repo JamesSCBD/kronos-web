@@ -1,13 +1,16 @@
 import _ from 'lodash';
 
 const $state = () => ({
-  selectedContacts: [],
+  selectedContacts  : [],
+  selectedQuery     : null,
+  selectedQueryCount: 0,
 });
 
 /* eslint-disable no-param-reassign */
 const ADD_TO_SELECTION      = 'ADD_TO_SELECTION';
 const REMOVE_FROM_SELECTION = 'REMOVE_FROM_SELECTION';
 const CLEAR                 = 'CLEAR';
+const SAVE_SELECTED_QUERY   = 'SAVE_SELECTED_QUERY';
 
 const $mutations = {
 
@@ -30,6 +33,11 @@ const $mutations = {
   [CLEAR](state) {
     state.selectedContacts = [];
   },
+
+  [SAVE_SELECTED_QUERY](state, { query, count }) {
+    state.selectedQuery      = query || null;
+    state.selectedQueryCount = count || 0;
+  },
 };
 /* eslint-enable no-param-reassign */
 
@@ -43,6 +51,18 @@ const $getters = {
     const contactUID = contact.ContactUID || contact; // contact object OR id
 
     return selectedContacts.some((c) => c.ContactUID === contactUID);
+  },
+
+  selectedQuery(state) {
+    return state.selectedQuery || null;
+  },
+
+  selectedQueryCount(state) {
+    return state.selectedQueryCount;
+  },
+
+  selectedCount(state) {
+    return state.selectedContacts.length;
   },
 };
 
@@ -65,6 +85,12 @@ const $actions = {
     commit(REMOVE_FROM_SELECTION, contact);
   },
 
+  async setSelectedQuery({ commit }, contactQuery) {
+    const query    = { ...contactQuery };
+    const response = await this.$kronosApi.queryContacts({ ...query,  limit: 1 });
+    const count    = response.totalRecordCount;
+    commit(SAVE_SELECTED_QUERY, { query, count });
+  },
 };
 
 export {

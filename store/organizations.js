@@ -4,6 +4,8 @@ const $state = () => ({
   organizationCache    : [],
   organizationTypes    : [],
   selectedOrganizations: [],
+  selectedQuery        : null,
+  selectedQueryCount   : 0,
 });
 
 /* eslint-disable no-param-reassign */
@@ -12,6 +14,7 @@ const UPDATE_CACHE          = 'UPDATE_CACHE';
 const ADD_TO_SELECTION      = 'ADD_TO_SELECTION';
 const REMOVE_FROM_SELECTION = 'REMOVE_FROM_SELECTION';
 const CLEAR                 = 'CLEAR';
+const SAVE_SELECTED_QUERY   = 'SAVE_SELECTED_QUERY';
 
 const $mutations = {
 
@@ -43,6 +46,10 @@ const $mutations = {
     state.organizationTypes     = [];
     state.selectedOrganizations = [];
   },
+  [SAVE_SELECTED_QUERY](state, { query, count }) {
+    state.selectedQuery      = query || null;
+    state.selectedQueryCount = count || 0;
+  },
 };
 /* eslint-enable no-param-reassign */
 
@@ -64,6 +71,18 @@ const $getters = {
     const organizationUID = organization.OrganizationUID || organization; // organization object OR id
 
     return selectedOrganizations.some((c) => c.OrganizationUID === organizationUID);
+  },
+
+  selectedQuery(state) {
+    return state.selectedQuery || null;
+  },
+
+  selectedQueryCount(state) {
+    return state.selectedQueryCount;
+  },
+
+  selectedCount(state) {
+    return state.selectedOrganizations.length;
   },
 };
 
@@ -106,6 +125,13 @@ const $actions = {
   //= ============================================
   removeFromSelection({ commit }, organization) {
     commit(REMOVE_FROM_SELECTION, organization);
+  },
+
+  async setSelectedQuery({ commit }, organizationQuery) {
+    const query    = { ...organizationQuery };
+    const response = await this.$kronosApi.queryOrganizations({ ...query,  limit: 1 });
+    const count    = response.totalRecordCount;
+    commit(SAVE_SELECTED_QUERY, { query, count });
   },
 };
 

@@ -4,10 +4,15 @@
       <div class="card-header">
         <strong>Filter</strong>
         <div class="card-header-actions">
-          <CLink
-            class="card-header-action btn-minimize"
-            @click="filterFormCollapsed=!filterFormCollapsed"
+          <button
+            class="card-header-action btn"
+            title="Use current search as contact selection"
+            :disabled="!canSaveQuery"
+            @click="setSelectedQuery(query)"
           >
+            <i class="cil-task " />
+          </button>
+          <CLink class="card-header-action btn-minimize" @click="filterFormCollapsed=!filterFormCollapsed">
             <i :class="{ 'cil-chevron-top': filterFormCollapsed, 'cil-chevron-bottom': !filterFormCollapsed }" />
           </CLink>
         </div>
@@ -40,7 +45,7 @@
                 </div>
               </div>
               <div class="col-5 pl-0">
-                <div class="form-group" disabled>
+                <div class="form-group">
                   <RegistrationStatusSelector v-model="selectedAttendances" :disabled="!selectedEvents.length" />
                 </div>
               </div>
@@ -116,7 +121,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 import { readOnly } from '@roles';
 import { BFormInput, BFormCheckbox } from 'bootstrap-vue';
 import Multiselect from 'vue-multiselect';
@@ -167,12 +172,16 @@ export default {
     selectedFlags            : { get: getSelectedFlags, set: setSelectedFlags },
     selectedAttendances      : { get: getSelectedAttendances, set: setSelectedAttendances },
     flagOptions              : { get: () => Flags },
+    canSaveQuery() { return !_.isEmpty(this.query); },
     ...mapGetters({
       majorEvents: 'conferences/majorEvents',
     }),
   },
   methods: {
     queryString,
+    ...mapActions({
+      setSelectedQuery: 'contacts/setSelectedQuery',
+    }),
   },
   auth: readOnly,
 };
