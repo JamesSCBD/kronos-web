@@ -3,9 +3,16 @@
     <div class="card">
       <div class="card-header">
         <strong>Filter</strong>
+        <div class="card-header-actions">
+          <CLink
+            class="card-header-action btn-minimize"
+            @click="filterFormCollapsed=!filterFormCollapsed"
+          >
+            <i :class="`cil-chevron-${filterFormCollapsed ? 'bottom' : 'top'}`" />
+          </CLink>
+        </div>
       </div>
-
-      <div class="card-body filter_Sec">
+      <div v-if="filterFormCollapsed" class="card-body filter_Sec">
         <div class="row">
           <div class="col-md-6 col-sm-6 col-xs-12">
             <div class="form-group">
@@ -96,6 +103,7 @@ import { readOnly } from '@roles';
 import { BFormInput, BFormCheckbox } from 'bootstrap-vue';
 import Multiselect from 'vue-multiselect';
 import _ from 'lodash';
+import { CLink } from '@coreui/vue';
 import OrganizationsList from '~/components/list/OrganizationsList';
 import EventSelector from '~/components/controls/selectors/EventSelector';
 import RegistrationStatusSelector from '~/components/controls/selectors/RegistrationStatusSelector';
@@ -120,6 +128,12 @@ export default {
     OrganizationTypeSelector,
     CountrySelector,
     CountryScopeSelector,
+    CLink,
+  },
+  data() {
+    return {
+      filterFormCollapsed: true,
+    };
   },
   computed: {
     query                    : buildQuery,
