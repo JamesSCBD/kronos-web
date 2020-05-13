@@ -8,7 +8,7 @@
             class="card-header-action btn-minimize"
             @click="filterFormCollapsed=!filterFormCollapsed"
           >
-            <i :class="`cil-chevron-${filterFormCollapsed ? 'bottom' : 'top'}`" />
+            <i :class="{ 'cil-chevron-top': filterFormCollapsed, 'cil-chevron-bottom': !filterFormCollapsed }" />
           </CLink>
         </div>
       </div>
