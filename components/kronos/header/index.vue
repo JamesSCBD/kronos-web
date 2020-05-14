@@ -23,7 +23,8 @@
           <!-- some icon messgeses maybe -->
         </CHeaderNavLink>
       </CHeaderNavItem>
-
+      <DropdownContacts />
+      <DropdownOrganizations />
       <DropdownAccnt />
     </CHeaderNav>
   </CHeader>
@@ -36,6 +37,8 @@ import {
 } from '@coreui/vue';
 import BreadCrumbs from './BreadCrumbs';
 import DropdownAccnt from './DropdownAccnt';
+import DropdownContacts from './DropdownContacts';
+import DropdownOrganizations from './DropdownOrganizations';
 
 export default {
   name      : 'KHeader',
@@ -47,6 +50,8 @@ export default {
     CHeaderNavItem,
     CHeaderNavLink,
     CToggler,
+    DropdownContacts,
+    DropdownOrganizations,
   },
   methods: {
     ...mapActions({

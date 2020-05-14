@@ -15,6 +15,8 @@ const ADD_TO_SELECTION      = 'ADD_TO_SELECTION';
 const REMOVE_FROM_SELECTION = 'REMOVE_FROM_SELECTION';
 const CLEAR                 = 'CLEAR';
 const SAVE_SELECTED_QUERY   = 'SAVE_SELECTED_QUERY';
+const CLEAR_SELECTION       = 'CLEAR_SELECTION';
+const CLEAR_SELECTION_QUERY = 'CLEAR_SELECTION_QUERY';
 
 const $mutations = {
 
@@ -45,10 +47,20 @@ const $mutations = {
     state.organizationCache     = [];
     state.organizationTypes     = [];
     state.selectedOrganizations = [];
+    state.selectedQuery         = null;
+    state.selectedQueryCount    = 0;
   },
   [SAVE_SELECTED_QUERY](state, { query, count }) {
     state.selectedQuery      = query || null;
     state.selectedQueryCount = count || 0;
+  },
+  [CLEAR_SELECTION](state) {
+    state.selectedOrganizations = [];
+  },
+
+  [CLEAR_SELECTION_QUERY](state) {
+    state.selectedQuery      = null;
+    state.selectedQueryCount = 0;
   },
 };
 /* eslint-enable no-param-reassign */
@@ -132,6 +144,14 @@ const $actions = {
     const response = await this.$kronosApi.queryOrganizations({ ...query,  limit: 1 });
     const count    = response.totalRecordCount;
     commit(SAVE_SELECTED_QUERY, { query, count });
+  },
+
+  clearSelection({ commit }) {
+    commit(CLEAR_SELECTION);
+  },
+
+  clearSelectionQuery({ commit }) {
+    commit(CLEAR_SELECTION_QUERY);
   },
 };
 
