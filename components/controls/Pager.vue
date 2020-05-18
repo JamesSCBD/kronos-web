@@ -1,7 +1,8 @@
 <template>
   <div>
     <div class="paginationRow">
-      <span v-if="recordCount">{{ recordCount }} records / {{ numberOfPages }} pages</span>
+      <span v-if="recordCount === 0">No matching records found</span>
+      <span v-if="recordCount != null && recordCount > 0">{{ recordCount }} records / {{ numberOfPages }} pages</span>
       <BFormSelect
         id="page-size"
         v-model="perPage"

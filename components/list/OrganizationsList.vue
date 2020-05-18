@@ -89,7 +89,7 @@ export default {
     return {
       loading      : false,
       columns      : [ ...baseColumns ],
-      totalRows    : 0,
+      totalRows    : null,
       page         : 1,
       pageSize     : 25,
       organizations: [],
@@ -207,7 +207,7 @@ function cleanOrganization(item) {
 //= ================================
 function resetPager() {
   this.page      = 1;
-  this.totalRows = 0;
+  this.totalRows = null;
 }
 
 </script>
