@@ -21,12 +21,6 @@
         {{ selectedCount }}
       </CBadge>
     </CDropdownItem>
-    <CDropdownItem :disabled="!selectedQueryCount" @click="clearSelectionQuery()">
-      <i class="cil-clear-all pr-1" />Clear Query
-      <CBadge v-if="selectedQueryCount" color="info" class="ml-auto">
-        {{ selectedQueryCount }}
-      </CBadge>
-    </CDropdownItem>
   </CDropdown>
 </template>
 
@@ -43,25 +37,17 @@ export default {
   },
   computed: {
     showSelectionCount() {
-      if (this.selectedCount && this.selectedQueryCount) {
-        return `${this.selectedCount} / ${this.selectedQueryCount}`;
-      }
-
       if (this.selectedCount) { return `${this.selectedCount}`; }
-
-      if (this.selectedQueryCount) { return `${this.selectedQueryCount}`; }
 
       return null;
     },
     ...mapGetters({
-      selectedCount     : 'contacts/selectedCount',
-      selectedQueryCount: 'contacts/selectedQueryCount',
+      selectedCount: 'contacts/selectedCount',
     }),
   },
   methods: {
     ...mapActions({
-      clearSelection     : 'contacts/clearSelection',
-      clearSelectionQuery: 'contacts/clearSelectionQuery',
+      clearSelection: 'contacts/clearSelection',
     }),
   },
 };

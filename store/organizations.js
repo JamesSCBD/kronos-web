@@ -5,7 +5,7 @@ const $state = () => ({
   organizationTypes    : [],
   selectedOrganizations: [],
   selectedQuery        : null,
-  selectedQueryCount   : 0,
+  selectedCount        : 0,
 });
 
 /* eslint-disable no-param-reassign */
@@ -16,7 +16,6 @@ const REMOVE_FROM_SELECTION = 'REMOVE_FROM_SELECTION';
 const CLEAR                 = 'CLEAR';
 const SAVE_SELECTED_QUERY   = 'SAVE_SELECTED_QUERY';
 const CLEAR_SELECTION       = 'CLEAR_SELECTION';
-const CLEAR_SELECTION_QUERY = 'CLEAR_SELECTION_QUERY';
 
 const $mutations = {
 
@@ -31,7 +30,9 @@ const $mutations = {
   [ADD_TO_SELECTION](state, organization) {
     if (!organization) throw new Error('Organization is null / empty');
 
+    state.selectedQuery         = null;
     state.selectedOrganizations = _.unionBy([ organization ], state.selectedOrganizations, (o) => o.OrganizationUID);
+    state.selectedCount         = state.selectedOrganizations.length;
   },
 
   [REMOVE_FROM_SELECTION](state, organization) {
@@ -41,26 +42,31 @@ const $mutations = {
 
     if (!organizationUID) throw new Error('OrganizationUID is null / empty');
 
+    state.selectedQuery         = null;
     state.selectedOrganizations = state.selectedOrganizations.filter((c) => c.OrganizationUID !== organizationUID);
+    state.selectedCount         = state.selectedOrganizations.length;
   },
+
   [CLEAR](state) {
     state.organizationCache     = [];
     state.organizationTypes     = [];
     state.selectedOrganizations = [];
     state.selectedQuery         = null;
-    state.selectedQueryCount    = 0;
-  },
-  [SAVE_SELECTED_QUERY](state, { query, count }) {
-    state.selectedQuery      = query || null;
-    state.selectedQueryCount = count || 0;
-  },
-  [CLEAR_SELECTION](state) {
-    state.selectedOrganizations = [];
+    state.selectedCount         = 0;
   },
 
-  [CLEAR_SELECTION_QUERY](state) {
-    state.selectedQuery      = null;
-    state.selectedQueryCount = 0;
+  [SAVE_SELECTED_QUERY](state, { query, count }) {
+    if (!query) throw new Error('query is null / empty');
+
+    state.selectedOrganizations = [];
+    state.selectedQuery         = query;
+    state.selectedCount         = count || 0;
+  },
+
+  [CLEAR_SELECTION](state) {
+    state.selectedOrganizations = [];
+    state.selectedQuery         = null;
+    state.selectedCount         = 0;
   },
 };
 /* eslint-enable no-param-reassign */
@@ -89,12 +95,8 @@ const $getters = {
     return state.selectedQuery || null;
   },
 
-  selectedQueryCount(state) {
-    return state.selectedQueryCount;
-  },
-
   selectedCount(state) {
-    return state.selectedOrganizations.length;
+    return state.selectedCount;
   },
 };
 
@@ -148,10 +150,6 @@ const $actions = {
 
   clearSelection({ commit }) {
     commit(CLEAR_SELECTION);
-  },
-
-  clearSelectionQuery({ commit }) {
-    commit(CLEAR_SELECTION_QUERY);
   },
 };
 

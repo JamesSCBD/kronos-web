@@ -1,9 +1,9 @@
 import _ from 'lodash';
 
 const $state = () => ({
-  selectedContacts  : [],
-  selectedQuery     : null,
-  selectedQueryCount: 0,
+  selectedContacts: [],
+  selectedQuery   : null,
+  selectedCount   : 0,
 });
 
 /* eslint-disable no-param-reassign */
@@ -12,14 +12,15 @@ const REMOVE_FROM_SELECTION = 'REMOVE_FROM_SELECTION';
 const CLEAR                 = 'CLEAR';
 const SAVE_SELECTED_QUERY   = 'SAVE_SELECTED_QUERY';
 const CLEAR_SELECTION       = 'CLEAR_SELECTION';
-const CLEAR_SELECTION_QUERY = 'CLEAR_SELECTION_QUERY';
 
 const $mutations = {
 
   [ADD_TO_SELECTION](state, contact) { // Add replace contact with the new one
     if (!contact) throw new Error('Contact is null / empty');
 
+    state.selectedQuery    = null;
     state.selectedContacts = _.unionBy([ contact ], state.selectedContacts, (c) => c.ContactUID);
+    state.selectedCount    = state.selectedContacts.length;
   },
 
   [REMOVE_FROM_SELECTION](state, contact) {
@@ -29,27 +30,29 @@ const $mutations = {
 
     if (!contactUID) throw new Error('ContactUID is null / empty');
 
+    state.selectedQuery    = null;
     state.selectedContacts = state.selectedContacts.filter((c) => c.ContactUID !== contactUID);
+    state.selectedCount    = state.selectedContacts.length;
   },
 
   [CLEAR](state) {
-    state.selectedContacts   = [];
-    state.selectedQuery      = null;
-    state.selectedQueryCount = 0;
+    state.selectedContacts = [];
+    state.selectedQuery    = null;
+    state.selectedCount    = 0;
   },
 
   [SAVE_SELECTED_QUERY](state, { query, count }) {
-    state.selectedQuery      = query || null;
-    state.selectedQueryCount = count || 0;
+    if (!query) throw new Error('query is null');
+
+    state.selectedContacts = [];
+    state.selectedQuery    = query;
+    state.selectedCount    = count || 0;
   },
 
   [CLEAR_SELECTION](state) {
     state.selectedContacts = [];
-  },
-
-  [CLEAR_SELECTION_QUERY](state) {
-    state.selectedQuery      = null;
-    state.selectedQueryCount = 0;
+    state.selectedQuery    = null;
+    state.selectedCount    = 0;
   },
 };
 /* eslint-enable no-param-reassign */
@@ -70,12 +73,8 @@ const $getters = {
     return state.selectedQuery || null;
   },
 
-  selectedQueryCount(state) {
-    return state.selectedQueryCount;
-  },
-
   selectedCount(state) {
-    return state.selectedContacts.length;
+    return state.selectedCount;
   },
 };
 
@@ -107,10 +106,6 @@ const $actions = {
 
   clearSelection({ commit }) {
     commit(CLEAR_SELECTION);
-  },
-
-  clearSelectionQuery({ commit }) {
-    commit(CLEAR_SELECTION_QUERY);
   },
 };
 
