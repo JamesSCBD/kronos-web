@@ -98,6 +98,10 @@ const $getters = {
   selectedCount(state) {
     return state.selectedCount;
   },
+
+  selectedOrganizations(state) {
+    return state.selectedOrganizations;
+  },
 };
 
 const $actions = {

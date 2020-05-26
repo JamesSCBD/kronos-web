@@ -1,0 +1,200 @@
+<template>
+  <div class="container-fluid">
+    <div class="card-body filter_Sec">
+      <div class="row">
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="form-group">
+            <div class="input-group mb-3">
+              <BFormGroup label="Email Format">
+                <BFormRadioGroup
+                  v-model="selectedFormat"
+                  :options="formatOptions"
+                  name="email-format"
+                  stacked
+                />
+              </BFormGroup>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="row">
+            <div class="col-7 pr-0">
+              <div class="form-group">
+                <BFormGroup label="Email to Export">
+                  <BFormRadioGroup
+                    v-model="selectedExport"
+                    :options="exportOptions"
+                    name="email-to-export"
+                    stacked
+                  />
+                </BFormGroup>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="form-group">
+            <BFormGroup label="Spearator">
+              <BFormRadioGroup
+                v-model="selectedSpearator"
+                :options="spearatorOptions"
+                name="spearator"
+                stacked
+              />
+            </BFormGroup>
+          </div>
+        </div>
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="form-group">
+            <BFormGroup label="Row Size">
+              <BFormSelect
+                id="row-size"
+                v-model.number="selectedRowSize"
+                class="form-control"
+                :options="rowSizeOptions"
+              />
+            </BFormGroup>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="form-group">
+            <button class="btn col-sm-2 btn-primary float-right" @click="onEmailsExport()">
+              Export
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="line-top" />
+      <div v-for="row in textareaEmails" :key="row.Emails" class="row">
+        <div class="col-md-11 col-sm-11 col-xs-12">
+          <div class="form-group">
+            <BFormTextarea
+              id="textarea"
+              :value="row.Emails"
+              :rows="rows"
+              readonly
+            />
+          </div>
+        </div>
+        <div class="col-md-1 col-sm-1 col-xs-12">
+          <div class="form-group copy-btn">
+            <button title="Copy" @click="copy(row.Emails)">
+              <i class="cil-copy" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import {
+  BFormGroup, BFormRadioGroup, BFormSelect, BFormTextarea,
+} from 'bootstrap-vue';
+import _ from 'lodash';
+import copy from 'copy-to-clipboard';
+
+const rowSizeOptions = [
+  { value: 50, text: '50/row (Outlook)' },
+  { value: 100, text: '100/rows' },
+  { value: 250, text: '250/rows' },
+  { value: null, text: 'All' },
+];
+
+const formatOptions     = [
+  { text: 'Name and Email', value: 'NAME_EMAIL' },
+  { text: 'Email address only', value: 'EMAIL' },
+];
+const baseExportOptions = [
+  { text: 'Main address', value: 'MAIN' },
+];
+const spearatorOptions  = [
+  { text: 'Outlook', value: ';' },
+  { text: 'One by line ', value: '\n' },
+];
+
+export default {
+  name      : 'ExportEmails',
+  components: {
+    BFormGroup, BFormRadioGroup, BFormSelect, BFormTextarea,
+  },
+  props: {
+    selectionList: { type: Array, default: () => ([]) },
+  },
+  data() {
+    return {
+      selectedFormat   : 'NAME_EMAIL',
+      selectedExport   : 'MAIN',
+      selectedSpearator: ';',
+      selectedRowSize  : 50,
+      formatOptions,
+      exportOptions    : [ ...baseExportOptions ],
+      spearatorOptions,
+      rowSizeOptions,
+      textareaEmails   : [],
+      rows             : 3,
+    };
+  },
+  mounted,
+  methods: {
+    onEmailsExport,
+    copy,
+  },
+};
+
+function mounted() {
+  if (this.selectionList.length) {
+    if (this.selectionList[0].ContactUID) {
+      this.exportOptions.push({ value: 'MAINCCs', text: 'Main + CCs address' });
+    } else {
+      this.exportOptions.push({ value: 'MAINCCs', text: 'Main + Focal Point' });
+    }
+  }
+}
+
+function onEmailsExport() {
+  if (this.selectionList.length) {
+    let emails = _(this.selectionList.map((c) => extractEmails.call(this, c)));
+
+    emails = _(emails.map((e) => formatEmailAddress.call(this, e))).flatten().uniq().value();
+
+    this.textareaEmails = _.chunk(emails, this.selectedRowSize || emails.length)
+      .map((rowEmails) => ({ Emails: rowEmails.join(this.selectedSpearator) }));
+
+    this.rows = this.selectedRowSize ? 3 : 10;
+  }
+}
+
+function formatEmailAddress(emails) {
+  return emails.map((x) => (this.selectedFormat === 'NAME_EMAIL' ? `${x.name || ''}  <${x.address}>`.trim() : `${x.address}`.trim()));
+}
+
+function extractEmails(entry) {
+  const thisComponent = this;
+
+  let emails = [];
+
+  emails = emails.concat(entry.Emails.map((address) => ({
+    address,
+    name: getName.call(thisComponent, entry),
+  })));
+
+  if (this.selectedExport === 'MAINCCs') {
+    if (entry.ContactUID) emails = emails.concat(entry.EmailCcs.map((address) => ({ address }))); // no name on CC addresses
+    if (entry.focalPoint)  emails = emails.concat(extractEmails(entry.focalPoint));
+  }
+
+  return _.uniqBy(emails, (o) => o.address);
+}
+
+function getName(entry) {
+  if (entry.ContactUID) return `${entry.Title} ${entry.FirstName} ${entry.LastName}`;
+
+  return `${entry.OrganizationName}`;
+}
+</script>
