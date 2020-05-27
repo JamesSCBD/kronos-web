@@ -282,16 +282,16 @@ function setSelectedValidationStatus(value) {
 // ===================
 function buildQuery() {
   const query = cleanUp({
-    FreeText   : this.freeText,
-    EventUIDs  : this.selectedEvents,
-    TypeUIDs   : this.selectedOrganizationTypes,
-    Governments: this.selectedCountries,
-    IsValidated: (this.selectedValidationStatus[0] || {}).Value,
+    freeText           : this.freeText,
+    eventIds           : this.selectedEvents,
+    organizationTypeIds: this.selectedOrganizationTypes,
+    countries          : this.selectedCountries,
+    isValidated        : (this.selectedValidationStatus[0] || {}).Value,
   });
 
-  if (query.FreeText) query.IsBroadSearch = this.isBroadSearch || undefined;
-  if (query.EventUIDs) query.EventRegistrationStatus = this.selectedAttendances.reduce((r, v) => r + v, 0) || undefined;
-  if (query.Governments) query.CountryScope = (this.selectedCountryScope || undefined);
+  if (query.freeText) query.isBroadSearch = this.isBroadSearch || undefined;
+  if (query.eventIds) query.registrationStatus = this.selectedAttendances.reduce((r, v) => r + v, 0) || undefined;
+  if (query.countries) query.countryScope = (this.selectedCountryScope || undefined);
 
   return cleanUp(query);
 }

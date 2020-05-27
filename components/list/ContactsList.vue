@@ -28,35 +28,35 @@
           <strong>Loading...</strong>
         </div>
       </template>
-      <template v-slot:head(Selected)>
+      <template v-slot:head(selected)>
         <BFormCheckbox
           v-model="isAllSelected"
           :indeterminate="isPartialySelected"
           @change="onSelectedAll"
         />
       </template>
-      <template v-slot:cell(Selected)="data">
-        <BFormCheckbox v-model="data.item.Selected" @change="onSelected(data.item)" />
+      <template v-slot:cell(selected)="data">
+        <BFormCheckbox v-model="data.item.selected" @change="onSelected(data.item)" />
       </template>
-      <template v-slot:head(Title)>
+      <template v-slot:head(title)>
         <span class="text-center">
           <CIcon name="idBadge" />
         </span>
       </template>
 
-      <template v-slot:cell(Country)="{value}">
+      <template v-slot:cell(organizationGovernment)="{value}">
         <CountryCol v-if="value" :code="value" />
       </template>
 
-      <template v-slot:cell(OrganizationGovernment)="{value}">
+      <template v-slot:cell(country)="{value}">
         <CountryCol v-if="value" :code="value" />
       </template>
 
-      <template v-slot:cell(Emails)="{value}">
+      <template v-slot:cell(emails)="{value}">
         <EmailCol v-if="value" :emails="value" />
       </template>
       <template v-for="(column, index) in RegStatusColumns" v-slot:[`cell(${column.key})`]="data">
-        <RegistrationStatusCol v-if="data.item.StatusEvents" :key="column.key" :registration-status="data.item.StatusEvents[index] || {}" />
+        <RegistrationStatusCol v-if="data.item.registrationStatuses" :key="column.key" :registration-status="data.item.registrationStatuses[index] || {}" />
       </template>
     </BTable>
   </div>
@@ -70,17 +70,17 @@ import mixin from './mixin';
 import pager from '~/components/controls/Pager';
 
 const baseColumns = [
-  { key: 'Selected', label: '', sortable: false },
-  { key: 'Title', label: '', sortable: false },
-  { key: 'FirstName', label: 'First Name', sortable: true },
-  { key: 'LastName', label: 'Last Name', sortable: true },
-  { key: 'OrganizationGovernment', label: 'Government', sortable: true },
-  { key: 'OrganizationName', label: 'Organization', sortable: true },
-  { key: 'Emails', label: 'Email', sortable: true },
+  { key: 'selected', label: '', sortable: false },
+  { key: 'title', label: '', sortable: false },
+  { key: 'firstName', label: 'First Name', sortable: true },
+  { key: 'lastName', label: 'Last Name', sortable: true },
+  { key: 'organizationGovernment', label: 'Government', sortable: true },
+  { key: 'organizationName', label: 'Organization', sortable: true },
+  { key: 'emails', label: 'Email', sortable: true },
   {
-    key: 'Country', label: 'Country', sortable: true, class: 'text-left',
+    key: 'country', label: 'Country', sortable: true, class: 'text-left',
   },
-  { key: 'Score', label: 'Rank', sortable: true },
+  { key: 'score', label: 'Rank', sortable: true },
 ];
 
 export default {
@@ -108,16 +108,16 @@ export default {
       isContactSelected: 'contacts/isContactSelected',
     }),
     isAllSelected() {
-      return this.contacts.every((c) => this.isContactSelected(c.ContactUID)) && this.contacts.length > 0;
+      return this.contacts.every((c) => this.isContactSelected(c.contactId)) && this.contacts.length > 0;
     },
     isPartialySelected() {
-      return (this.contacts.some((c) => this.isContactSelected(c.ContactUID)) && !this.isAllSelected);
+      return (this.contacts.some((c) => this.isContactSelected(c.contactId)) && !this.isAllSelected);
     },
     selectedContacts() {
-      return this.contacts.filter((c) => this.isContactSelected(c.ContactUID));
+      return this.contacts.filter((c) => this.isContactSelected(c.contactId));
     },
     notSelectedContacts() {
-      return this.contacts.filter((c) => !this.isContactSelected(c.ContactUID));
+      return this.contacts.filter((c) => !this.isContactSelected(c.contactId));
     },
     RegStatusColumns() {
       return this.columns.filter((column) => column.ColumnType === 'RegStatusColumn');
@@ -182,8 +182,8 @@ async function searchContacts() {
 
     this.contacts = rows.map((r) => ({
       ...r,
-      get Selected() {
-        return thisComponent.isContactSelected(this.ContactUID);
+      get selected() {
+        return thisComponent.isContactSelected(this.contactId);
       },
     }));
     return this.contacts;
@@ -196,12 +196,12 @@ async function searchContacts() {
 //
 //= ================================
 function updateColumns() {
-  const query     = this.baseQuery || {};
-  const eventUIDs = query.StatusForEventUIDs || [];
+  const query    = this.baseQuery || {};
+  const eventIds = query.registrationStatusForEventIds || [];
 
-  const statusColumns = eventUIDs.map((eid, index) => (
+  const statusColumns = eventIds.map((eid, index) => (
     {
-      key       : `StatusEvents[${index}].EventUID`,
+      key       : `StatusEvents[${index}].eventId`,
       label     : this.getEventCodeById(eid),
       sortable  : true,
       ColumnType: 'RegStatusColumn',
@@ -217,7 +217,7 @@ function updateColumns() {
 function onSelected(item) {
   const contact = cleanContact(item);
 
-  if (this.isContactSelected(contact.ContactUID)) {
+  if (this.isContactSelected(contact.contactId)) {
     this.removeFromSelection(contact);
   } else {
     this.addToSelection(contact);

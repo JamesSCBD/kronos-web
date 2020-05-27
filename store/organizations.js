@@ -20,30 +20,30 @@ const CLEAR_SELECTION       = 'CLEAR_SELECTION';
 const $mutations = {
 
   [SET_TYPE_LIST](state, types = []) {
-    state.organizationTypes = _.sortBy(types, (c) => c.Title.toLowerCase());
+    state.organizationTypes = _.sortBy(types, (c) => c.title.toLowerCase());
   },
 
   [UPDATE_CACHE](state, organizations = []) {
-    state.organizationCache = _.unionBy(organizations, state.organizationCache, (o) => o.OrganizationUID);
+    state.organizationCache = _.unionBy(organizations, state.organizationCache, (o) => o.organizationId);
   },
 
   [ADD_TO_SELECTION](state, organization) {
     if (!organization) throw new Error('Organization is null / empty');
 
     state.selectedQuery         = null;
-    state.selectedOrganizations = _.unionBy([ organization ], state.selectedOrganizations, (o) => o.OrganizationUID);
+    state.selectedOrganizations = _.unionBy([ organization ], state.selectedOrganizations, (o) => o.organizationId);
     state.selectedCount         = state.selectedOrganizations.length;
   },
 
   [REMOVE_FROM_SELECTION](state, organization) {
     if (!organization) throw new Error('Organization is null / empty');
 
-    const organizationUID = organization.OrganizationUID || organization; // organization object OR id
+    const organizationId = organization.organizationId || organization; // organization object OR id
 
-    if (!organizationUID) throw new Error('OrganizationUID is null / empty');
+    if (!organizationId) throw new Error('organizationId is null / empty');
 
     state.selectedQuery         = null;
-    state.selectedOrganizations = state.selectedOrganizations.filter((c) => c.OrganizationUID !== organizationUID);
+    state.selectedOrganizations = state.selectedOrganizations.filter((c) => c.organizationId !== organizationId);
     state.selectedCount         = state.selectedOrganizations.length;
   },
 
@@ -78,17 +78,17 @@ const $getters = {
   },
 
   getTypeById(state) {
-    return (id) => state.organizationTypes.find((t) => t.OrganizationTypeUID === id);
+    return (id) => state.organizationTypes.find((t) => t.organizationTypeId === id);
   },
 
   getOrganizationById(state) {
-    return (id) => state.organizationCache.find((t) => t.OrganizationUID === id);
+    return (id) => state.organizationCache.find((t) => t.organizationId === id);
   },
 
   isOrganizationSelected: ({ selectedOrganizations }) => (organization) => {
-    const organizationUID = organization.OrganizationUID || organization; // organization object OR id
+    const organizationId = organization.organizationId || organization; // organization object OR id
 
-    return selectedOrganizations.some((c) => c.OrganizationUID === organizationUID);
+    return selectedOrganizations.some((c) => c.organizationId === organizationId);
   },
 
   selectedQuery(state) {

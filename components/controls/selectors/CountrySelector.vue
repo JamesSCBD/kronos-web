@@ -2,8 +2,8 @@
   <div>
     <multiselect
       v-model="selectedCountries"
-      label="Name"
-      track-by="Code"
+      label="name"
+      track-by="code"
       placeholder="Country"
       :options="countryOptions"
       :multiple="multiple"
@@ -49,10 +49,10 @@ export default {
   computed: {
     selectedCountries: {
       get() {
-        return this.asArray(this.value).map((value) => this.countryOptions.find((option) => option.Code === value) || { Code: value, isMissing: true });
+        return this.asArray(this.value).map((value) => this.countryOptions.find((option) => option.code === value) || { code: value, isMissing: true });
       },
       set(countries) {
-        const codes = this.asArray(countries).map((country) => country.Code);
+        const codes = this.asArray(countries).map((country) => country.code);
         this.$emit('input', this.multiple ? codes : codes[0]);
       },
     },

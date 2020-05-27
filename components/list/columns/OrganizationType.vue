@@ -17,6 +17,6 @@ export default {
 
 function getOrganizationTypeNameById(organizationTypeId) {
   const  organizationType = this.getTypeById(organizationTypeId);
-  return  (organizationType || {}).Title || organizationTypeId;
+  return  (organizationType || {}).title || organizationTypeId;
 }
 </script>

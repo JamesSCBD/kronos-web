@@ -1,8 +1,8 @@
 <template>
   <multiselect
     v-model="selectedOrganizationTypes"
-    label="Title"
-    track-by="OrganizationTypeUID"
+    label="title"
+    track-by="organizationTypeId"
     placeholder="Categories..."
     :options="organizationTypesOptions"
     :multiple="multiple"
@@ -11,11 +11,11 @@
     :close-on-select="!multiple"
   >
     <template slot="option" slot-scope="props">
-      <span>{{ props.option.Title }} (<b>{{ props.option.Acronym }}</b>)</span>
+      <span>{{ props.option.title }} (<b>{{ props.option.acronym }}</b>)</span>
     </template>
     <template slot="tag" slot-scope="{ option, remove }">
       <span class="multiselect__tag">
-        <span>{{ option.Acronym || option.Title }}</span>
+        <span>{{ option.acronym || option.title }}</span>
         <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="remove(option)" />
       </span>
     </template>
@@ -58,10 +58,10 @@ export default {
       get() {
         return this.asArray(this.value)
           .map((value) => this.organizationTypesOptions
-            .find((option) => option.OrganizationTypeUID === value) || { OrganizationTypeUID: value, isMissing: true });
+            .find((option) => option.organizationTypeId === value) || { organizationTypeId: value, isMissing: true });
       },
       set(orgTypes) {
-        const ids = this.asArray(orgTypes).map((orgType) => orgType.OrganizationTypeUID);
+        const ids = this.asArray(orgTypes).map((orgType) => orgType.organizationTypeId);
         this.$emit('input', this.multiple ? ids : ids[0]);
       },
     },

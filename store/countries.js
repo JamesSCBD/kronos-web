@@ -9,11 +9,11 @@ const $getters = {
   list(state) { return state.countries; },
 
   getCountryByCode({ countries }) {
-    return (code) => countries.find((c) => c.Code === code.toLowerCase());
+    return (code) => countries.find((c) => c.code === code.toLowerCase());
   },
 
   getNameByCode(state, getters) {
-    return (code) => (getters.getCountryByCode(code) || {}).Name || code;
+    return (code) => (getters.getCountryByCode(code) || {}).name || code;
   },
 };
 
@@ -24,7 +24,7 @@ const CLEAR    = 'CLEAR';
 const $mutations = {
 
   [SET_LIST](state, countries = []) {
-    state.countries = _.sortBy(countries, (c) => c.Name.toLowerCase());
+    state.countries = _.sortBy(countries, (c) => c.name.toLowerCase());
   },
 
   [CLEAR](state) {

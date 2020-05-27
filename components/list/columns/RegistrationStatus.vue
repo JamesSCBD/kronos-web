@@ -1,7 +1,7 @@
 <template>
-  <div :class="{ [StatusClasses[registrationStatus.Status]] : true }">
-    <span>{{ registrationStatus.Date | datetime }}</span>
-    <span v-if="registrationStatus.IsFunded">$</span>
+  <div :class="{ [StatusClasses[registrationStatus.status]] : true }">
+    <span>{{ registrationStatus.date | datetime }}</span>
+    <span v-if="registrationStatus.isFunded">$</span>
   </div>
 </template>
 

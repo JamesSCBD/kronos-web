@@ -311,20 +311,20 @@ function setSelectedEvents(values) {
 // ===================
 function buildQuery() {
   const query = cleanUp({
-    FreeText         : this.freeText,
-    Governments      : this.selectedCountries,
-    OrganizationUIDs : this.selectedOrganizations,
-    EventUIDs        : this.selectedEvents,
-    OrganizationTypes: this.selectedOrganizationTypes,
+    freeText         : this.freeText,
+    countries        : this.selectedCountries,
+    organizationIds  : this.selectedOrganizations,
+    eventIds         : this.selectedEvents,
+    organizationTypes: this.selectedOrganizationTypes,
   });
 
-  if (query.FreeText) query.IsBroadSearch = this.isBroadSearch || undefined;
-  if (query.EventUIDs) query.EventRegistrationStatus = this.selectedAttendances.reduce((r, v) => r + v, 0) || undefined;
-  if (query.Governments) query.CountryScope = (this.selectedCountryScope || undefined);
+  if (query.freeText) query.isBroadSearch = this.isBroadSearch || undefined;
+  if (query.eventIds) query.registrationStatus = this.selectedAttendances.reduce((r, v) => r + v, 0) || undefined;
+  if (query.countries) query.countryScope = (this.selectedCountryScope || undefined);
 
-  if (this.selectedFlags.some((o) => o.Code === 'funded')) query.IsFunded = true;
+  if (this.selectedFlags.some((o) => o.Code === 'funded')) query.isFunded = true;
 
-  if (!_.isEmpty(cleanUp(query))) query.StatusForEventUIDs = _(this.majorEvents.map((o) => o.EventUID)).union(query.EventUIDs).compact().value();
+  if (!_.isEmpty(cleanUp(query))) query.registrationStatusForEventIds = _(this.majorEvents.map((o) => o.eventId)).union(query.eventIds).compact().value();
 
   return cleanUp(query);
 }

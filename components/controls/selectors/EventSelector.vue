@@ -2,8 +2,8 @@
   <div>
     <multiselect
       v-model="selectedEvents"
-      label="Code"
-      track-by="EventUID"
+      label="code"
+      track-by="eventId"
       placeholder="Meetings"
       open-direction="bottom"
       :options="eventOptions"
@@ -55,10 +55,10 @@ export default {
   computed: {
     selectedEvents: {
       get() {
-        return this.asArray(this.value).map((value) => this.events.find((option) => option.EventUID === value) || { EventUID: value, isMissing: true });
+        return this.asArray(this.value).map((value) => this.events.find((option) => option.eventId === value) || { eventId: value, isMissing: true });
       },
       set(events) {
-        const ids = this.asArray(events).map((event) => event.EventUID);
+        const ids = this.asArray(events).map((event) => event.eventId);
         this.$emit('input', this.multiple ? ids : ids[0]);
       },
     },
@@ -76,25 +76,25 @@ function getEventOptions() {
     title : 'Main meetings',
     events: _(this.events)
       .filter((e) => e.isMajor)
-      .orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ])
+      .orderBy([ 'startDate', 'endDate', 'code' ], [ 'asc', 'desc', 'asc' ])
       .value(),
   }, {
     title : 'Parallel meetings',
     events: _(this.events)
       .filter((e) => e.isMinor)
-      .orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ])
+      .orderBy([ 'startDate', 'endDate', 'code' ], [ 'asc', 'desc', 'asc' ])
       .value(),
   }, {
     title : 'Future meetings',
     events: _(this.events)
-      .filter((e) => !e.isMajor && !e.isMinor && new Date(e.EndDate) > now)
-      .orderBy([ 'StartDate', 'EndDate', 'Code' ], [ 'asc', 'desc', 'asc' ])
+      .filter((e) => !e.isMajor && !e.isMinor && new Date(e.endDate) > now)
+      .orderBy([ 'startDate', 'endDate', 'code' ], [ 'asc', 'desc', 'asc' ])
       .value(),
   }, {
     title : 'Recent past meetings',
     events: _(this.events)
-      .filter((e) => !e.isMajor && !e.isMinor && new Date(e.EndDate) <= now)
-      .orderBy([ 'EndDate', 'StartDate', 'Code' ], [ 'desc', 'asc', 'asc' ])
+      .filter((e) => !e.isMajor && !e.isMinor && new Date(e.endDate) <= now)
+      .orderBy([ 'startDate', 'endDate', 'code' ], [ 'desc', 'asc', 'asc' ])
       .value(),
   }];
 

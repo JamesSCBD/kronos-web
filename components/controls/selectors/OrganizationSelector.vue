@@ -2,8 +2,8 @@
   <div>
     <multiselect
       v-model="selectedOrganizations"
-      label="OrganizationName"
-      track-by="OrganizationUID"
+      label="name"
+      track-by="organizationId"
       placeholder="Search organization"
       open-direction="bottom"
       :options="organizationOptions"
@@ -17,14 +17,14 @@
       @search-change="onOrganizationTextChange"
     >
       <template slot="option" slot-scope="props">
-        <span class="float-right">{{ props.option.Score }}</span>
-        <span>{{ props.option.OrganizationName }}</span>
-        <b v-if="props.option.OrganizationAcronym">{{ props.option.OrganizationAcronym }}</b>
-        <i v-if="props.option.MemberCount>=0">({{ props.option.MemberCount }})</i>
+        <span class="float-right">{{ props.option.score }}</span>
+        <span>{{ props.option.name }}</span>
+        <b v-if="props.option.acronym">{{ props.option.acronym }}</b>
+        <i v-if="props.option.memberCount>=0">({{ props.option.memberCount }})</i>
       </template>
       <template slot="tag" slot-scope="{ option, remove }">
         <span class="multiselect__tag">
-          <span>{{ option.OrganizationAcronym || option.OrganizationName }}</span>
+          <span>{{ option.acronym || option.name }}</span>
           <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="remove(option)" />
         </span>
       </template>
@@ -74,10 +74,10 @@ export default {
     selectedOrganizations: {
       get() {
         return this.asArray(this.value)
-          .map((value) => this.getCachedOrganizationById(value) || { OrganizationUID: value, isMissing: true });
+          .map((value) => this.getCachedOrganizationById(value) || { organizationId: value, isMissing: true });
       },
       set(organizations) {
-        const ids = this.asArray(organizations).map((organization) => organization.OrganizationUID);
+        const ids = this.asArray(organizations).map((organization) => organization.organizationId);
         this.$emit('input', this.multiple ? ids : ids[0]);
       },
     },
@@ -97,11 +97,11 @@ async function searchOrganizations(text) {
 
     if (text) {
       this.organizationOptions = this.selectedOrganizations;
-      const response           = await this.queryOrganizations({ FreeText: text, limit: 25 });
+      const response           = await this.queryOrganizations({ freeText: text, limit: 25 });
       foundOrganizations       = response.records;
     }
 
-    this.organizationOptions = _.unionBy(this.selectedOrganizations, foundOrganizations, (o) => o.OrganizationUID);
+    this.organizationOptions = _.unionBy(this.selectedOrganizations, foundOrganizations, (o) => o.organizationId);
   } finally {
     this.isLoadingOrganization = false;
   }
@@ -111,7 +111,7 @@ async function initOrganizationCache() {
   const missingOrganizations = this.selectedOrganizations.filter((o) => o.isMissing);
 
   if (missingOrganizations.length) {
-    const response           = await this.queryOrganizations({ OrganizationUIDs: missingOrganizations.map((o) => o.OrganizationUID) });
+    const response           = await this.queryOrganizations({ organizationIds: missingOrganizations.map((o) => o.organizationId) });
     this.organizationOptions = response.records;
   }
 }

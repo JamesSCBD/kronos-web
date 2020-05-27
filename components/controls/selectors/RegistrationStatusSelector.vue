@@ -2,8 +2,8 @@
   <div>
     <multiselect
       v-model="selectedAttendances"
-      label="Title"
-      track-by="Value"
+      label="title"
+      track-by="value"
       placeholder="Attendance "
       open-direction="bottom"
       :options="attendanceOptions"
@@ -15,7 +15,7 @@
     >
       <template slot="tag" slot-scope="{ option, remove }">
         <span class="multiselect__tag">
-          <span>{{ option.Title.substr(0,3) }}</span>
+          <span>{{ option.title.substr(0,3) }}</span>
           <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="remove(option)" />
         </span>
       </template>
@@ -36,9 +36,9 @@ import Multiselect from 'vue-multiselect';
 import SelectorsMixin  from './SelectorsMixin';
 
 const Attendances = [
-  { Title: 'Nominated',  Value: 1 << 0 }, // eslint-disable-line no-bitwise
-  { Title: 'Accredited', Value: 1 << 1 }, // eslint-disable-line no-bitwise
-  { Title: 'Registered', Value: 1 << 2 }, // eslint-disable-line no-bitwise
+  { title: 'Nominated',  value: 1 << 0 }, // eslint-disable-line no-bitwise
+  { title: 'Accredited', value: 1 << 1 }, // eslint-disable-line no-bitwise
+  { title: 'Registered', value: 1 << 2 }, // eslint-disable-line no-bitwise
 ];
 
 export default {
@@ -54,11 +54,11 @@ export default {
       validator(value) {
         if (Array.isArray(value)) {
           if (value.length) {
-            return value.every((x) => Attendances.some((a) => a.Value === x));
+            return value.every((x) => Attendances.some((a) => a.value === x));
           }
           return true;
         }
-        return Attendances.some((a) => a.Value === value);
+        return Attendances.some((a) => a.value === value);
       },
     },
     disabled: {
@@ -69,10 +69,10 @@ export default {
   computed: {
     selectedAttendances: {
       get() {
-        return this.asArray(this.value).map((value) => this.attendanceOptions.find((option) => option.Value === value) || { Value: value, isMissing: true });
+        return this.asArray(this.value).map((value) => this.attendanceOptions.find((option) => option.value === value) || { value, isMissing: true });
       },
       set(attendances) {
-        const values = this.asArray(attendances).map((attendance) => attendance.Value);
+        const values = this.asArray(attendances).map((attendance) => attendance.value);
         this.$emit('input', this.multiple ? values : values[0]);
       },
     },

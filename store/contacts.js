@@ -19,19 +19,19 @@ const $mutations = {
     if (!contact) throw new Error('Contact is null / empty');
 
     state.selectedQuery    = null;
-    state.selectedContacts = _.unionBy([ contact ], state.selectedContacts, (c) => c.ContactUID);
+    state.selectedContacts = _.unionBy([ contact ], state.selectedContacts, (c) => c.contactId);
     state.selectedCount    = state.selectedContacts.length;
   },
 
   [REMOVE_FROM_SELECTION](state, contact) {
     if (!contact) throw new Error('Contact is null / empty');
 
-    const contactUID = contact.ContactUID || contact; // contact object OR id
+    const contactId = contact.contactId || contact; // contact object OR id
 
-    if (!contactUID) throw new Error('ContactUID is null / empty');
+    if (!contactId) throw new Error('contactId is null / empty');
 
     state.selectedQuery    = null;
-    state.selectedContacts = state.selectedContacts.filter((c) => c.ContactUID !== contactUID);
+    state.selectedContacts = state.selectedContacts.filter((c) => c.contactId !== contactId);
     state.selectedCount    = state.selectedContacts.length;
   },
 
@@ -64,9 +64,9 @@ const $getters = {
   },
 
   isContactSelected: ({ selectedContacts }) => (contact) => {
-    const contactUID = contact.ContactUID || contact; // contact object OR id
+    const contactId = contact.contactId || contact; // contact object OR id
 
-    return selectedContacts.some((c) => c.ContactUID === contactUID);
+    return selectedContacts.some((c) => c.contactId === contactId);
   },
 
   selectedQuery(state) {

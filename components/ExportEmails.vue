@@ -69,12 +69,12 @@
         </div>
       </div>
       <div class="line-top" />
-      <div v-for="row in textareaEmails" :key="row.Emails" class="row">
+      <div v-for="row in textareaEmails" :key="row.emails" class="row">
         <div class="col-md-11 col-sm-11 col-xs-12">
           <div class="form-group">
             <BFormTextarea
               id="textarea"
-              :value="row.Emails"
+              :value="row.emails"
               :rows="rows"
               readonly
             />
@@ -82,7 +82,7 @@
         </div>
         <div class="col-md-1 col-sm-1 col-xs-12">
           <div class="form-group copy-btn">
-            <button title="Copy" @click="copy(row.Emails)">
+            <button title="Copy" @click="copy(row.emails)">
               <i class="cil-copy" />
             </button>
           </div>
@@ -149,7 +149,7 @@ export default {
 
 function mounted() {
   if (this.selectionList.length) {
-    if (this.selectionList[0].ContactUID) {
+    if (this.selectionList[0].contactId) {
       this.exportOptions.push({ value: 'MAINCCs', text: 'Main + CCs address' });
     } else {
       this.exportOptions.push({ value: 'MAINCCs', text: 'Main + Focal Point' });
@@ -164,7 +164,7 @@ function onEmailsExport() {
     emails = _(emails.map((e) => formatEmailAddress.call(this, e))).flatten().uniq().value();
 
     this.textareaEmails = _.chunk(emails, this.selectedRowSize || emails.length)
-      .map((rowEmails) => ({ Emails: rowEmails.join(this.selectedSpearator) }));
+      .map((rowEmails) => ({ emails: rowEmails.join(this.selectedSpearator) }));
 
     this.rows = this.selectedRowSize ? 3 : 10;
   }
@@ -179,13 +179,13 @@ function extractEmails(entry) {
 
   let emails = [];
 
-  emails = emails.concat(entry.Emails.map((address) => ({
+  emails = emails.concat(entry.emails.map((address) => ({
     address,
     name: getName.call(thisComponent, entry),
   })));
 
   if (this.selectedExport === 'MAINCCs') {
-    if (entry.ContactUID) emails = emails.concat(entry.EmailCcs.map((address) => ({ address }))); // no name on CC addresses
+    if (entry.contactId) emails = emails.concat(entry.emailCcs.map((address) => ({ address }))); // no name on CC addresses
     if (entry.focalPoint)  emails = emails.concat(extractEmails(entry.focalPoint));
   }
 
@@ -193,8 +193,8 @@ function extractEmails(entry) {
 }
 
 function getName(entry) {
-  if (entry.ContactUID) return `${entry.Title} ${entry.FirstName} ${entry.LastName}`;
+  if (entry.contactId) return `${entry.title} ${entry.firstName} ${entry.lastName}`;
 
-  return `${entry.OrganizationName}`;
+  return `${entry.name}`;
 }
 </script>

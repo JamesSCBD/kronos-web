@@ -28,29 +28,29 @@
           <strong>Loading...</strong>
         </div>
       </template>
-      <template v-slot:head(Selected)>
+      <template v-slot:head(selected)>
         <BFormCheckbox
           v-model="isAllSelected"
           :indeterminate="isPartialySelected"
           @change="onSelectedAll"
         />
       </template>
-      <template v-slot:cell(Selected)="data">
-        <BFormCheckbox v-model="data.item.Selected" @change="onSelected(data.item)" />
+      <template v-slot:cell(selected)="data">
+        <BFormCheckbox v-model="data.item.selected" @change="onSelected(data.item)" />
       </template>
-      <template v-slot:cell(Country)="{value}">
+      <template v-slot:cell(country)="{value}">
         <CountryCol v-if="value" :code="value" />
       </template>
 
-      <template v-slot:cell(Government)="{value}">
+      <template v-slot:cell(government)="{value}">
         <CountryCol v-if="value" :code="value" />
       </template>
 
-      <template v-slot:cell(OrganizationTypeUID)="{value}">
+      <template v-slot:cell(organizationTypeId)="{value}">
         <OrganizationTypeCol v-if="value" :organization-type-id="value" />
       </template>
 
-      <template v-slot:cell(IsValidated)="{value}">
+      <template v-slot:cell(isValidated)="{value}">
         {{ value ? 'Yes': 'No' }}
       </template>
     </BTable>
@@ -64,18 +64,18 @@ import mixin from './mixin';
 import pager from '~/components/controls/Pager';
 
 const baseColumns = [
-  { key: 'Selected', label: '', sortable: false },
-  { key: 'OrganizationName', label: 'Organization', sortable: true },
-  { key: 'OrganizationAcronym', label: 'Acronym', sortable: true },
-  { key: 'OrganizationTypeUID', label: 'Type', sortable: true },
-  { key: 'Government', label: 'Government', sortable: true },
-  { key: 'IsValidated', label: 'Validated', sortable: true },
-  { key: 'MemberCount', label: 'Member Count', sortable: true },
+  { key: 'selected', label: '', sortable: false },
+  { key: 'name', label: 'Organization', sortable: true },
+  { key: 'acronym', label: 'Acronym', sortable: true },
+  { key: 'organizationTypeId', label: 'Type', sortable: true },
+  { key: 'government', label: 'Government', sortable: true },
+  { key: 'isValidated', label: 'Validated', sortable: true },
+  { key: 'memberCount', label: 'Member Count', sortable: true },
   {
-    key: 'Country', label: 'Country', class: 'text-center', sortable: true,
+    key: 'country', label: 'Country', class: 'text-center', sortable: true,
   },
-  { key: 'Code', label: 'ID', sortable: true },
-  { key: 'Score', label: 'Rank', sortable: true },
+  { key: 'code', label: 'ID', sortable: true },
+  { key: 'score', label: 'Rank', sortable: true },
 ];
 
 export default {
@@ -97,16 +97,16 @@ export default {
   },
   computed: {
     isAllSelected() {
-      return this.organizations.every((o) => this.isOrganizationSelected(o.OrganizationUID)) && this.organizations.length > 0;
+      return this.organizations.every((o) => this.isOrganizationSelected(o.organizationId)) && this.organizations.length > 0;
     },
     isPartialySelected() {
-      return (this.organizations.some((o) => this.isOrganizationSelected(o.OrganizationUID)) && !this.isAllSelected);
+      return (this.organizations.some((o) => this.isOrganizationSelected(o.organizationId)) && !this.isAllSelected);
     },
     selectedOrganizations() {
-      return this.organizations.filter((o) => this.isOrganizationSelected(o.OrganizationUID));
+      return this.organizations.filter((o) => this.isOrganizationSelected(o.organizationId));
     },
     notSelectedOrganizations() {
-      return this.organizations.filter((o) => !this.isOrganizationSelected(o.OrganizationUID));
+      return this.organizations.filter((o) => !this.isOrganizationSelected(o.organizationId));
     },
     ...mapGetters({
       isOrganizationSelected: 'organizations/isOrganizationSelected',
@@ -149,8 +149,8 @@ async function searchOrganizations() {
 
     this.organizations =  rows.map((r) => ({
       ...r,
-      get Selected() {
-        return thisComponent.isOrganizationSelected(this.OrganizationUID);
+      get selected() {
+        return thisComponent.isOrganizationSelected(this.organizationId);
       },
     }));
     return this.organizations;
@@ -181,7 +181,7 @@ function buildQuery() {
 function onSelected(item) {
   const organization = cleanOrganization(item);
 
-  if (this.isOrganizationSelected(organization.OrganizationUID)) {
+  if (this.isOrganizationSelected(organization.organizationId)) {
     this.removeFromSelection(organization);
   } else {
     this.addToSelection(organization);

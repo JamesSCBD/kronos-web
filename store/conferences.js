@@ -41,13 +41,13 @@ const $getters = {
   },
 
   getEventById({ activeEvents }) {
-    return (id) => activeEvents.find((o) => o.EventUID === id);
+    return (id) => activeEvents.find((o) => o.eventId === id);
   },
   getEventByCode({ activeEvents }) {
-    return (code) => activeEvents.find((o) => o.Code === code);
+    return (code) => activeEvents.find((o) => o.code === code);
   },
   getEventCodeById({ activeEvents }) {
-    return (id) => (activeEvents.find((o) => o.EventUID === id) || {}).Code || id;
+    return (id) => (activeEvents.find((o) => o.eventId === id) || {}).code || id;
   },
 };
 
@@ -115,22 +115,22 @@ async function loadActiveEvents(conference) {
   const majors = ((conference || {}).MajorEventIDs || []).map((id) => `00000000${id}`);
   const minors = ((conference || {}).MinorEventIDs || []).map((id) => `00000000${id}`);
 
-  let majorEvents =  this.$kronosApi.queryEvents({ EventUIDs: majors, EvenUIDs: majors }); // API error EvenUIDs
-  let minorEvents =  this.$kronosApi.queryEvents({ EventUIDs: minors, EvenUIDs: minors });
-  let otherEvents =  this.$kronosApi.queryEvents({ IsNeedRegistration: true, EndsAfter: threeYearsAgo });
+  let majorEvents =  this.$kronosApi.queryEvents({ eventIds: majors, evenIds: majors }); // API error evenIds
+  let minorEvents =  this.$kronosApi.queryEvents({ eventIds: minors, evenIds: minors });
+  let otherEvents =  this.$kronosApi.queryEvents({ isNeedRegistration: true, endsAfter: threeYearsAgo });
 
   majorEvents =  (await majorEvents).records;
   minorEvents =  (await minorEvents).records;
   otherEvents =  (await otherEvents).records;
 
-  majorEvents = _.orderBy(majorEvents, [ (e) => majors.indexOf(e.EventUID) ], [ 'asc' ]);
-  minorEvents = _.orderBy(minorEvents, [ (e) => minors.indexOf(e.EventUID) ], [ 'asc' ]);
-  otherEvents = _.orderBy(otherEvents, [ 'StartDate', 'EndDate', 'Code' ], [ 'desc', 'desc', 'asc' ]);
+  majorEvents = _.orderBy(majorEvents, [ (e) => majors.indexOf(e.eventId) ], [ 'asc' ]);
+  minorEvents = _.orderBy(minorEvents, [ (e) => minors.indexOf(e.eventId) ], [ 'asc' ]);
+  otherEvents = _.orderBy(otherEvents, [ 'startDate', 'endDate', 'code' ], [ 'desc', 'desc', 'asc' ]);
 
   majorEvents.forEach((e) => { e.isMajor = true; });
   minorEvents.forEach((e) => { e.isMinor = true; });
 
-  const activeEvents = _.unionBy(majorEvents, minorEvents, otherEvents, (e) => e.EventUID);
+  const activeEvents = _.unionBy(majorEvents, minorEvents, otherEvents, (e) => e.eventId);
 
   return activeEvents;
 }
