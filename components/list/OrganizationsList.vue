@@ -8,6 +8,7 @@
     />
     <BTable
       id="KOrganizationList"
+      ref="organizationTable"
       :items="searchOrganizations"
       :fields="columns"
       :busy="loading"
@@ -112,6 +113,7 @@ export default {
       isOrganizationSelected: 'organizations/isOrganizationSelected',
     }),
   },
+  mounted,
   methods: {
     searchOrganizations,
     buildQuery,
@@ -124,6 +126,12 @@ export default {
     }),
   },
 };
+
+function mounted() {
+  this.$root.$on('record-deleted', () => {
+    this.$refs.organizationTable.refresh();
+  });
+}
 
 //= ================================
 //

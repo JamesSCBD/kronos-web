@@ -45,6 +45,15 @@ export default class {
   }
 
   // ====================
+  // Delete contacts
+  // ====================
+  async deleteContact(contactId) {
+    const data = await this.http.delete(`api/v2018/contacts/${encodeURIComponent(contactId)}`);
+
+    return data;
+  }
+
+  // ====================
   //
   // ====================
   async queryOrganizations(query) {
@@ -69,6 +78,15 @@ export default class {
   // ====================
   async getOrganizationTypes() {
     const data = await this.http.get('api/v2018/organizations/Types').json();
+
+    return data;
+  }
+
+  // ====================
+  // Delete Organization
+  // ====================
+  async deleteOrganization(organizationId) {
+    const data = await this.http.delete(`api/v2018/organizations/${encodeURIComponent(organizationId)}`);
 
     return data;
   }

@@ -8,6 +8,7 @@
     />
     <BTable
       id="KContactsList"
+      ref="conatactTable"
       :items="searchContacts"
       :fields="columns"
       :busy="loading"
@@ -123,6 +124,7 @@ export default {
       return this.columns.filter((column) => column.ColumnType === 'RegStatusColumn');
     },
   },
+  mounted,
   methods: {
     searchContacts,
     updateColumns,
@@ -136,6 +138,12 @@ export default {
     }),
   },
 };
+
+function mounted() {
+  this.$root.$on('record-deleted', () => {
+    this.$refs.conatactTable.refresh();
+  });
+}
 
 //= ================================
 //
