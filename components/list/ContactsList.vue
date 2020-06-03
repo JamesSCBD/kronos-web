@@ -20,6 +20,10 @@
       :per-page="pageSize"
       :current-page="page"
       :filter="baseQuery"
+      :data-show-multi-sort="true"
+      :sort-by.sync="sortBy"
+      :sort-desc.sync="sortDesc"
+      no-sort-reset
     >
       <!-- https://bootstrap-vue.js.org/docs/components/table#scoped-field-slots -->
 
@@ -45,7 +49,7 @@
         </span>
       </template>
 
-      <template v-slot:cell(organizationGovernment)="{value}">
+      <template v-slot:cell(organization.government)="{value}">
         <CountryCol v-if="value" :code="value" />
       </template>
 
@@ -75,13 +79,13 @@ const baseColumns = [
   { key: 'title', label: '', sortable: false },
   { key: 'firstName', label: 'First Name', sortable: true },
   { key: 'lastName', label: 'Last Name', sortable: true },
-  { key: 'organizationGovernment', label: 'Government', sortable: true },
-  { key: 'organizationName', label: 'Organization', sortable: true },
+  { key: 'organization.government', label: 'Government', sortable: true },
+  { key: 'organization.name', label: 'Organization', sortable: true },
   { key: 'emails', label: 'Email', sortable: true },
   {
-    key: 'country', label: 'Country', sortable: true, class: 'text-left',
+    key: 'country', label: 'Country', sortable: false, class: 'text-left',
   },
-  { key: 'score', label: 'Rank', sortable: true },
+  { key: 'score', label: 'Rank', sortable: false },
 ];
 
 export default {
@@ -101,6 +105,8 @@ export default {
       page     : 1,
       pageSize : 25,
       contacts : [],
+      sortBy   : 'firstName',
+      sortDesc : false,
     };
   },
   computed: {
@@ -148,7 +154,7 @@ function mounted() {
 //= ================================
 //
 //= ================================
-function buildQuery() {
+function buildQuery(ctx) {
   const query = _(this.baseQuery || {}).omitBy(_.isNil).value();
 
   if (_.isEmpty(query)) { return null; }
@@ -159,22 +165,38 @@ function buildQuery() {
   if (limit) { query.limit = limit; }
   if (skip) { query.skip = skip; }
 
-  // todo sort
+  if (ctx.sortBy) { query.sort = sort(ctx); }
 
   return query;
+}
+
+function sort(ctx) {
+  const sortFields    = [];
+  const sortDirection = ctx.sortDesc ? -1 : 1;
+  let   sortField     = ctx.sortBy;
+
+  if (sortField === 'organization.government') sortField = 'organization.governmentName';
+  if (sortField === 'country')                 sortField = 'country';
+
+  sortFields.push({ field: sortField, direction: sortDirection });
+
+  if (sortField === 'firstName') sortFields.push({ field: 'lastName',  direction: sortDirection });
+  if (sortField === 'lastName')  sortFields.push({ field: 'firstName', direction: sortDirection });
+
+  return sortFields;
 }
 
 //= ================================
 //
 //= ================================
-async function searchContacts() {
+async function searchContacts(ctx) {
   try {
     this.loading  = true;
     this.contacts = [];
 
     this.updateColumns();
 
-    const query = this.buildQuery();
+    const query = this.buildQuery(ctx);
 
     if (!query) {
       this.resetPager();
@@ -207,11 +229,14 @@ function updateColumns() {
   const query    = this.baseQuery || {};
   const eventIds = query.registrationStatusForEventIds || [];
 
+  // Update score column sortable or not
+  this.columns.find((col) => col.key === 'score').sortable = !!query.freeText;
+
   const statusColumns = eventIds.map((eid, index) => (
     {
       key       : `StatusEvents[${index}].eventId`,
       label     : this.getEventCodeById(eid),
-      sortable  : true,
+      sortable  : false,
       ColumnType: 'RegStatusColumn',
     }
   ));

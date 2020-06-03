@@ -20,6 +20,9 @@
       :per-page="pageSize"
       :current-page="page"
       :filter="baseQuery"
+      :sort-by.sync="sortBy"
+      :sort-desc.sync="sortDesc"
+      no-sort-reset
     >
       <!-- https://bootstrap-vue.js.org/docs/components/table#scoped-field-slots -->
 
@@ -75,8 +78,8 @@ const baseColumns = [
   {
     key: 'country', label: 'Country', class: 'text-center', sortable: true,
   },
-  { key: 'code', label: 'ID', sortable: true },
-  { key: 'score', label: 'Rank', sortable: true },
+  { key: 'code', label: 'ID', sortable: false },
+  { key: 'score', label: 'Rank', sortable: false },
 ];
 
 export default {
@@ -94,6 +97,8 @@ export default {
       page         : 1,
       pageSize     : 25,
       organizations: [],
+      sortBy       : 'name',
+      sortDesc     : false,
     };
   },
   computed: {
@@ -136,12 +141,12 @@ function mounted() {
 //= ================================
 //
 //= ================================
-async function searchOrganizations() {
+async function searchOrganizations(ctx) {
   try {
     this.loading       = true;
     this.organizations = [];
 
-    const query = this.buildQuery();
+    const query = this.buildQuery(ctx);
 
     if (!query) {
       this.resetPager();
@@ -170,8 +175,11 @@ async function searchOrganizations() {
 //= ================================
 //
 //= ================================
-function buildQuery() {
+function buildQuery(ctx) {
   const query = _(this.baseQuery || {}).omitBy(_.isNil).value();
+
+  // Update score column sortable or not
+  this.columns.find((col) => col.key === 'score').sortable = !!query.freeText;
 
   if (_.isEmpty(query)) { return null; }
 
@@ -181,9 +189,23 @@ function buildQuery() {
   if (limit) { query.limit = limit; }
   if (skip) { query.skip = skip; }
 
-  // todo sort
+  if (ctx.sortBy) { query.sort = sort(ctx); }
 
   return query;
+}
+
+function sort(ctx) {
+  const sortFields    = [];
+  const sortDirection = ctx.sortDesc ? -1 : 1;
+  let   sortField     = ctx.sortBy;
+
+  if (sortField === 'government')         sortField = 'governmentName';
+  if (sortField === 'country')            sortField = 'countryName';
+  if (sortField === 'organizationTypeId') sortField = 'typeName';
+
+  sortFields.push({ field: sortField, direction: sortDirection });
+
+  return sortFields;
 }
 
 function onSelected(item) {

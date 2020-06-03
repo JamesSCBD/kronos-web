@@ -2,7 +2,7 @@
   <div>
     <CModal
       :title="title"
-      :show="show && step==='preview'"
+      :show="showModal && step==='preview'"
       size="lg"
       class="batch-deletion"
       @update:show="close()"
@@ -47,7 +47,7 @@
     </CModal>
     <CModal
       :title="title"
-      :show="show && step==='warning'"
+      :show="showModal && step==='warning'"
       class="batch-deletion"
       @update:show="close()"
     >
@@ -82,7 +82,7 @@
     </CModal>
     <CModal
       :title="title"
-      :show="show && step === 'progress'"
+      :show="showModal && step === 'progress'"
       @update:show="close()"
     >
       <strong>Deletion {{ deleteRecordCount }}/{{ recordCount }}</strong>
@@ -149,6 +149,7 @@ export default {
     };
   },
   computed: {
+    showModal: { get() { return this.show; }, set(value) { this.$emit('update:show', value); } },
     title()         { return `Deletion of ${this.recordCount} records`; },
     deleteSuccess() { return this.deleteRecordCount === this.recordCount; },
     progressValue() { return  Math.round((this.deleteRecordCount / this.recordCount) * 100); },
@@ -177,9 +178,8 @@ export default {
 };
 
 function close() {
-  this.step = 'preview';
-  this.show = false;
-  this.$emit('update:show', this.show);
+  this.step      = 'preview';
+  this.showModal = false;
 }
 
 function getName(entry) {
@@ -189,7 +189,7 @@ function getName(entry) {
 }
 
 function getOrganization(entry) {
-  if (entry.contactId) return `${entry.organizationAcronym || entry.organizationName}`;
+  if (entry.contactId) return `${entry.organization.acronym || entry.organization.name}`;
 
   const  organizationType = this.getOrganizationTypeById(entry.organizationTypeId);
 
