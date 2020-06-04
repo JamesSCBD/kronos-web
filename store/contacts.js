@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import KronosApi, { enableCursor } from '~/api/kronos';
 
 const $state = () => ({
   selectedContacts: [],
@@ -63,6 +64,23 @@ const $getters = {
     return state.selectedContacts;
   },
 
+  selectedContactResult(state, getters, rootState) {
+    const records       = state.selectedContacts || [];
+    const virtualResult = {
+      records,
+      recordCount     : records.length,
+      totalRecordCount: state.selectedCount,
+    };
+
+    if (state.selectedQuery) {
+      const kronosApi = new KronosApi(() => rootState.auth.token);
+
+      return enableCursor(virtualResult, { ...state.selectedQuery, skip: 0, limit: 50 }, (q) => kronosApi.queryContacts(q));
+    }
+
+    return enableCursor(virtualResult);
+  },
+
   isContactSelected: ({ selectedContacts }) => (contact) => {
     const contactId = contact.contactId || contact; // contact object OR id
 
@@ -99,7 +117,7 @@ const $actions = {
 
   async setSelectedQuery({ commit }, contactQuery) {
     const query    = { ...contactQuery };
-    const response = await this.$kronosApi.queryContacts({ ...query,  limit: 1 });
+    const response = await this.$kronosApi.queryContacts({ ...query, skip: 0, limit: 1 });
     const count    = response.totalRecordCount;
     commit(SAVE_SELECTED_QUERY, { query, count });
   },

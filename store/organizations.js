@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import KronosApi, { enableCursor } from '~/api/kronos';
 
 const $state = () => ({
   organizationCache    : [],
@@ -102,6 +103,24 @@ const $getters = {
   selectedOrganizations(state) {
     return state.selectedOrganizations;
   },
+
+  selectedOrganizationsResult(state, getters, rootState) {
+    const records       = state.selectedOrganizations || [];
+    const virtualResult = {
+      records,
+      recordCount     : records.length,
+      totalRecordCount: state.selectedCount,
+    };
+
+    if (state.selectedQuery) {
+      const kronosApi = new KronosApi(() => rootState.auth.token);
+
+      return enableCursor(virtualResult, { ...state.selectedQuery, skip: 0, limit: 50 }, (q) => kronosApi.queryOrganizations(q));
+    }
+
+    return enableCursor(virtualResult);
+  },
+
 };
 
 const $actions = {
@@ -147,7 +166,7 @@ const $actions = {
 
   async setSelectedQuery({ commit }, organizationQuery) {
     const query    = { ...organizationQuery };
-    const response = await this.$kronosApi.queryOrganizations({ ...query,  limit: 1 });
+    const response = await this.$kronosApi.queryOrganizations({ ...query, skip: 1, limit: 1 });
     const count    = response.totalRecordCount;
     commit(SAVE_SELECTED_QUERY, { query, count });
   },

@@ -32,7 +32,7 @@ export default class {
 
     const data = await this.http.get('api/v2018/contacts', { searchParams }).json();
 
-    return data;
+    return enableCursor(data, query, (q) => this.queryContacts(q));
   }
 
   // ====================
@@ -61,7 +61,7 @@ export default class {
 
     const data = await this.http.get('api/v2018/organizations', { searchParams }).json();
 
-    return data;
+    return enableCursor(data, query, (q) => this.queryOrganizations(q));
   }
 
   // ====================
@@ -104,8 +104,9 @@ export default class {
 
     const data = await ky.get(`${process.env.NUXT_ENV_API}/api/v2016/conferences`, { searchParams }).json();
     return {
-      records    : data,
-      recordCount: data.length,
+      records         : data,
+      recordCount     : data.length,
+      totalRecordCount: data.length,
     };
   }
 
@@ -140,4 +141,42 @@ function toURLSearchParams(params) {
   });
 
   return new URLSearchParams(urlEncodedUrlParams);
+}
+
+
+export function enableCursor(result, query, queryHandler) {
+  return { ...result, getCursor: () => getCursor(result, query, queryHandler) };
+}
+
+// ====================
+//
+// ====================
+function getCursor(result, query, queryHandler) {
+  const { totalRecordCount } = result;
+  const limit                = Math.max(result.limit || (query || {}).limit || 0, 50);
+  let   skip                 = result.skip  || (query || {}).skip  || 0;
+
+  let records = [ ...result.records ];
+
+  return {
+    get totalRecordCount() {
+      return totalRecordCount;
+    },
+    get skip() {
+      return skip;
+    },
+    async next() {
+      if (!records.length && query) {
+        console.log(`Loading records ${skip} to ${skip + limit} of ${totalRecordCount}`);
+        const nextResult = await queryHandler({ ...query, skip, limit });
+        records          = [ ...nextResult.records ];
+      }
+
+      const nextRecord = records.splice(0, 1)[0];
+
+      skip++;
+
+      return nextRecord;
+    },
+  };
 }
