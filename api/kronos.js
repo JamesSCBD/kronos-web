@@ -87,7 +87,7 @@ export default class {
   // Delete Organization
   // ====================
   async deleteOrganization(organizationId) {
-    const data = await this.http.delete(`api/v2018/organizations/${encodeURIComponent(organizationId)}`);
+    const data = await this.http.delete(`api/v2018/organizations/${encodeURIComponent(organizationId)}`, { timeout: 2 * 60 * 1000 });
 
     return data;
   }
