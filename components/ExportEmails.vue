@@ -124,7 +124,7 @@ export default {
     BFormGroup, BFormRadioGroup, BFormSelect, BFormTextarea,
   },
   props: {
-    selectionList: { type: Array, default: () => ([]) },
+    selectedResult: { type: Object, default: () => ({}) },
   },
   data() {
     return {
@@ -147,9 +147,11 @@ export default {
   },
 };
 
-function mounted() {
-  if (this.selectionList.length) {
-    if (this.selectionList[0].contactId) {
+async function mounted() {
+  const data = await this.selectedResult.getCursor().next();
+
+  if (data) {
+    if (data.contactId) {
       this.exportOptions.push({ value: 'MAINCCs', text: 'Main + CCs address' });
     } else {
       this.exportOptions.push({ value: 'MAINCCs', text: 'Main + Focal Point' });
@@ -157,21 +159,25 @@ function mounted() {
   }
 }
 
-function onEmailsExport() {
-  if (this.selectionList.length) {
-    let emails = _(this.selectionList.map((c) => extractEmails.call(this, c)));
+async function onEmailsExport() {
+  const cursor = this.selectedResult.getCursor();
+  let obj      = null;
+  let emails   = [];
 
-    emails = _(emails.map((e) => formatEmailAddress.call(this, e))).flatten().uniq().value();
-
-    this.textareaEmails = _.chunk(emails, this.selectedRowSize || emails.length)
-      .map((rowEmails) => ({ emails: rowEmails.join(this.selectedSpearator) }));
-
-    this.rows = this.selectedRowSize ? 3 : 10;
+  while (obj = await cursor.next()) { // eslint-disable-line no-cond-assign, no-await-in-loop
+    emails = emails.concat(extractEmails.call(this, obj));
   }
+
+  emails = _(emails.map((e) => formatEmailAddress.call(this, e))).flatten().uniq().value();
+
+  this.textareaEmails = _.chunk(emails, this.selectedRowSize || emails.length)
+    .map((rowEmails) => ({ emails: rowEmails.join(this.selectedSpearator) }));
+
+  this.rows = this.selectedRowSize ? 3 : 10;
 }
 
-function formatEmailAddress(emails) {
-  return emails.map((x) => (this.selectedFormat === 'NAME_EMAIL' ? `${x.name || ''}  <${x.address}>`.trim() : `${x.address}`.trim()));
+function formatEmailAddress(email) {
+  return this.selectedFormat === 'NAME_EMAIL' ? `${email.name || ''}  <${email.address}>`.trim() : `${email.address}`.trim();
 }
 
 function extractEmails(entry) {

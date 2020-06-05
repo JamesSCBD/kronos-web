@@ -40,11 +40,11 @@
       size="lg"
       class="export-email"
     >
-      <ExportEmails :key="emailComponentKey" :selection-list="selectedContacts" />
+      <ExportEmails :key="emailComponentKey" :selected-result="selectedContactResult" />
     </CModal>
     <!-- Modal Component -->
 
-    <MultiDeleteModal :key="multiDeletecomponentKey" :show.sync="deleteModal" :selection-list="selectedContacts" />
+    <MultiDeleteModal :key="multiDeletecomponentKey" :show.sync="deleteModal" :selected-result="selectedContactResult" />
   </div>
 </template>
 
@@ -71,8 +71,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      selectedCount   : 'contacts/selectedCount',
-      selectedContacts: 'contacts/selectedContacts',
+      selectedCount        : 'contacts/selectedCount',
+      selectedContactResult: 'contacts/selectedContactResult',
     }),
   },
   methods: {

@@ -85,16 +85,29 @@
       :show="showModal && step === 'progress'"
       @update:show="close()"
     >
-      <strong>Deletion {{ deleteRecordCount }}/{{ recordCount }}</strong>
-      <CProgress
-        key="bar.color"
-        height="2rem"
-        :value="progressValue"
-        color="success"
-        show-percentage
-        class="mb-2"
-        :striped="true"
-      />
+      <div v-if="startDeletion">
+        <strong>Deletion {{ deleteRecordCount }}/{{ recordCount }}</strong>
+        <CProgress
+          height="2rem"
+          :value="progressValue"
+          color="success"
+          show-percentage
+          class="mb-2"
+          :striped="true"
+        />
+      </div>
+      <div v-if="!startDeletion">
+        <strong>Preparing for deletion... </strong>
+        <CProgress
+          height="2rem"
+          :value="prepareValue"
+          show-percentage
+          color="info"
+          class="mb-2"
+          :striped="true"
+        />
+      </div>
+
       <CAlert
         :show.sync="errorMsgDismissTtl"
         close-button
@@ -133,7 +146,7 @@ export default {
       required: false,
       default : false,
     },
-    selectionList: { type: Array, default: () => ([]) },
+    selectedResult: { type: Object, default: () => ({}) },
   },
   data() {
     return {
@@ -141,11 +154,13 @@ export default {
       columns                : [{ key: 'name' }, { key: 'organization' }, { key: 'emailOrCountry' }],
       page                   : 1,
       perPage                : 5,
-      recordCount            : this.selectionList.length,
+      recordCount            : this.selectedResult.totalRecordCount,
       deleteRecordCount      : 0,
       confirmationRecordCount: '',
       errorMsgDismissTtl     : 0,
       stopDeletion           : false,
+      startDeletion          : false,
+      deletedIds             : [],
     };
   },
   computed: {
@@ -153,13 +168,7 @@ export default {
     title()         { return `Deletion of ${this.recordCount} records`; },
     deleteSuccess() { return this.deleteRecordCount === this.recordCount; },
     progressValue() { return  Math.round((this.deleteRecordCount / this.recordCount) * 100); },
-    items()         {
-      return this.selectionList.map((s) => ({
-        name          : getName(s).trim(),
-        organization  : getOrganization.call(this, s).trim(),
-        emailOrCountry: getEmailOrCountry.call(this, s).trim(),
-      }), this);
-    },
+    prepareValue() { return  Math.round((this.deletedIds.length / this.recordCount) * 100); },
     ...mapGetters({
       getCountryNameByCode   : 'countries/getNameByCode',
       getOrganizationTypeById: 'organizations/getTypeById',
@@ -170,12 +179,32 @@ export default {
     onDelete,
     deleteContact,
     deleteOrganization,
+    items,
     ...mapActions({
       clearContactsSelection     : 'contacts/clearSelection',
       clearOrganizationsSelection: 'organizations/clearSelection',
     }),
   },
 };
+
+async function items()    {
+  const skip    = this.perPage * (this.page - 1);
+  const cursor  = this.selectedResult.getCursor({ skip });
+  const records = [];
+  let obj       = null;
+
+  while (obj = await cursor.next()) { // eslint-disable-line no-cond-assign, no-await-in-loop
+    records.push({
+      name          : getName(obj).trim(),
+      organization  : getOrganization.call(this, obj).trim(),
+      emailOrCountry: getEmailOrCountry.call(this, obj).trim(),
+    });
+
+    if (records.length >= this.perPage) break; // load max this.perPage records;
+  }
+
+  return records;
+}
 
 function close() {
   this.step      = 'preview';
@@ -199,7 +228,9 @@ function getOrganization(entry) {
 function getEmailOrCountry(entry) {
   if (entry.contactId) return `${entry.emails.length ? entry.emails[0] : ''}`;
 
-  return `${this.getCountryNameByCode(entry.government || entry.country)}`;
+  const country = entry.government || entry.country;
+
+  return country ? `${this.getCountryNameByCode(entry.government || entry.country)}` : '';
 }
 
 async function onDelete() {
@@ -212,7 +243,19 @@ async function onDelete() {
     this.step              = 'progress';
     this.deleteRecordCount = 0;
 
-    if ('contactId' in this.selectionList[0]) {
+    const cursor    = this.selectedResult.getCursor();
+    let obj         = null;
+    this.deletedIds = [];
+
+    while (obj = await cursor.next()) { // eslint-disable-line no-cond-assign, no-await-in-loop
+      this.deletedIds.push({
+        type: obj.contactId ? 'contacts' : 'organizations',
+        id  : obj.contactId || obj.organizationId,
+      });
+    }
+
+    this.startDeletion = true;
+    if (this.deletedIds[0].type === 'contacts') {
       await this.deleteContact();
     } else {
       await this.deleteOrganization();
@@ -223,11 +266,11 @@ async function onDelete() {
 }
 
 async function deleteContact() {
-  for (let index = 0; index < this.selectionList.length; index++) {
+  for (let index = 0; index < this.deletedIds.length; index++) {
     if (this.stopDeletion) break;
 
     // eslint-disable-next-line no-await-in-loop
-    await this.$kronosApi.deleteContact(this.selectionList[index].contactId);
+    await this.$kronosApi.deleteContact(this.deletedIds[index].id);
     this.deleteRecordCount++;
   }
 
@@ -238,11 +281,11 @@ async function deleteContact() {
 }
 
 async function deleteOrganization() {
-  for (let index = 0; index < this.selectionList.length; index++) {
+  for (let index = 0; index < this.deletedIds.length; index++) {
     if (this.stopDeletion) break;
 
     // eslint-disable-next-line no-await-in-loop
-    await this.$kronosApi.deleteOrganization(this.selectionList[index].organizationId);
+    await this.$kronosApi.deleteOrganization(this.deletedIds[index].id);
     this.deleteRecordCount++;
   }
 

@@ -146,26 +146,44 @@ function toURLSearchParams(params) {
 
 
 export function enableCursor(result, query, queryHandler) {
-  return { ...result, getCursor: () => getCursor(result, query, queryHandler) };
+  return { ...result, getCursor: (options = {}) => createCursor(result, query, queryHandler, options) };
 }
 
 // ====================
 //
 // ====================
-function getCursor(result, query, queryHandler) {
+function createCursor(result, query, queryHandler, options) {
   const { totalRecordCount } = result;
-  const limit                = Math.max(result.limit || (query || {}).limit || 0, 50);
-  let   skip                 = result.skip  || (query || {}).skip  || 0;
+  let   limit                = Math.max(result.limit || (query || {}).limit || 0, 50);
+  let   skip                 = result.skip || (query || {}).skip  || 0;
 
   let records = [ ...result.records ];
+
+  // Apply user options;
+  if (options.skip >= 0) {
+    if (options.skip < skip) records = []; // seeking before buffered start => need to reset buffer
+
+    skip = options.skip;
+    records.splice(0, skip); // seeking buffer to user defined start
+  }
+
+  if (options.limit > 0) {
+    limit = options.limit;
+  }
 
   return {
     get totalRecordCount() {
       return totalRecordCount;
     },
+
     get skip() {
       return skip;
     },
+
+    get limit() {
+      return limit;
+    },
+
     async next() {
       if (!records.length && query) {
         console.log(`Loading records ${skip} to ${skip + limit} of ${totalRecordCount}`);
