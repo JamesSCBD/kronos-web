@@ -4,6 +4,7 @@ export default class {
   constructor(tokenReader) {
     this.http = ky.create({
       prefixUrl: process.env.NUXT_ENV_KRONOS_API,
+      timeout  : 30 * 1000, // 30 sec
       hooks    : {
         beforeRequest: [
           (request) => {
