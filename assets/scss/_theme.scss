@@ -28,9 +28,6 @@ body {
   font-size: 13px;
   vertical-align: middle;
 }
-.batch-deletion .modal-footer {
-  justify-content: center;
-}
 
 @media (min-width: 992px) { 
   .c-header.c-header-with-subheader{
@@ -116,9 +113,6 @@ select#page-size {
 ul.pagination.b-pagination {
   width: auto;
   float: right;
-}
-.export-email .modal-footer{ 
-  display: none;
 }
 .line-top {
   border-top: 1px solid #d8dbe0;

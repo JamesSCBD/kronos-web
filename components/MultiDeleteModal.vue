@@ -1,12 +1,6 @@
 <template>
   <div>
-    <CModal
-      :title="title"
-      :show="showModal && step==='preview'"
-      size="lg"
-      class="batch-deletion"
-      @update:show="close()"
-    >
+    <div v-if="step==='preview'">
       Preview of the records to be deleted
       <div class="paginationRow w-auto float-right popup-pagi">
         <BPagination
@@ -35,22 +29,19 @@
         small
         :bordered="false"
       />
-      <template #footer>
-        <span class="w-100 text-center"><i class="cil-warning pr-1" />All record will be deleted</span>
+      <div class="modal-footer" style="justify-content: center">
+        <p class="w-100 text-center">
+          <i class="cil-warning pr-1" />All record will be deleted
+        </p>
         <CButton color="danger" @click="step='warning'">
           Yes Delete
         </CButton>
         <CButton color="secondary" @click="close()">
           Cancel
         </CButton>
-      </template>
-    </CModal>
-    <CModal
-      :title="title"
-      :show="showModal && step==='warning'"
-      class="batch-deletion"
-      @update:show="close()"
-    >
+      </div>
+    </div>
+    <div v-if="step==='warning'">
       <p> Please type the total number of record "{{ recordCount }}" to confirm the operation.</p>
 
       <p>
@@ -70,21 +61,19 @@
       >
         <strong>Please type correct total number of records to delete</strong>
       </CAlert>
-      <template #footer>
-        <span class="w-100 text-center"><i class="cil-warning pr-1" />WARNING: operation cannot be cancelled.</span>
+      <div class="modal-footer" style="justify-content: center">
+        <p class="w-100 text-center">
+          <i class="cil-warning pr-1" />WARNING: operation cannot be cancelled.
+        </p>
         <CButton color="danger" @click="onDelete()">
           Yes Delete
         </CButton>
         <CButton color="secondary" @click="close()">
           Cancel
         </CButton>
-      </template>
-    </CModal>
-    <CModal
-      :title="title"
-      :show="showModal && step === 'progress'"
-      @update:show="close()"
-    >
+      </div>
+    </div>
+    <div v-if="step === 'progress'">
       <div v-if="startDeletion">
         <strong>Deletion {{ deleteRecordCount }}/{{ recordCount }}</strong>
         <CProgress
@@ -116,38 +105,37 @@
       >
         <strong>Internal server error: Please try again later</strong>
       </CAlert>
-      <template #footer>
+      <div class="modal-footer" style="justify-content: center">
         <CButton v-if="!deleteSuccess && !stopDeletion" color="danger" @click="stopDeletion = true">
           Stop
         </CButton>
         <CButton v-if="deleteSuccess || stopDeletion" color="success" @click="close()">
           Ok
         </CButton>
-      </template>
-    </CModal>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import {
-  CModal, CButton, CAlert, CProgress,
+  CButton, CAlert, CProgress,
 } from '@coreui/vue';
 import { BTable, BPagination, BFormInput } from 'bootstrap-vue';
+import mixin from '~/components/batch-tasks/mixin';
 
 export default {
-  name      : 'MultiDeleteModal',
+  name          : 'MultiDeleteModal',
+  taskAttributes: {
+    caption : 'Delete',
+    icon    : 'trashAlt',
+    contexts: [ 'contact', 'organization', 'selection' ],
+  },
   components: {
-    CModal, BTable, BPagination, CButton, BFormInput, CAlert, CProgress,
+    BTable, BPagination, CButton, BFormInput, CAlert, CProgress,
   },
-  props: {
-    show: {
-      type    : Boolean,
-      required: false,
-      default : false,
-    },
-    selectedResult: { type: Object, default: () => ({}) },
-  },
+  mixins: [ mixin ],
   data() {
     return {
       step                   : 'preview',
@@ -164,7 +152,6 @@ export default {
     };
   },
   computed: {
-    showModal: { get() { return this.show; }, set(value) { this.$emit('update:show', value); } },
     title()         { return `Deletion of ${this.recordCount} records`; },
     deleteSuccess() { return this.deleteRecordCount === this.recordCount; },
     progressValue() { return  Math.round((this.deleteRecordCount / this.recordCount) * 100); },
@@ -207,8 +194,8 @@ async function items()    {
 }
 
 function close() {
-  this.step      = 'preview';
-  this.showModal = false;
+  this.step = 'preview';
+  this.$emit('close');
 }
 
 function getName(entry) {

@@ -16,14 +16,8 @@
           </CHeaderNavLink>
         </CHeaderNavItem>
       </template>
-      <CDropdownItem :disabled="!selectedCount" @click="exportEmailsModal = true; reRenderExportEmails()">
-        <CIcon name="fileExport" class=" pr-1" /> Export Emails
-      </CDropdownItem>
-      <CDropdownItem :disabled="!selectedCount" @click="deleteModal = true; reRenderMultiDelete()">
-        <CIcon name="trashAlt" class="pr-1" /> Delete
-        <CBadge v-if="selectedCount" color="info" class="ml-auto">
-          {{ selectedCount }}
-        </CBadge>
+      <CDropdownItem v-for="task in tasks" :key="task.name" :disabled="!selectedCount" @click="activeTask=task">
+        <CIcon :name="task.taskAttributes.icon" class="pr-1" /> {{ task.taskAttributes.caption }}
       </CDropdownItem>
       <CDropdownItem :disabled="!selectedCount" @click="clearSelection()">
         <i class="cil-clear-all pr-1" />Clear Selection
@@ -35,31 +29,32 @@
 
     <!-- Modal Component -->
     <CModal
-      title="Export Emails"
-      :show.sync="exportEmailsModal"
+      v-if="activeTask"
+      :title="activeTask.taskAttributes.title || activeTask.taskAttributes.caption"
+      :show.sync="showModal"
+      :close-on-backdrop="false"
       size="lg"
-      class="export-email"
     >
-      <ExportEmails :key="emailComponentKey" :selected-result="selectedContactResult" />
+      <component :is="activeTask.name" :selected-result="selectedContactResult" @close="showModal = false" />
+      <template #footer-wrapper>
+        <div />
+      </template>
     </CModal>
-    <!-- Modal Component -->
-
-    <MultiDeleteModal :key="multiDeletecomponentKey" :show.sync="deleteModal" :selected-result="selectedContactResult" />
   </div>
 </template>
 
 <script>
+import _ from 'lodash';
 import { mapGetters, mapActions } from 'vuex';
 import {
   CHeaderNavItem, CHeaderNavLink, CDropdown, CDropdownItem, CModal,
 } from '@coreui/vue';
-import ExportEmails from '~/components/ExportEmails';
-import  MultiDeleteModal  from '~/components/MultiDeleteModal';
+import BatchTasks, { taskHasContexts }  from '~/components/batch-tasks';
 
 export default {
   name      : 'DropdownContacts',
   components: {
-    CHeaderNavItem, CHeaderNavLink, CDropdown, CDropdownItem, CModal, ExportEmails, MultiDeleteModal,
+    CHeaderNavItem, CHeaderNavLink, CDropdown, CDropdownItem, CModal, ...BatchTasks,
   },
   data() {
     return {
@@ -67,9 +62,12 @@ export default {
       deleteModal            : false,
       emailComponentKey      : 0,
       multiDeletecomponentKey: 0,
+      activeTask             : null,
     };
   },
   computed: {
+    tasks() { return _.filter(BatchTasks, (t) => taskHasContexts(t, 'contact', 'selection')); },
+    showModal: { get() { return !!this.activeTask; }, set(v) { if (!v) this.activeTask = null; } },
     ...mapGetters({
       selectedCount        : 'contacts/selectedCount',
       selectedContactResult: 'contacts/selectedContactResult',
@@ -79,12 +77,6 @@ export default {
     ...mapActions({
       clearSelection: 'contacts/clearSelection',
     }),
-    reRenderExportEmails() {
-      this.emailComponentKey += 1;
-    },
-    reRenderMultiDelete() {
-      this.multiDeletecomponentKey += 1;
-    },
   },
 };
 

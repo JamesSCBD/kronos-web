@@ -98,6 +98,7 @@ import {
 } from 'bootstrap-vue';
 import _ from 'lodash';
 import copy from 'copy-to-clipboard';
+import mixin from '~/components/batch-tasks/mixin';
 
 const rowSizeOptions = [
   { value: 50, text: '50/row (Outlook)' },
@@ -119,13 +120,16 @@ const spearatorOptions  = [
 ];
 
 export default {
-  name      : 'ExportEmails',
+  name          : 'ExportEmails',
+  taskAttributes: {
+    caption : 'Export emails',
+    icon    : 'fileExport',
+    contexts: [ 'contact', 'organization', 'selection', 'search' ],
+  },
   components: {
     BFormGroup, BFormRadioGroup, BFormSelect, BFormTextarea,
   },
-  props: {
-    selectedResult: { type: Object, default: () => ({}) },
-  },
+  mixins: [ mixin ],
   data() {
     return {
       selectedFormat   : 'NAME_EMAIL',
