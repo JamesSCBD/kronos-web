@@ -134,7 +134,7 @@ export default {
 
 function mounted() {
   this.$root.$on('record-deleted', () => {
-    this.$refs.organizationTable.refresh();
+    if (this.$refs.organizationTable) this.$refs.organizationTable.refresh();
   });
 }
 

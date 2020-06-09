@@ -18,7 +18,7 @@
       </div>
       <BTable
         id="deleteList"
-        :items="items"
+        :items="previewItems"
         :fields="columns"
         :per-page="perPage"
         :current-page="page"
@@ -73,19 +73,8 @@
         </CButton>
       </div>
     </div>
-    <div v-if="step === 'progress'">
-      <div v-if="startDeletion">
-        <strong>Deletion {{ deleteRecordCount }}/{{ recordCount }}</strong>
-        <CProgress
-          height="2rem"
-          :value="progressValue"
-          color="success"
-          show-percentage
-          class="mb-2"
-          :striped="true"
-        />
-      </div>
-      <div v-if="!startDeletion">
+    <div v-if="step === 'prepload' || step === 'progress'">
+      <div v-if="step === 'prepload'">
         <strong>Preparing for deletion... </strong>
         <CProgress
           height="2rem"
@@ -97,6 +86,27 @@
         />
       </div>
 
+      <div v-if="step === 'progress'">
+        <strong>Deletion {{ deletedRecordCount }}/{{ recordCount }}</strong>
+        <CProgress
+          height="2rem"
+          :value="progressValue"
+          color="success"
+          show-percentage
+          class="mb-2"
+          :striped="true"
+        />
+        <div v-if="currentRecord">
+          <span v-if=" currentRecord.contactId">
+            <strong>{{ currentRecord.firstName }} {{ currentRecord.lastName }}</strong>
+          </span>
+          <span v-if="!currentRecord.contactId">
+            <strong>{{ currentRecord.acronym || currentRecord.name }}</strong> -
+            <em>{{ currentRecord.memberCount }} contact(s)</em>
+          </span>
+          <CIcon name="circleNotch" class="fa-spin fa-3x fa-fw green_loader" />
+        </div>
+      </div>
       <CAlert
         :show.sync="errorMsgDismissTtl"
         close-button
@@ -143,19 +153,19 @@ export default {
       page                   : 1,
       perPage                : 5,
       recordCount            : this.selectedResult.totalRecordCount,
-      deleteRecordCount      : 0,
+      deletedRecordCount     : 0,
       confirmationRecordCount: '',
       errorMsgDismissTtl     : 0,
       stopDeletion           : false,
       startDeletion          : false,
-      deletedIds             : [],
+      records                : [],
+      currentRecord          : null,
     };
   },
   computed: {
-    title()         { return `Deletion of ${this.recordCount} records`; },
-    deleteSuccess() { return this.deleteRecordCount === this.recordCount; },
-    progressValue() { return  Math.round((this.deleteRecordCount / this.recordCount) * 100); },
-    prepareValue() { return  Math.round((this.deletedIds.length / this.recordCount) * 100); },
+    deleteSuccess() { return this.deletedRecordCount === this.recordCount; },
+    progressValue() { return Math.round((this.deletedRecordCount / this.recordCount) * 100); },
+    prepareValue()  { return Math.round((this.records.length     / this.recordCount) * 100); },
     ...mapGetters({
       getCountryNameByCode   : 'countries/getNameByCode',
       getOrganizationTypeById: 'organizations/getTypeById',
@@ -164,9 +174,7 @@ export default {
   methods: {
     close,
     onDelete,
-    deleteContact,
-    deleteOrganization,
-    items,
+    previewItems,
     ...mapActions({
       clearContactsSelection     : 'contacts/clearSelection',
       clearOrganizationsSelection: 'organizations/clearSelection',
@@ -174,7 +182,7 @@ export default {
   },
 };
 
-async function items()    {
+async function previewItems()    {
   const skip    = this.perPage * (this.page - 1);
   const cursor  = this.selectedResult.getCursor({ skip });
   const records = [];
@@ -207,9 +215,12 @@ function getName(entry) {
 function getOrganization(entry) {
   if (entry.contactId) return `${entry.organization.acronym || entry.organization.name}`;
 
-  const  organizationType = this.getOrganizationTypeById(entry.organizationTypeId);
+  let  organizationType = null;
 
-  return `${organizationType.acronym || organizationType.title}`;
+  if (entry.organizationTypeId) organizationType = this.getOrganizationTypeById(entry.organizationTypeId);
+  if (organizationType) return `${organizationType.acronym || organizationType.title}`;
+
+  return '';
 }
 
 function getEmailOrCountry(entry) {
@@ -221,64 +232,65 @@ function getEmailOrCountry(entry) {
 }
 
 async function onDelete() {
+  if (this.recordCount !== this.confirmationRecordCount) {
+    this.errorMsgDismissTtl = 3;
+    return;
+  }
+
   try {
-    if (this.recordCount !== this.confirmationRecordCount) {
-      this.errorMsgDismissTtl = 3;
-      return;
-    }
+    this.step = 'prepload';
+    await loadRecords.call(this);
 
-    this.step              = 'progress';
-    this.deleteRecordCount = 0;
-
-    const cursor    = this.selectedResult.getCursor();
-    let obj         = null;
-    this.deletedIds = [];
-
-    while (obj = await cursor.next()) { // eslint-disable-line no-cond-assign, no-await-in-loop
-      this.deletedIds.push({
-        type: obj.contactId ? 'contacts' : 'organizations',
-        id  : obj.contactId || obj.organizationId,
-      });
-    }
-
-    this.startDeletion = true;
-    if (this.deletedIds[0].type === 'contacts') {
-      await this.deleteContact();
-    } else {
-      await this.deleteOrganization();
-    }
+    this.step = 'progress';
+    await deleteRecords.call(this);
   } catch (error) {
     this.errorMsgDismissTtl = 3;
   }
 }
 
-async function deleteContact() {
-  for (let index = 0; index < this.deletedIds.length; index++) {
-    if (this.stopDeletion) break;
+async function loadRecords() {
+  this.deletedRecordCount = 0;
 
-    // eslint-disable-next-line no-await-in-loop
-    await this.$kronosApi.deleteContact(this.deletedIds[index].id);
-    this.deleteRecordCount++;
-  }
+  const cursor = this.selectedResult.getCursor();
+  let obj      = null;
+  this.records = [];
 
-  if (this.deleteSuccess) {
-    this.$root.$emit('record-deleted');
-    this.clearContactsSelection();
+  while (obj = await cursor.next()) { // eslint-disable-line no-cond-assign, no-await-in-loop
+    this.records.push(obj);
   }
 }
 
-async function deleteOrganization() {
-  for (let index = 0; index < this.deletedIds.length; index++) {
+async function deleteRecords() {
+  const records = [ ...this.records ];
+
+  for (let index = 0; index < records.length; index++) {
     if (this.stopDeletion) break;
 
-    // eslint-disable-next-line no-await-in-loop
-    await this.$kronosApi.deleteOrganization(this.deletedIds[index].id);
-    this.deleteRecordCount++;
+    const record       = records[index];
+    this.currentRecord = record;
+
+    await deleteRecord.call(this, record); // eslint-disable-line no-await-in-loop
+
+    this.deletedRecordCount++;
   }
 
-  if (this.deleteSuccess) {
-    this.$root.$emit('record-deleted');
-    this.clearOrganizationsSelection();
+  // TMP vvv To be remove when handled by Store vvv
+  if (this.deleteSuccess && this.currentRecord) {
+    if (this.currentRecord.contactId) this.clearContactsSelection();
+    if (!this.currentRecord.contactId) this.clearOrganizationsSelection();
+  }
+  // TMP ^^^ To be remove when handled by Store ^^^
+
+  this.currentRecord = null;
+
+  this.$root.$emit('record-deleted');
+}
+
+async function deleteRecord(record) {
+  if (record.contactId) {
+    await this.$kronosApi.deleteContact(record.contactId); // TODO: Delete using store
+  } else {
+    await this.$kronosApi.deleteOrganization(record.organizationId);  // TODO: Delete using store
   }
 }
 </script>
@@ -286,5 +298,8 @@ async function deleteOrganization() {
 <style >
 .hidden_header {
   display: none;
+}
+.green_loader {
+  color: green;
 }
 </style>

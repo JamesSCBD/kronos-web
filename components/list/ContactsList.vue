@@ -147,7 +147,7 @@ export default {
 
 function mounted() {
   this.$root.$on('record-deleted', () => {
-    this.$refs.conatactTable.refresh();
+    if (this.$refs.conatactTable) this.$refs.conatactTable.refresh();
   });
 }
 
