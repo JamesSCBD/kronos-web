@@ -58,11 +58,7 @@ export default {
   },
   data() {
     return {
-      exportEmailsModal      : false,
-      deleteModal            : false,
-      emailComponentKey      : 0,
-      multiDeletecomponentKey: 0,
-      activeTask             : null,
+      activeTask: null,
     };
   },
   computed: {
