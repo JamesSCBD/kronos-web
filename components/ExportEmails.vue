@@ -62,29 +62,37 @@
       <div class="row">
         <div class="col-sm-12">
           <div class="form-group">
-            <button class="btn col-sm-2 btn-primary float-right" @click="onEmailsExport()">
+            <button class="btn col-sm-2 btn-primary float-right" @click="exportEmails()">
               Export
             </button>
           </div>
         </div>
       </div>
       <div class="line-top" />
-      <div v-for="row in textareaEmails" :key="row.emails" class="row">
+      <div v-for="(row, index) in textareaEmails" :key="row.emails" class="row">
         <div class="col-md-11 col-sm-11 col-xs-12">
           <div class="form-group">
             <BFormTextarea
               id="textarea"
               :value="row.emails"
-              :rows="rows"
+              :rows="boxSize"
               readonly
             />
           </div>
         </div>
         <div class="col-md-1 col-sm-1 col-xs-12">
           <div class="form-group copy-btn">
-            <button title="Copy" @click="copy(row.emails)">
+            <button
+              :id="`btnCopy${index}`"
+              class="btn btn-light"
+              @click="copy(row)"
+              @mouseleave="clearCopied(row)"
+            >
               <i class="cil-copy" />
             </button>
+            <BTooltip :target="`btnCopy${index}`" triggers="hover">
+              {{ !row.isCopied ? 'Copy to clipboard' : 'Copied!' }}
+            </BTooltip>
           </div>
         </div>
       </div>
@@ -94,27 +102,26 @@
 
 <script>
 import {
-  BFormGroup, BFormRadioGroup, BFormSelect, BFormTextarea,
+  BFormGroup, BFormRadioGroup, BFormSelect, BFormTextarea, BTooltip,
 } from 'bootstrap-vue';
 import _ from 'lodash';
-import copy from 'copy-to-clipboard';
+import copyToClipboard from 'copy-to-clipboard';
 import mixin from '~/components/batch-tasks/mixin';
 
-const rowSizeOptions = [
+const ROW_SIZE_OPTIONS  = [
   { value: 50, text: '50/row (Outlook)' },
   { value: 100, text: '100/rows' },
   { value: 250, text: '250/rows' },
   { value: null, text: 'All' },
 ];
-
-const formatOptions     = [
-  { text: 'Name and Email', value: 'NAME_EMAIL' },
+const FORMAT_OPTIONS    = [
+  { text: 'Name and Email',     value: 'NAME_EMAIL' },
   { text: 'Email address only', value: 'EMAIL' },
 ];
-const baseExportOptions = [
+const EXPORT_OPTIONS    = [
   { text: 'Main address', value: 'MAIN' },
 ];
-const spearatorOptions  = [
+const SPEARATOR_OPTIONS = [
   { text: 'Outlook', value: ';' },
   { text: 'One by line ', value: '\n' },
 ];
@@ -127,7 +134,7 @@ export default {
     contexts: [ 'contact', 'organization', 'selection', 'search' ],
   },
   components: {
-    BFormGroup, BFormRadioGroup, BFormSelect, BFormTextarea,
+    BFormGroup, BFormRadioGroup, BFormSelect, BFormTextarea, BTooltip,
   },
   mixins: [ mixin ],
   data() {
@@ -136,18 +143,21 @@ export default {
       selectedExport   : 'MAIN',
       selectedSpearator: ';',
       selectedRowSize  : 50,
-      formatOptions,
-      exportOptions    : [ ...baseExportOptions ],
-      spearatorOptions,
-      rowSizeOptions,
       textareaEmails   : [],
-      rows             : 3,
+      formatOptions    : [ ...FORMAT_OPTIONS ],
+      exportOptions    : [ ...EXPORT_OPTIONS ],
+      spearatorOptions : [ ...SPEARATOR_OPTIONS ],
+      rowSizeOptions   : [ ...ROW_SIZE_OPTIONS ],
     };
+  },
+  computed: {
+    boxSize() {  return this.selectedRowSize ? 3 : 10; },
   },
   mounted,
   methods: {
-    onEmailsExport,
+    exportEmails,
     copy,
+    clearCopied,
   },
 };
 
@@ -163,7 +173,7 @@ async function mounted() {
   }
 }
 
-async function onEmailsExport() {
+async function exportEmails() {
   const cursor = this.selectedResult.getCursor();
   let obj      = null;
   let emails   = [];
@@ -172,12 +182,17 @@ async function onEmailsExport() {
     emails = emails.concat(extractEmails.call(this, obj));
   }
 
-  emails = _(emails.map((e) => formatEmailAddress.call(this, e))).flatten().uniq().value();
+  emails = _(emails)
+    .flatten()
+    .uniqBy((o) => o.address)
+    .map((e) => formatEmailAddress.call(this, e))
+    .value();
 
   this.textareaEmails = _.chunk(emails, this.selectedRowSize || emails.length)
-    .map((rowEmails) => ({ emails: rowEmails.join(this.selectedSpearator) }));
-
-  this.rows = this.selectedRowSize ? 3 : 10;
+    .map((rowEmails) => ({
+      emails  : rowEmails.join(this.selectedSpearator),
+      isCopied: false,
+    }));
 }
 
 function formatEmailAddress(email) {
@@ -185,26 +200,44 @@ function formatEmailAddress(email) {
 }
 
 function extractEmails(entry) {
-  const thisComponent = this;
-
-  let emails = [];
-
-  emails = emails.concat(entry.emails.map((address) => ({
+  let emails = entry.emails.map((address) => ({
     address,
-    name: getName.call(thisComponent, entry),
-  })));
+    name: getName.call(this, entry),
+  }));
 
   if (this.selectedExport === 'MAINCCs') {
-    if (entry.contactId) emails = emails.concat(entry.emailCcs.map((address) => ({ address }))); // no name on CC addresses
-    if (entry.focalPoint)  emails = emails.concat(extractEmails(entry.focalPoint));
+    if (entry.contactId)  emails = emails.concat(entry.emailCcs.map((address) => ({ address }))); // no name on CC addresses
+    if (entry.focalPoint) emails = emails.concat(extractEmails(entry.focalPoint));
   }
 
   return _.uniqBy(emails, (o) => o.address);
 }
 
 function getName(entry) {
-  if (entry.contactId) return `${entry.title} ${entry.firstName} ${entry.lastName}`;
-
-  return `${entry.name}`;
+  return entry.contactId
+    ? `${entry.title} ${entry.firstName} ${entry.lastName}`
+    : `${entry.name || entry.acronym}`;
 }
+
+function copy(r) {
+  const row = r;
+  copyToClipboard(row.emails);
+  row.isCopied = true;
+}
+
+function clearCopied(r) {
+  const row = r;
+  setTimeout(() => { row.isCopied = false; }, 100);
+}
+
 </script>
+<style>
+.btn:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+textarea.form-control[readonly] {
+  background-color: unset;
+}
+</style>
