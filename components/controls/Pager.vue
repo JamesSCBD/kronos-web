@@ -1,12 +1,13 @@
 <template>
   <div>
     <div class="paginationRow">
-      <span v-if="recordCount === 0">No matching records found</span>
-      <span v-if="recordCount != null && recordCount > 0">{{ recordCount }} records / {{ numberOfPages }} pages</span>
+      <span v-if="showRecordCount">
+        <span v-if="recordCount === 0">No matching records found</span>
+        <span v-if="recordCount != null && recordCount > 0">{{ recordCount }} records</span>
+      </span>
       <BFormSelect
         id="page-size"
         v-model="perPage"
-        class="form-control"
         :options="pageOptions"
       />
       <BPagination
@@ -16,14 +17,32 @@
         prev-text="Prev"
         next-text="Next"
         hide-goto-end-buttons
-        limit="4"
-      />
+        limit="1"
+      >
+        <template v-slot:page>
+          <BFormSelect
+            v-model.number="currentPage"
+            style="border-radius: 0px"
+          >
+            <BFormSelectOption
+              v-for="pageNumber in numberOfPages"
+              :key="pageNumber"
+              :value="pageNumber"
+            >
+              {{ pageNumber }} of {{ numberOfPages }}
+            </BFormSelectOption>
+            <BFormSelectOption v-if="numberOfPages == 0" value="1">
+              No pages
+            </BFormSelectOption>
+          </BFormSelect>
+        </template>
+      </BPagination>
     </div>
   </div>
 </template>
 
 <script>
-import { BFormSelect, BPagination } from 'bootstrap-vue';
+import { BFormSelect, BPagination, BFormSelectOption } from 'bootstrap-vue';
 
 const pageOptions = [
   { value: 25, text: '25/page' },
@@ -37,7 +56,7 @@ const defaultPage     = 1;
 
 export default {
   name      : 'ContactsList',
-  components: { BFormSelect, BPagination },
+  components: { BFormSelect, BPagination, BFormSelectOption },
   props     : {
     pageSize:
     {
@@ -71,6 +90,10 @@ export default {
         return value >= 0;
       },
     },
+    showRecordCount: {
+      type   : Boolean,
+      default: true,
+    },
   },
   data() {
     return {
@@ -89,6 +112,7 @@ export default {
     pageSize() {
       if (this.syncQueryString) this.saveQueryString();
     },
+
   },
   mounted,
   methods: { loadQueryString, saveQueryString },
@@ -120,3 +144,10 @@ function saveQueryString() {
   this.$router.push({ query: newQueryString });
 }
 </script>
+
+<style>
+.page-item.active .page-link{
+  padding: 0px;
+  border: none;
+}
+</style>

@@ -5,6 +5,7 @@
       :page-size.sync="pageSize"
       :record-count="totalRows"
       :sync-query-string="true"
+      :show-record-count="false"
       class=" float-right"
     />
     <CDropdown
