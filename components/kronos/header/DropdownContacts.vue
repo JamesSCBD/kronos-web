@@ -33,7 +33,7 @@
       :title="activeTask.taskAttributes.title || activeTask.taskAttributes.caption"
       :show.sync="showModal"
       :close-on-backdrop="false"
-      size="lg"
+      :size="activeTask.taskAttributes.size || 'lg'"
     >
       <component :is="activeTask.name" :selected-result="selectedContactResult" @close="showModal = false" />
       <template #footer-wrapper>

@@ -1,11 +1,25 @@
 <template>
   <div>
-    <pager
-      :page.sync="page"
-      :page-size.sync="pageSize"
-      :record-count="totalRows"
-      :sync-query-string="true"
-    />
+    <div>
+      <pager
+        :page.sync="page"
+        :page-size.sync="pageSize"
+        :record-count="totalRows"
+        :sync-query-string="true"
+        class=" float-right"
+      />
+      <CDropdown
+        :toggler-text="totalRecords"
+        class=" float-right mr-2"
+        color="outline-dark"
+        :disabled="!isQueryEmpty"
+      >
+        <CDropdownItem v-for="task in tasks" :key="task.name" @click="getSelectedContactsResult(task)">
+          <CIcon :name="task.taskAttributes.icon" class="pr-1" />
+          {{ task.taskAttributes.caption }}
+        </CDropdownItem>
+      </CDropdown>
+    </div>
     <BTable
       id="KContactsList"
       ref="conatactTable"
@@ -64,15 +78,30 @@
         <RegistrationStatusCol v-if="data.item.registrationStatuses" :key="column.key" :registration-status="data.item.registrationStatuses[index] || {}" />
       </template>
     </BTable>
+    <!-- Modal Component -->
+    <CModal
+      v-if="activeTask"
+      :title="activeTask.taskAttributes.title || activeTask.taskAttributes.caption"
+      :show.sync="showModal"
+      :close-on-backdrop="false"
+      :size="activeTask.taskAttributes.size || 'lg'"
+    >
+      <component :is="activeTask.name" :selected-result="selectedContactResult" @close="showModal = false" />
+      <template #footer-wrapper>
+        <div />
+      </template>
+    </CModal>
   </div>
 </template>
 
 <script>
 import _ from 'lodash';
 import { mapGetters, mapActions } from 'vuex';
+import { CModal, CDropdown, CDropdownItem } from '@coreui/vue';
 import { CountryCol, EmailCol, RegistrationStatusCol } from './columns';
 import mixin from './mixin';
 import pager from '~/components/controls/Pager';
+import BatchTasks, { taskHasContexts }  from '~/components/batch-tasks';
 
 const baseColumns = [
   { key: 'selected', label: '', sortable: false },
@@ -91,7 +120,7 @@ const baseColumns = [
 export default {
   name      : 'ContactsList',
   components: {
-    CountryCol, EmailCol, pager, RegistrationStatusCol,
+    CountryCol, EmailCol, pager, RegistrationStatusCol, CModal, ...BatchTasks, CDropdown, CDropdownItem,
   },
   mixins: [ mixin ],
   props : {
@@ -99,14 +128,16 @@ export default {
   },
   data() {
     return {
-      loading  : false,
-      columns  : [ ...baseColumns ],
-      totalRows: null,
-      page     : 1,
-      pageSize : 25,
-      contacts : [],
-      sortBy   : 'firstName',
-      sortDesc : false,
+      loading              : false,
+      columns              : [ ...baseColumns ],
+      totalRows            : null,
+      page                 : 1,
+      pageSize             : 25,
+      contacts             : [],
+      sortBy               : 'firstName',
+      sortDesc             : false,
+      activeTask           : null,
+      selectedContactResult: {},
     };
   },
   computed: {
@@ -129,6 +160,10 @@ export default {
     RegStatusColumns() {
       return this.columns.filter((column) => column.ColumnType === 'RegStatusColumn');
     },
+    tasks() { return _.filter(BatchTasks, (t) => taskHasContexts(t, 'contact', 'search')); },
+    showModal: { get() { return !!this.activeTask; }, set(v) { if (!v) this.activeTask = null; } },
+    isQueryEmpty() { return !_.isEmpty(this.baseQuery); },
+    totalRecords() { return this.totalRows ? `${this.totalRows} records` : 'No records'; },
   },
   mounted,
   methods: {
@@ -138,12 +173,22 @@ export default {
     onSelected,
     onSelectedAll,
     resetPager,
+    getSelectedContactsResult,
     ...mapActions({
       addToSelection     : 'contacts/addToSelection',
       removeFromSelection: 'contacts/removeFromSelection',
     }),
   },
 };
+
+async function getSelectedContactsResult(task) {
+  const query = this.baseQuery || {};
+  if (!_.isEmpty(query)) {
+    const result               = await this.$kronosApi.queryContacts({ ...query, limit: 5 });
+    this.selectedContactResult = result;
+    this.activeTask            = task;
+  }
+}
 
 function mounted() {
   this.$root.$on('record-deleted', () => {

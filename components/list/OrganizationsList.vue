@@ -5,7 +5,19 @@
       :page-size.sync="pageSize"
       :record-count="totalRows"
       :sync-query-string="true"
+      class=" float-right"
     />
+    <CDropdown
+      :toggler-text="totalRecords"
+      class=" float-right mr-2"
+      color="outline-dark"
+      :disabled="!isQueryEmpty"
+    >
+      <CDropdownItem v-for="task in tasks" :key="task.name" @click="getSelectedContactsResult(task)">
+        <CIcon :name="task.taskAttributes.icon" class="pr-1" />
+        {{ task.taskAttributes.caption }}
+      </CDropdownItem>
+    </CDropdown>
     <BTable
       id="KOrganizationList"
       ref="organizationTable"
@@ -58,14 +70,29 @@
         {{ value ? 'Yes': 'No' }}
       </template>
     </BTable>
+    <!-- Modal Component -->
+    <CModal
+      v-if="activeTask"
+      :title="activeTask.taskAttributes.title || activeTask.taskAttributes.caption"
+      :show.sync="showModal"
+      :close-on-backdrop="false"
+      :size="activeTask.taskAttributes.size || 'lg'"
+    >
+      <component :is="activeTask.name" :selected-result="selectedContactResult" @close="showModal = false" />
+      <template #footer-wrapper>
+        <div />
+      </template>
+    </CModal>
   </div>
 </template>
 
 <script>
 import _ from 'lodash';
 import { mapGetters, mapActions } from 'vuex';
+import { CModal, CDropdown, CDropdownItem } from '@coreui/vue';
 import mixin from './mixin';
 import pager from '~/components/controls/Pager';
+import BatchTasks, { taskHasContexts }  from '~/components/batch-tasks';
 
 const baseColumns = [
   { key: 'selected', label: '', sortable: false },
@@ -84,21 +111,25 @@ const baseColumns = [
 
 export default {
   name      : 'OrganizationsList',
-  components: { pager },
-  mixins    : [ mixin ],
-  props     : {
+  components: {
+    pager, CModal, ...BatchTasks, CDropdown, CDropdownItem,
+  },
+  mixins: [ mixin ],
+  props : {
     baseQuery: { type: Object, default: () => ({}) },
   },
   data() {
     return {
-      loading      : false,
-      columns      : [ ...baseColumns ],
-      totalRows    : null,
-      page         : 1,
-      pageSize     : 25,
-      organizations: [],
-      sortBy       : 'name',
-      sortDesc     : false,
+      loading              : false,
+      columns              : [ ...baseColumns ],
+      totalRows            : null,
+      page                 : 1,
+      pageSize             : 25,
+      organizations        : [],
+      sortBy               : 'name',
+      sortDesc             : false,
+      activeTask           : null,
+      selectedContactResult: {},
     };
   },
   computed: {
@@ -117,6 +148,10 @@ export default {
     ...mapGetters({
       isOrganizationSelected: 'organizations/isOrganizationSelected',
     }),
+    tasks() { return _.filter(BatchTasks, (t) => taskHasContexts(t, 'organization', 'search')); },
+    showModal: { get() { return !!this.activeTask; }, set(v) { if (!v) this.activeTask = null; } },
+    isQueryEmpty() { return !_.isEmpty(this.baseQuery); },
+    totalRecords() { return this.totalRows ? `${this.totalRows} records` : 'No records'; },
   },
   mounted,
   methods: {
@@ -125,12 +160,22 @@ export default {
     onSelected,
     onSelectedAll,
     resetPager,
+    getSelectedContactsResult,
     ...mapActions({
       addToSelection     : 'organizations/addToSelection',
       removeFromSelection: 'organizations/removeFromSelection',
     }),
   },
 };
+
+async function getSelectedContactsResult(task) {
+  const query = this.baseQuery || {};
+  if (!_.isEmpty(query)) {
+    const result               = await this.$kronosApi.queryOrganizations({ ...query, limit: 5 });
+    this.selectedContactResult = result;
+    this.activeTask            = task;
+  }
+}
 
 function mounted() {
   this.$root.$on('record-deleted', () => {

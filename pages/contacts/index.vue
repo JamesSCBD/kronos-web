@@ -135,7 +135,6 @@ import OrganizationTypeSelector from '~/components/controls/selectors/Organizati
 import RegistrationStatusSelector from '~/components/controls/selectors/RegistrationStatusSelector';
 import CountryScopeSelector from '~/components/controls/selectors/CountryScopeSelector';
 
-
 const Flags = [
   { Title: 'Funded', Code: 'funded' },
 ];

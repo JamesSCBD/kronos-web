@@ -144,7 +144,6 @@ function toURLSearchParams(params) {
   return new URLSearchParams(urlEncodedUrlParams);
 }
 
-
 export function enableCursor(result, query, queryHandler) {
   return { ...result, getCursor: (options = {}) => createCursor(result, query, queryHandler, options) };
 }
