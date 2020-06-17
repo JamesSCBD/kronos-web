@@ -130,7 +130,7 @@ export default {
   name          : 'ExportEmails',
   taskAttributes: {
     caption : 'Export emails',
-    icon    : 'fileExport',
+    icon    : 'envelope',
     contexts: [ 'contact', 'organization', 'selection', 'search' ],
   },
   components: {

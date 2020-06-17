@@ -64,9 +64,9 @@ import { EmailCol } from '~/components/list/columns';
 const isPlainObject = (x) =>  Object(x) === x && !Array.isArray(x);
 
 export default {
-  name          : 'ExportModal',
+  name          : 'ExportToExcel',
   taskAttributes: {
-    caption : 'Export',
+    caption : 'Export to Excel',
     title   : 'Export records to Excel',
     icon    : 'table',
     contexts: [ 'contact', 'organization', 'selection', 'search' ],

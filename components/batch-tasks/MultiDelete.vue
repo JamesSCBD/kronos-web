@@ -136,9 +136,10 @@ import { BTable, BPagination, BFormInput } from 'bootstrap-vue';
 import mixin from '~/components/batch-tasks/mixin';
 
 export default {
-  name          : 'MultiDeleteModal',
+  name          : 'MultiDelete',
   taskAttributes: {
     caption : 'Delete',
+    title   : 'Batch delete records',
     icon    : 'trashAlt',
     contexts: [ 'contact', 'organization', 'selection' ],
   },

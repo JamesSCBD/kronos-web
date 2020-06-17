@@ -1,11 +1,11 @@
-import ExportEmails from '~/components/ExportEmails';
-import MultiDeleteModal from '~/components/MultiDeleteModal';
-import ExportModal from '~/components/ExportModal';
+import ExportEmails from './ExportEmails';
+import MultiDelete from './MultiDelete';
+import ExportToExcel from './ExportToExcel';
 
 export default {
   ExportEmails,
-  MultiDeleteModal,
-  ExportModal,
+  ExportToExcel,
+  MultiDelete,
 };
 
 export function taskHasContexts(task, ...requiredContexts) {
