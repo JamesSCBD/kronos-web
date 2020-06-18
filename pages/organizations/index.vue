@@ -4,14 +4,6 @@
       <div class="card-header">
         <strong>Filter</strong>
         <div class="card-header-actions">
-          <button
-            class="card-header-action btn"
-            title="Use current search as organisation selection"
-            :disabled="!canSaveQuery"
-            @click="setSelectedQuery(query)"
-          >
-            <i class="cil-task " />
-          </button>
           <CLink
             class="card-header-action btn-minimize"
             @click="filterFormCollapsed=!filterFormCollapsed"
@@ -106,7 +98,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex';
+import { mapGetters } from 'vuex';
 import { readOnly } from '@roles';
 import { BFormInput, BFormCheckbox } from 'bootstrap-vue';
 import Multiselect from 'vue-multiselect';
@@ -161,9 +153,6 @@ export default {
   },
   methods: {
     queryString,
-    ...mapActions({
-      setSelectedQuery: 'organizations/setSelectedQuery',
-    }),
   },
   auth: readOnly,
 };

@@ -1,12 +1,10 @@
 import _ from 'lodash';
-import KronosApi, { enableCursor } from '~/api/kronos';
+import { enableCursor } from '~/api/kronos';
 
 const $state = () => ({
   organizationCache    : [],
   organizationTypes    : [],
   selectedOrganizations: [],
-  selectedQuery        : null,
-  selectedCount        : 0,
 });
 
 /* eslint-disable no-param-reassign */
@@ -15,7 +13,6 @@ const UPDATE_CACHE          = 'UPDATE_CACHE';
 const ADD_TO_SELECTION      = 'ADD_TO_SELECTION';
 const REMOVE_FROM_SELECTION = 'REMOVE_FROM_SELECTION';
 const CLEAR                 = 'CLEAR';
-const SAVE_SELECTED_QUERY   = 'SAVE_SELECTED_QUERY';
 const CLEAR_SELECTION       = 'CLEAR_SELECTION';
 
 const $mutations = {
@@ -31,9 +28,7 @@ const $mutations = {
   [ADD_TO_SELECTION](state, organization) {
     if (!organization) throw new Error('Organization is null / empty');
 
-    state.selectedQuery         = null;
     state.selectedOrganizations = _.unionBy([ organization ], state.selectedOrganizations, (o) => o.organizationId);
-    state.selectedCount         = state.selectedOrganizations.length;
   },
 
   [REMOVE_FROM_SELECTION](state, organization) {
@@ -43,31 +38,17 @@ const $mutations = {
 
     if (!organizationId) throw new Error('organizationId is null / empty');
 
-    state.selectedQuery         = null;
     state.selectedOrganizations = state.selectedOrganizations.filter((c) => c.organizationId !== organizationId);
-    state.selectedCount         = state.selectedOrganizations.length;
   },
 
   [CLEAR](state) {
     state.organizationCache     = [];
     state.organizationTypes     = [];
     state.selectedOrganizations = [];
-    state.selectedQuery         = null;
-    state.selectedCount         = 0;
-  },
-
-  [SAVE_SELECTED_QUERY](state, { query, count }) {
-    if (!query) throw new Error('query is null / empty');
-
-    state.selectedOrganizations = [];
-    state.selectedQuery         = query;
-    state.selectedCount         = count || 0;
   },
 
   [CLEAR_SELECTION](state) {
     state.selectedOrganizations = [];
-    state.selectedQuery         = null;
-    state.selectedCount         = 0;
   },
 };
 /* eslint-enable no-param-reassign */
@@ -92,35 +73,24 @@ const $getters = {
     return selectedOrganizations.some((c) => c.organizationId === organizationId);
   },
 
-  selectedQuery(state) {
-    return state.selectedQuery || null;
-  },
-
   selectedCount(state) {
-    return state.selectedCount;
+    return state.selectedOrganizations.length;
   },
 
   selectedOrganizations(state) {
     return state.selectedOrganizations;
   },
 
-  selectedOrganizationsResult(state, getters, rootState) {
+  selectedOrganizationsResult(state) {
     const records       = state.selectedOrganizations || [];
     const virtualResult = {
       records,
       recordCount     : records.length,
-      totalRecordCount: state.selectedCount,
+      totalRecordCount: records.length,
     };
-
-    if (state.selectedQuery) {
-      const kronosApi = new KronosApi(() => rootState.auth.token);
-
-      return enableCursor(virtualResult, { ...state.selectedQuery, skip: 0, limit: 50 }, (q) => kronosApi.queryOrganizations(q));
-    }
 
     return enableCursor(virtualResult);
   },
-
 };
 
 const $actions = {
@@ -162,13 +132,6 @@ const $actions = {
   //= ============================================
   removeFromSelection({ commit }, organization) {
     commit(REMOVE_FROM_SELECTION, organization);
-  },
-
-  async setSelectedQuery({ commit }, organizationQuery) {
-    const query    = { ...organizationQuery };
-    const response = await this.$kronosApi.queryOrganizations({ ...query, skip: 1, limit: 1 });
-    const count    = response.totalRecordCount;
-    commit(SAVE_SELECTED_QUERY, { query, count });
   },
 
   clearSelection({ commit }) {

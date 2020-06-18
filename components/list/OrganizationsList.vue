@@ -47,7 +47,7 @@
       </template>
       <template v-slot:head(selected)>
         <BFormCheckbox
-          v-model="isAllSelected"
+          :checked="isAllSelected"
           :indeterminate="isPartialySelected"
           @change="onSelectedAll"
         />

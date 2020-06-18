@@ -50,7 +50,7 @@
       </template>
       <template v-slot:head(selected)>
         <BFormCheckbox
-          v-model="isAllSelected"
+          :checked="isAllSelected"
           :indeterminate="isPartialySelected"
           @change="onSelectedAll"
         />
@@ -149,6 +149,7 @@ export default {
     isAllSelected() {
       return this.contacts.every((c) => this.isContactSelected(c.contactId)) && this.contacts.length > 0;
     },
+    // isAllSelected: { get: getIsAllSelected, set: setIsAllSelected },
     isPartialySelected() {
       return (this.contacts.some((c) => this.isContactSelected(c.contactId)) && !this.isAllSelected);
     },
