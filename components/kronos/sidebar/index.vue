@@ -5,11 +5,22 @@
     :show="show"
     @update:show="toggleSideBarVisible()"
   >
-    <CSidebarBrand
-      :img-full="{ width: 180, height: 46, alt: 'Logo', src: '/k-logo-full.svg'}"
-      :img-minimized="{ width: 50, height: 55, alt: 'Logo', src: '/k-logo-mobi.svg'}"
-      :wrapped-in-link="{ href: 'https://github.com/scbd/kronos-web', target: '_blank'}"
-    />
+    <CSidebarBrand class="">
+      <img
+        class="c-sidebar-brand-full"
+        src="/k-logo-full.svg"
+        width="180"
+        height="46"
+        alt="Logo"
+      >
+      <img
+        class="c-sidebar-brand-minimized"
+        src="/k-logo-mobi.svg"
+        width="50"
+        height="55"
+        alt="Logo"
+      >
+    </CSidebarBrand>
     <Nav />
     <CSidebarMinimizer
       class="d-md-down-none"

@@ -1,0 +1,21 @@
+@media (min-width: 992px) {
+  .c-sidebar.c-sidebar-unfoldable:not(:hover) {
+    flex: 0 0 56px;
+    width: 56px;
+  }
+  .c-sidebar.c-sidebar-unfoldable:not(:hover) > .c-sidebar-brand > .c-sidebar-brand-full {
+    display: none;
+  }
+  .c-sidebar.c-sidebar-unfoldable:not(:hover) > .c-sidebar-brand > .c-sidebar-brand-minimized {
+    display: inline;
+  }
+  .c-sidebar.c-sidebar-unfoldable .c-sidebar-minimizer::before {
+    transform: rotate(-180deg);
+  }  
+  .c-sidebar.c-sidebar-unfoldable ~ .c-wrapper {
+    margin-left: 56px !important;
+  }
+  .c-sidebar.c-sidebar-unfoldable:not(.c-sidebar-lg-show) ~ .c-wrapper {
+    margin-left: 0px !important;
+  }
+}

@@ -70,7 +70,7 @@ export default {
     title   : 'Export records to Excel',
     icon    : 'table',
     contexts: [ 'contact', 'organization', 'selection', 'search' ],
-    size    : 'lg',
+    size    : 'xl',
   },
   components: {
     BTable, EmailCol, CModal, CProgress,

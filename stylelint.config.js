@@ -10,6 +10,6 @@ module.exports = {
     'declaration-colon-space-after': 'always',
     indentation                    : [ 2, { baseIndentLevel: 0 }],
     'max-empty-lines'              : 2,
-    'unit-whitelist'               : [ 'px', 'em', 'rem', '%', 's', 'vh', 'vw' ],
+    'unit-whitelist'               : [ 'px', 'em', 'rem', '%', 's', 'vh', 'vw', 'deg' ],
   },
 };
