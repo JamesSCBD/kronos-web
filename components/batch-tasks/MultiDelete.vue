@@ -2,7 +2,7 @@
   <div>
     <div v-if="step==='preview'">
       Preview of the records to be deleted
-      <div class="paginationRow w-auto float-right popup-pagi">
+      <div class="w-auto float-right popup-pagi">
         <BPagination
           v-if="recordCount > perPage"
           v-model="page"

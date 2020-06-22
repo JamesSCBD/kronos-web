@@ -146,7 +146,7 @@ function saveQueryString() {
 </script>
 
 <style>
-.page-item.active .page-link{
+.paginationRow .page-item.active .page-link{
   padding: 0px;
   border: none;
 }

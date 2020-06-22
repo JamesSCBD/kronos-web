@@ -85,9 +85,17 @@
       :title="activeTask.taskAttributes.title || activeTask.taskAttributes.caption"
       :show.sync="showModal"
       :close-on-backdrop="false"
-      :size="activeTask.taskAttributes.size || 'lg'"
+      :size="activeTask.taskAttributes.size || ''"
     >
       <component :is="activeTask.name" :selected-result="selectedContactResult" @close="showModal = false" />
+      <template #header-wrapper>
+        <div class="modal-header">
+          <h5 class="modal-title">
+            {{ activeTask.taskAttributes.title || activeTask.taskAttributes.caption }}
+          </h5>
+          <CButtonClose v-if="!activeTask.taskAttributes.hideHeaderClose" @click="showModal = false" />
+        </div>
+      </template>
       <template #footer-wrapper>
         <div />
       </template>
@@ -98,7 +106,9 @@
 <script>
 import _ from 'lodash';
 import { mapGetters, mapActions } from 'vuex';
-import { CModal, CDropdown, CDropdownItem } from '@coreui/vue';
+import {
+  CModal, CDropdown, CDropdownItem, CButtonClose,
+} from '@coreui/vue';
 import { CountryCol, EmailCol, RegistrationStatusCol } from './columns';
 import mixin from './mixin';
 import pager from '~/components/controls/Pager';
@@ -121,7 +131,7 @@ const baseColumns = [
 export default {
   name      : 'ContactsList',
   components: {
-    CountryCol, EmailCol, pager, RegistrationStatusCol, CModal, ...BatchTasks, CDropdown, CDropdownItem,
+    CountryCol, EmailCol, pager, RegistrationStatusCol, CModal, ...BatchTasks, CDropdown, CDropdownItem, CButtonClose,
   },
   mixins: [ mixin ],
   props : {
@@ -149,7 +159,6 @@ export default {
     isAllSelected() {
       return this.contacts.every((c) => this.isContactSelected(c.contactId)) && this.contacts.length > 0;
     },
-    // isAllSelected: { get: getIsAllSelected, set: setIsAllSelected },
     isPartialySelected() {
       return (this.contacts.some((c) => this.isContactSelected(c.contactId)) && !this.isAllSelected);
     },

@@ -7,7 +7,7 @@ const imports = [
       'faPaperPlane', 'faPassport', 'faCircleNotch', 'faTachometerAlt', 'faEdit', 'faTrashAlt', 'faFilter', 'faSort',
       'faUser', 'faUsers', 'faUserFriends', 'faEllipsisH', 'faEllipsisV', 'faHome', 'faLock', 'faSignOutAlt', 'faPlus',
       'faPhoneAlt', 'faAddressBook', 'faTh', 'faFax', 'faEnvelope', 'faLongArrowAltLeft', 'faLongArrowAltRight', 'faInfoCircle',
-      'faTimes', 'faUserCircle', 'faFileExport', 'faTable',
+      'faTimes', 'faUserCircle', 'faFileExport', 'faTable', 'faCheckSquare',
     ],
   },
   {

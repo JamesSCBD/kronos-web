@@ -132,6 +132,7 @@ export default {
     caption : 'Export emails',
     icon    : 'envelope',
     contexts: [ 'contact', 'organization', 'selection', 'search' ],
+    size    : 'lg',
   },
   components: {
     BFormGroup, BFormRadioGroup, BFormSelect, BFormTextarea, BTooltip,

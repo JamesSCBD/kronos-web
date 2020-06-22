@@ -77,9 +77,17 @@
       :title="activeTask.taskAttributes.title || activeTask.taskAttributes.caption"
       :show.sync="showModal"
       :close-on-backdrop="false"
-      :size="activeTask.taskAttributes.size || 'lg'"
+      :size="activeTask.taskAttributes.size || ''"
     >
       <component :is="activeTask.name" :selected-result="selectedContactResult" @close="showModal = false" />
+      <template #header-wrapper>
+        <div class="modal-header">
+          <h5 class="modal-title">
+            {{ activeTask.taskAttributes.title || activeTask.taskAttributes.caption }}
+          </h5>
+          <CButtonClose v-if="!activeTask.taskAttributes.hideHeaderClose" @click="showModal = false" />
+        </div>
+      </template>
       <template #footer-wrapper>
         <div />
       </template>
@@ -90,7 +98,9 @@
 <script>
 import _ from 'lodash';
 import { mapGetters, mapActions } from 'vuex';
-import { CModal, CDropdown, CDropdownItem } from '@coreui/vue';
+import {
+  CModal, CDropdown, CDropdownItem, CButtonClose,
+} from '@coreui/vue';
 import mixin from './mixin';
 import pager from '~/components/controls/Pager';
 import BatchTasks, { taskHasContexts }  from '~/components/batch-tasks';
@@ -113,7 +123,7 @@ const baseColumns = [
 export default {
   name      : 'OrganizationsList',
   components: {
-    pager, CModal, ...BatchTasks, CDropdown, CDropdownItem,
+    pager, CModal, ...BatchTasks, CDropdown, CDropdownItem, CButtonClose,
   },
   mixins: [ mixin ],
   props : {
