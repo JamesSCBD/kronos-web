@@ -179,6 +179,8 @@ export default {
     ...mapActions({
       clearContactsSelection     : 'contacts/clearSelection',
       clearOrganizationsSelection: 'organizations/clearSelection',
+      deleteContact              : 'contacts/deleteContact',
+      deleteOrganization         : 'organizations/deleteOrganization',
     }),
   },
 };
@@ -289,9 +291,9 @@ async function deleteRecords() {
 
 async function deleteRecord(record) {
   if (record.contactId) {
-    await this.$kronosApi.deleteContact(record.contactId); // TODO: Delete using store
+    await this.deleteContact(record.contactId);
   } else {
-    await this.$kronosApi.deleteOrganization(record.organizationId);  // TODO: Delete using store
+    await this.deleteOrganization(record.organizationId);
   }
 }
 </script>

@@ -89,6 +89,11 @@ const $actions = {
   clearSelection({ commit }) {
     commit(CLEAR_SELECTION);
   },
+
+  async deleteContact({ commit }, contactId) {
+    await this.$kronosApi.deleteContact(contactId);
+    commit(REMOVE_FROM_SELECTION, contactId);
+  },
 };
 
 export {

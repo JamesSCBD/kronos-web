@@ -137,6 +137,11 @@ const $actions = {
   clearSelection({ commit }) {
     commit(CLEAR_SELECTION);
   },
+
+  async deleteOrganization({ commit }, organizationId) {
+    await this.$kronosApi.deleteOrganization(organizationId);
+    commit(REMOVE_FROM_SELECTION, organizationId);
+  },
 };
 
 export {
