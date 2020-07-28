@@ -10,6 +10,7 @@
       :searchable="true"
       :clear-on-select="false"
       :close-on-select="!multiple"
+      :disabled="disabled"
     >
       <template slot="selection" slot-scope="{ values }">
         <span
@@ -44,6 +45,10 @@ export default {
       default() {
         return [];
       },
+    },
+    disabled: {
+      type   : Boolean,
+      default: false,
     },
   },
   computed: {

@@ -39,6 +39,7 @@
       :sort-by.sync="sortBy"
       :sort-desc.sync="sortDesc"
       no-sort-reset
+      @row-dblclicked="rowDoubleClicked"
     >
       <!-- https://bootstrap-vue.js.org/docs/components/table#scoped-field-slots -->
 
@@ -185,12 +186,18 @@ export default {
     onSelectedAll,
     resetPager,
     getSelectedContactsResult,
+    rowDoubleClicked,
     ...mapActions({
       addToSelection     : 'contacts/addToSelection',
       removeFromSelection: 'contacts/removeFromSelection',
     }),
   },
 };
+
+async function rowDoubleClicked(item) {
+  console.log(item);
+  this.$router.push(`contacts/${item.contactId}`);
+}
 
 async function getSelectedContactsResult(task) {
   const query = this.baseQuery || {};
