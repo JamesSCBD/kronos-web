@@ -121,6 +121,12 @@ export default class {
     const data = await this.http.get('api/v2018/events', { searchParams }).json();
     return data;
   }
+
+  async getInstitution() {
+    const data = await this.http.get('api/v2018/institutions/current').json();
+
+    return data;
+  }
 }
 
 // ====================
@@ -156,7 +162,7 @@ function createCursor(result, query, queryHandler, options) {
   let   limit                = Math.max(result.limit || (query || {}).limit || 0, 50);
   let   skip                 = result.skip || (query || {}).skip  || 0;
 
-  let records = [ ...result.records ];
+  let records = [ ...result.records || [] ];
 
   // Apply user options;
   if (options.skip >= 0) {

@@ -299,15 +299,15 @@ function setSelectedEvents(values) {
 // ===================
 function buildQuery() {
   const query = cleanUp({
-    freeText         : this.freeText,
-    countries        : this.selectedCountries,
-    organizationIds  : this.selectedOrganizations,
-    eventIds         : this.selectedEvents,
-    organizationTypes: this.selectedOrganizationTypes,
+    freeText           : this.freeText,
+    countries          : this.selectedCountries,
+    organizationIds    : this.selectedOrganizations,
+    eventIds           : this.selectedEvents,
+    organizationTypeIds: this.selectedOrganizationTypes,
   });
 
-  if (query.freeText) query.isBroadSearch = this.isBroadSearch || undefined;
-  if (query.eventIds) query.registrationStatus = this.selectedAttendances.reduce((r, v) => r + v, 0) || undefined;
+  if (query.freeText)  query.isBroadSearch = this.isBroadSearch || undefined;
+  if (query.eventIds)  query.registrationStatus = this.selectedAttendances.reduce((r, v) => r + v, 0) || undefined;
   if (query.countries) query.countryScope = (this.selectedCountryScope || undefined);
 
   if (this.selectedFlags.some((o) => o.Code === 'funded')) query.isFunded = true;

@@ -1,18 +1,18 @@
 import { DateTime } from 'luxon';
 
 function datetime(value) {
-  return toDateFormat(value, 'yyyy-MM-dd hh:mm');
+  return formatDate(value, 'yyyy-MM-dd hh:mm');
 }
 
 function date(value) {
-  return toDateFormat(value, 'yyyy-MM-dd');
+  return formatDate(value, 'yyyy-MM-dd');
 }
 
 function time(value) {
-  return toDateFormat(value, 'hh:mm');
+  return formatDate(value, 'hh:mm');
 }
 
-function toDateFormat(value, format) {
+function formatDate(value, format) {
   let dateValue = null;
   if (value) {
     if (DateTime.isDateTime(value)) dateValue = value;
@@ -23,4 +23,6 @@ function toDateFormat(value, format) {
   return dateValue ? dateValue.toFormat(format) : '';
 }
 
-export { datetime, date, time };
+export {
+  datetime, date, time, formatDate,
+};

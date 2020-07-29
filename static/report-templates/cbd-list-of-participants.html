@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- Tell the browser to be responsive to screen width -->
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	<title> List of Paticipant </title>
+	<style>
+
+		body {
+			font-family: sans-serif;
+			font-size: 11pt;
+			counter-reset: participant-count;
+		}
+
+		.pull-left {
+			float: left;
+		}
+
+		.pull-right {
+			float: right;
+		}
+
+		.no-overflow {
+			clear: both;
+		}
+
+		.uppercase {
+			text-transform: uppercase;
+		}
+
+		.boxed {
+			background: #ececec;
+			border: 1pt solid #000000;
+		}
+
+		.shadow {
+			box-shadow: 2pt 2pt 0pt #000000;
+		}
+
+		/* Cover Page */
+
+		coverpage {
+			break-after: page;
+		}
+
+		coverpage>header {
+			display: block;
+			border-bottom: 2pt solid #000000;
+			margin-bottom: 4pt;
+		}
+
+		coverpage>header>img {
+			max-height: 40pt;
+			padding: 0pt 5pt;
+		}
+
+		coverpage>header>.institution {
+			font-weight: bold;
+			font-size: 25pt;
+			padding-bottom: 4pt;
+			margin-bottom: 4pt;
+		}
+
+		coverpage>content>header {
+			border-bottom: 4pt solid #000000;
+			margin-bottom: 18pt;
+		}
+
+		coverpage>content>meeting-details {
+			display: block;
+			margin-bottom: 40pt;
+		}
+
+		coverpage>content>meeting-details>p {
+			margin-top: 4pt;
+			margin-bottom: 4pt;
+		}
+
+		coverpage>content>meeting-details>.title {
+			text-transform: uppercase;
+			margin-bottom: 8pt;
+			display: inline-block;
+			max-width: 50%;
+		}
+
+		coverpage>content>report-title {
+			display: block;
+			text-align: center;
+		}
+
+		coverpage>content>report-title>.boxed {
+			display: inline-block;
+			width: auto;
+			padding: 30pt 50pt;
+		}
+
+		coverpage>footer {
+			text-align: center;
+			font-size: 20pt;
+			margin-top: 200px;
+		}
+
+		/** SECTION PAGES **/
+
+		section>header>.topbar {
+			display: block;
+			font-size: 9pt;
+			font-style: italic;
+			padding: 5pt 0;
+			border-bottom: 1pt solid #000000;
+			margin-bottom: 4pt;
+			display: block;
+		}
+
+		section>header>h3 {
+			text-align: center;
+			font-size: 17pt;
+			font-weight: bold;
+			padding: 4pt;
+			margin-top: 0pt;
+			margin-bottom: 8pt;
+		}
+
+		section>content {
+			padding: 8pt 0;
+			font-size: 12px;
+			line-height: normal;
+			column-count: 2;
+			display: block;
+		}
+
+		/** organization css**/
+
+		section>content>organization {
+			clear: both;
+			display: block;
+		}
+
+		section>content>organization>.name {
+			font-weight: bold;
+			display: block;
+			margin-bottom: 11pt;
+			text-decoration: underline;
+			margin-top: 0;
+			font-size: 13px;
+		}
+
+		/** participant css**/
+		
+		section>content>organization>participant {
+			display: block;
+		}
+
+		section>content>organization>participant {
+			margin-bottom: 16px;
+			position: relative;
+			padding-left: 37px;
+			box-sizing: border-box;
+			page-break-inside: avoid;
+			counter-increment: participant-count;
+		}
+
+		section>content>organization>participant .index {
+			position: absolute;
+			left: 0px;
+			width: 36px;
+			text-align: right;
+			font-weight: bold;
+			padding-right: 4px;
+			top: 0;
+		}
+
+		section>content>organization>participant .index:before {
+			content: counter(participant-count) ". ";
+		}
+
+		section>content>organization>participant>participant-details>.name {
+			color: #000000;
+			margin-bottom: 4pt;
+			font-size: inherit;
+			font-weight: bold;
+			margin-top: 0pt;
+		}
+
+		section>content>organization>participant>participant-details>dl {
+			width: 100%;
+			overflow: hidden;
+			padding: 0;
+			margin: 6px 0 0 0;
+		}
+
+		section>content>organization>participant>participant-details>dl>dt {
+			clear: both;
+			float: left;
+			width: 52px;
+			padding-left: 4px;
+			padding-right: 4px;
+			font-weight: normal;
+			text-align: right;
+		}
+
+		section>content>organization>participant>participant-details>dl>dd {
+			float: left;
+			padding: 0;
+			margin: 0;
+			width: 70%;
+		}
+
+		/** footer left date**/
+
+		section>footer {
+			font-size:9pt;
+			flow: static(footer)
+		}
+
+		@media screen {
+			section>content>organization>participant:nth-child(even) {
+				clear: both;
+			}
+		}
+
+		@media print {
+
+			coverpage,
+			section {
+				page-break-before: always;
+				page-break-after: always;
+				break-after: page;
+			}
+
+			section>header {
+				display: block;
+				position: running(header);
+			}
+
+			section>header {
+				top: 0;
+				width: 100%;
+			}
+
+			section>footer {
+				bottom: 0;
+				width: 100%;
+			}
+
+			section>content {
+				columns: 2;
+				column-count: 2;
+			}
+
+			section>content>organization>participant {
+				page-break-inside: avoid;
+			}
+		}
+
+		@page {
+			margin: 70pt 15pt 38pt 15pt;
+			border-bottom: thin solid black;
+			font-family: sans-serif;
+			font-size:9pt;
+
+			@top {
+				content: element(header);
+			}
+
+			@bottom-left {
+				content: flow(footer);
+				margin-bottom: 15pt;
+			}
+
+			@bottom-right {
+				content: counter(page)" / "counter(pages);
+				margin-bottom: 15pt;
+			}
+		}
+
+		@page :first {
+			margin: 15pt;
+			padding-top: 0em;
+			border-bottom: none;
+			padding-top: none;
+
+			@top {
+				content: none
+			}
+
+			@bottom-left {
+				content: none;
+			}
+
+			@bottom-right {
+				content: none;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<coverpage>
+		{{#with event}}
+		<header>
+			<div class="institution pull-right">CBD</div>
+			<img src="smlLogo2.png" />
+			<img src="smlLogo1.png" />
+			<div class="no-overflow"></div>
+		</header>
+		<content>
+			<header>
+				<div class="report-info pull-right" style="padding-right: 50pt;">
+					<p>
+						Distr.<br>
+						<span class="uppercase">GENERAL</span>
+					</p>
+					<p>
+						<span class="uppercase">{{code}}</span><br>
+						{{longDate startDate}}
+					</p>
+					<p class="uppercase">
+						ENGLISH ONLY
+					</p>
+				</div>
+				<img src="mailLogo.png" style="max-height: 108pt;">
+				<div class="no-overflow"></div>
+			</header>
+
+			<meeting-details>
+				<p class="title">{{title}}</p>
+				<p class="iteration">TODO MEETING ITERATION: EG Second</p>
+				<p>{{venueCity}}, {{longDateRange startDate endDate}}</p>
+			</meeting-details>
+
+			<report-title>
+				<div class="boxed shadow">
+					<h1>List of Participants</h1>
+					<h1>Liste des Participants</h1>
+					<h1>Lista de Participantes</h1>
+				</div>
+
+				<h2>Participants</h2>
+			</report-title>
+		</content>
+
+		<footer>{{longDate endDate}}</footer>
+
+		{{/with}}
+	</coverpage>
+
+	{{#each sections}}
+	<section>
+		<!-- Section  -->
+		<header>
+			<div class="topbar">
+				<span class="pull-right">
+					<span class="uppercase">{{@root.event.code}}</span>
+					List of Participants
+				</span>
+				<span>{{@root.institution.name}}</span>
+			</div>
+			<h3 class="boxed">{{title}}</h3>
+		</header>
+		<footer>
+			{{@root.generatedOn}}
+		</footer>
+		<content>
+			{{#each organizations}}
+			<organization>
+				<h4 class="name">{{name}}</h4>
+				{{#each participants}}
+				<participant>
+					<div class="index"></div>
+					<participant-details>
+						<h5 class="name">{{title}} {{firstName}} {{lastName}}</h5>
+						<div class="designation">{{designation}}</div>
+						<div class="department">{{department}}</div>
+						<div class="organization">{{organization.name}}</div>
+						<div class="address">{{address}}</div>
+						<span class="city">{{city}}</span>
+						<span class="state">{{state}}</span>
+						<span class="postalCode">{{postalCode}}</span>
+						<div class="country">{{countryName}}</div>
+						<dl>
+							{{#if phones}}
+							<dt class="tel">Tel:</dt>
+							<dd class="tel">
+								{{#each phones}}
+								<a href="tel:{{this}}">{{this}}</a>
+								{{/each}}
+							</dd>
+							{{/if}}
+							{{#if faxes}}
+							<dt class="fax">Fax:</dt>
+							<dd class="fax">
+								{{#each faxes}}
+								<a href="fax:{{this}}">{{this}}</a>
+								{{/each}}
+							</dd>
+							{{/if}}
+							{{#if emails}}
+							<dt class="email">Email:</dt>
+							<dd class="email">
+								{{#each emails}}
+								<a href="mailto:{{this}}">{{this}}</a>
+								{{/each}}
+								{{#each emailCcs}}
+								, <a href="mailto:{{this}}">{{this}}</a>
+								{{/each}}
+							</dd>
+							{{/if}}
+						</dl>
+					</participant-details>
+				</participant>
+				{{/each}}
+			</organization>
+			{{/each}}
+		</content>
+	</section>
+	{{/each}}
+</body>
+
+</html>

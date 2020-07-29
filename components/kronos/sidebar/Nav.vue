@@ -6,12 +6,15 @@
     <CSidebarNavItem name="Contacts" icon="addressBook" :to="`/contacts`" />
     <CSidebarNavItem name="Organizations" icon="building" :to="`/organizations`" />
     <CSidebarNavItem name="Conferences" icon="users" :to="`/conferences`" />
+    <CSidebarNavItem name="Reports" icon="file" :to="`/reports`" />
   </CSidebarNav>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
-import { CSidebarNav, CSidebarNavTitle, CSidebarNavItem } from '@coreui/vue';
+import {
+  CSidebarNav, CSidebarNavTitle, CSidebarNavItem,
+} from '@coreui/vue';
 import { BFormSelect } from 'bootstrap-vue';
 
 export default {
