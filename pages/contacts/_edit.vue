@@ -163,24 +163,54 @@
               <strong>Phone Numbers and Emails</strong>
             </div>
             <div class="card-body">
+              <p>
+                Please use the following format: + (country code) (city code) (telephone number)
+                (extension, if necessary); Example: +1 514 288-2220 ext 221
+                (where 1 = North America, 514 = Montreal, 288-2220 = CBD Secretariat number,
+                ext 221 = direct extension to the switchboard).
+              </p>
               <div class="row">
                 <div class="col-sm-6">
                   <div class="form-group">
                     <BFormGroup label="Phone Numbers">
-                      <BFormInput
-                        id="phoneNumbers"
-                        v-model="phones"
-                      />
+                      <div v-for="(field, index) in phoneFields" :key="index" class="input-group mb-3">
+                        <BFormInput
+                          v-model="field.phone"
+                          trim
+                          :state="isPhoneNumberValid(field.phone)"
+                          @input="addPhoneField(field)"
+                        />
+                        <div v-if="field.showRemoveButton" class="input-group-append">
+                          <span class="input-group-text">
+                            <a @click="removePhoneField(field)"><CIcon name="trashAlt" /></a>
+                          </span>
+                        </div>
+                        <BFormInvalidFeedback id="input-live-feedback">
+                          Phone number is invalid.
+                        </BFormInvalidFeedback>
+                      </div>
                     </BFormGroup>
                   </div>
                 </div>
                 <div class="col-sm-6">
                   <div class="form-group">
                     <BFormGroup label="Fax Numbers">
-                      <BFormInput
-                        id="faxNumbers"
-                        v-model="faxes"
-                      />
+                      <div v-for="(field, index) in faxFields" :key="index" class="input-group mb-3">
+                        <BFormInput
+                          v-model="field.fax"
+                          trim
+                          :state="isPhoneNumberValid(field.fax)"
+                          @input="addFaxField(field)"
+                        />
+                        <div v-if="field.showRemoveButton" class="input-group-append">
+                          <span class="input-group-text">
+                            <a @click="removeFaxField(field)"><CIcon name="trashAlt" /></a>
+                          </span>
+                        </div>
+                        <BFormInvalidFeedback id="input-live-feedback">
+                          Fax number is invalid.
+                        </BFormInvalidFeedback>
+                      </div>
                     </BFormGroup>
                   </div>
                 </div>
@@ -189,10 +219,18 @@
                 <div class="col-sm-6">
                   <div class="form-group">
                     <BFormGroup label="Mobiler Numbers">
-                      <BFormInput
-                        id="mobileNumbers"
-                        v-model="mobiles"
-                      />
+                      <div v-for="(field, index) in mobileFields" :key="index" class="input-group mb-3">
+                        <BFormInput
+                          v-model="field.mobile"
+                          trim
+                          @input="addMobileField(field)"
+                        />
+                        <div v-if="field.showRemoveButton" class="input-group-append">
+                          <span class="input-group-text">
+                            <a @click="removeMobileField(field)"><CIcon name="trashAlt" /></a>
+                          </span>
+                        </div>
+                      </div>
                     </BFormGroup>
                   </div>
                 </div>
@@ -201,20 +239,18 @@
                 <div class="col-sm-6">
                   <div class="form-group">
                     <BFormGroup label="Primary Email Address">
-                      <div class="input-group mb-3">
+                      <div v-for="(field, index) in emailFields" :key="index" class="input-group mb-3">
                         <BFormInput
-                          id="email"
-                          v-model="emails"
-                          :state="emailValid"
+                          v-model="field.email"
+                          trim
+                          :state="isEmailAddressValid(field.email)"
+                          @input="addEmailField(field)"
                         />
-                        <div class="input-group-append">
+                        <div v-if="field.showRemoveButton" class="input-group-append">
                           <span class="input-group-text">
-                            <CIcon name="trashAlt" />
+                            <a @click="removeEmailField(field)"><CIcon name="trashAlt" /></a>
                           </span>
                         </div>
-                        <BFormInvalidFeedback id="input-live-feedback">
-                          Email address is not valid.
-                        </BFormInvalidFeedback>
                       </div>
                     </BFormGroup>
                   </div>
@@ -222,15 +258,16 @@
                 <div class="col-sm-6">
                   <div class="form-group">
                     <BFormGroup label="Email Address to CC">
-                      <div class="input-group mb-3">
+                      <div v-for="(field, index) in emailCcFields" :key="index" class="input-group mb-3">
                         <BFormInput
-                          id="emailCCs"
-                          v-model="emailCcs"
-                          :state="emailCcValid"
+                          v-model="field.emailCc"
+                          trim
+                          :state="isEmailAddressValid(field.emailCc)"
+                          @input="addEmailCcField(field)"
                         />
-                        <div class="input-group-append">
+                        <div v-if="field.showRemoveButton" class="input-group-append">
                           <span class="input-group-text">
-                            <CIcon name="trashAlt" />
+                            <a @click="removeEmailCcField(field)"><CIcon name="trashAlt" /></a>
                           </span>
                         </div>
                         <BFormInvalidFeedback id="input-live-feedback">
@@ -335,6 +372,7 @@ import {
   BFormInvalidFeedback, BForm,
 } from 'bootstrap-vue';
 import Copy from 'copy-to-clipboard';
+import _ from 'lodash';
 import { date } from '~/filters/datetime';
 import CountrySelector from '~/components/controls/selectors/CountrySelector';
 import { isEmailValid } from '~/filters/emails';
@@ -362,9 +400,15 @@ export default {
   },
   data() {
     return {
-      contactId   : this.$route.params.edit || '',
-      contact     : {},
-      titleOptions: [ ...TITLE_OPTIONS ],
+      contactId    : this.$route.params.edit || '',
+      contact      : {},
+      inputBoxId   : 0,
+      titleOptions : [ ...TITLE_OPTIONS ],
+      mobileFields : [],
+      phoneFields  : [],
+      faxFields    : [],
+      emailFields  : [],
+      emailCcFields: [],
     };
   },
   computed: {
@@ -372,49 +416,155 @@ export default {
       get() { return date(this.contact.dateOfBirth);  },
       set(value) { this.contact.dateOfBirth = value;  },
     },
-    phones: {
-      get() { return String(this.contact.phones);  },
-      set(value) { this.contact.phones = [ value ];  },
-    },
-    mobiles: {
-      get() { return String(this.contact.mobiles);  },
-      set(value) { this.contact.mobiles = [ value ];  },
-    },
-    faxes: {
-      get() { return String(this.contact.faxes);  },
-      set(value) { this.contact.faxes = [ value ];  },
-    },
-    emails: {
-      get() { return String(this.contact.emails);  },
-      set(value) { this.contact.emails = [ value ];  },
-    },
-    emailCcs: {
-      get() { return String(this.contact.emailCcs);  },
-      set(value) { this.contact.emailCcs = [ value ];  },
-    },
     createdOn() { return `${date(this.contact.createdOn)} by ${this.contact.createdBy}`; },
     updatedOn() { return `${date(this.contact.updatedOn)} by ${this.contact.updatedBy}`; },
-    firstNameRequired() { return this.contact.firstName !== '' ? null : false; },
-    lastNameRequired() { return this.contact.lastName !== '' ? null : false; },
+    firstNameRequired() { return this.contact.firstName !== ''; },
+    lastNameRequired() { return this.contact.lastName !== ''; },
     countyRequired() { return !this.contact.country && !this.contact.isUseOrganizationAddress; },
-    emailValid() { return isEmailValid(this.contact.emails); },
-    emailCcValid() { return isEmailValid(this.contact.emailCcs); },
   },
   mounted,
   methods: {
     copyToClipboard,
     contactUpdate,
     isEmailValid,
+    addMobileField,
+    removeMobileField,
+    addPhoneField,
+    removePhoneField,
+    addFaxField,
+    removeFaxField,
+    addEmailField,
+    removeEmailField,
+    addEmailCcField,
+    removeEmailCcField,
+    getNewId,
+    isPhoneNumberValid,
+    isEmailAddressValid,
   },
 };
 
+function isEmailAddressValid(value) {
+  if (value !== '') return isEmailValid(value);
+  return null;
+}
+
+function isPhoneNumberValid(value) {
+  if (value !== '') {
+    const re = /^\+\d+\s/;
+    return re.test(String(value));
+  }
+  return null;
+}
+
+function getNewId() {
+  this.inputBoxId++;
+  return this.inputBoxId;
+}
+
+// ////////////
+// EamilCcs //
+// ////////////
+function addEmailCcField(f) {
+  const field = f;
+  if (!field.showRemoveButton) {
+    this.emailCcFields.push({ emailCc: '', showRemoveButton: false, id: this.getNewId() });
+    field.showRemoveButton = true;
+  }
+}
+
+function removeEmailCcField(field) {
+  this.emailCcFields = _.remove(this.emailCcFields, (n) => n.id !== field.id);
+}
+
+// ////////////
+// Eamil //
+// ////////////
+function addEmailField(f) {
+  const field = f;
+  if (!field.showRemoveButton) {
+    this.emailFields.push({ email: '', showRemoveButton: false, id: this.getNewId() });
+    field.showRemoveButton = true;
+  }
+}
+
+function removeEmailField(field) {
+  this.emailFields = _.remove(this.emailFields, (n) => n.id !== field.id);
+}
+
+// ////////////
+// Fax //
+// ////////////
+function addFaxField(f) {
+  const field = f;
+  if (!field.showRemoveButton) {
+    this.faxFields.push({ fax: '', showRemoveButton: false, id: this.getNewId() });
+    field.showRemoveButton = true;
+  }
+}
+
+function removeFaxField(field) {
+  this.faxFields = _.remove(this.faxFields, (n) => n.id !== field.id);
+}
+
+// ////////////
+// Phone //
+// ////////////
+function addPhoneField(f) {
+  const field = f;
+  if (!field.showRemoveButton) {
+    this.phoneFields.push({ phone: '', showRemoveButton: false, id: this.getNewId() });
+    field.showRemoveButton = true;
+  }
+}
+
+function removePhoneField(field) {
+  this.phoneFields = _.remove(this.phoneFields, (n) => n.id !== field.id);
+}
+
+// ////////////
+// Mobile //
+// ////////////
+function addMobileField(f) {
+  const field = f;
+  if (!field.showRemoveButton) {
+    this.mobileFields.push({ mobile: '', showRemoveButton: false, id: this.getNewId() });
+    field.showRemoveButton = true;
+  }
+}
+
+function removeMobileField(field) {
+  this.mobileFields = _.remove(this.mobileFields, (n) => n.id !== field.id);
+}
+
 async function mounted() {
-  const query  = { contactId: this.contactId, limit: 5 };
-  const result = await this.$kronosApi.queryContacts(query);
-  // const contactResult = await this.$kronosApi.getContact(this.contactId);
-  // console.log(contactResult);
-  const contactData = result.records;
-  this.contact      = contactData[0]; // eslint-disable-line prefer-destructuring
+  const result = await this.$kronosApi.getContact(this.contactId);
+  this.contact = result;
+
+  this.contact.phones.forEach((phone) => {
+    this.phoneFields.push({ phone, showRemoveButton: true, id: this.getNewId() });
+  });
+
+  this.contact.mobiles.forEach((mobile) => {
+    this.mobileFields.push({ mobile, showRemoveButton: true, id: this.getNewId() });
+  });
+
+  this.contact.faxes.forEach((fax) => {
+    this.faxFields.push({ fax, showRemoveButton: true, id: this.getNewId() });
+  });
+
+  this.contact.emails.forEach((email) => {
+    this.emailFields.push({ email, showRemoveButton: true, id: this.getNewId() });
+  });
+
+  this.contact.emailCcs.forEach((emailCc) => {
+    this.emailCcFields.push({ emailCc, showRemoveButton: true, id: this.getNewId() });
+  });
+
+  this.mobileFields.push({ mobile: '', showRemoveButton: false, id: this.getNewId() });
+  this.phoneFields.push({ phone: '', showRemoveButton: false, id: this.getNewId() });
+  this.faxFields.push({ fax: '', showRemoveButton: false, id: this.getNewId() });
+  this.emailFields.push({ email: '', showRemoveButton: false, id: this.getNewId() });
+  this.emailCcFields.push({ emailCc: '', showRemoveButton: false, id: this.getNewId() });
 }
 
 function contactUpdate(event) {
@@ -423,7 +573,7 @@ function contactUpdate(event) {
     return;
   }
   if (this.countyRequired) return;
-  alert('submit');
+  console.log('submit');
 }
 
 function copyToClipboard() {
