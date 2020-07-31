@@ -172,109 +172,56 @@
               <div class="row">
                 <div class="col-sm-6">
                   <div class="form-group">
-                    <BFormGroup label="Phone Numbers">
-                      <div v-for="(field, index) in phoneFields" :key="index" class="input-group mb-3">
-                        <BFormInput
-                          v-model="field.phone"
-                          trim
-                          :state="isPhoneNumberValid(field.phone)"
-                          @input="addPhoneField(field)"
-                        />
-                        <div v-if="field.showRemoveButton" class="input-group-append">
-                          <span class="input-group-text">
-                            <a @click="removePhoneField(field)"><CIcon name="trashAlt" /></a>
-                          </span>
-                        </div>
-                        <BFormInvalidFeedback id="input-live-feedback">
-                          Phone number is invalid.
-                        </BFormInvalidFeedback>
-                      </div>
-                    </BFormGroup>
+                    <RepeatedFormInput
+                      v-model="contact.phones"
+                      label="Phone Numbers"
+                      field-type="phoneNumber"
+                      invalid-feedback="Phone number is invalid."
+                    />
                   </div>
                 </div>
                 <div class="col-sm-6">
                   <div class="form-group">
-                    <BFormGroup label="Fax Numbers">
-                      <div v-for="(field, index) in faxFields" :key="index" class="input-group mb-3">
-                        <BFormInput
-                          v-model="field.fax"
-                          trim
-                          :state="isPhoneNumberValid(field.fax)"
-                          @input="addFaxField(field)"
-                        />
-                        <div v-if="field.showRemoveButton" class="input-group-append">
-                          <span class="input-group-text">
-                            <a @click="removeFaxField(field)"><CIcon name="trashAlt" /></a>
-                          </span>
-                        </div>
-                        <BFormInvalidFeedback id="input-live-feedback">
-                          Fax number is invalid.
-                        </BFormInvalidFeedback>
-                      </div>
-                    </BFormGroup>
+                    <RepeatedFormInput
+                      v-model="contact.faxes"
+                      label="Fax Numbers"
+                      field-type="phoneNumber"
+                      invalid-feedback="Fax number is invalid."
+                    />
                   </div>
                 </div>
               </div>
               <div class="row">
                 <div class="col-sm-6">
                   <div class="form-group">
-                    <BFormGroup label="Mobiler Numbers">
-                      <div v-for="(field, index) in mobileFields" :key="index" class="input-group mb-3">
-                        <BFormInput
-                          v-model="field.mobile"
-                          trim
-                          @input="addMobileField(field)"
-                        />
-                        <div v-if="field.showRemoveButton" class="input-group-append">
-                          <span class="input-group-text">
-                            <a @click="removeMobileField(field)"><CIcon name="trashAlt" /></a>
-                          </span>
-                        </div>
-                      </div>
-                    </BFormGroup>
+                    <RepeatedFormInput
+                      v-model="contact.mobiles"
+                      label="Mobile Numbers"
+                      field-type="phoneNumber"
+                      invalid-feedback="Mobile number is invalid."
+                    />
                   </div>
                 </div>
               </div>
               <div class="row">
                 <div class="col-sm-6">
                   <div class="form-group">
-                    <BFormGroup label="Primary Email Address">
-                      <div v-for="(field, index) in emailFields" :key="index" class="input-group mb-3">
-                        <BFormInput
-                          v-model="field.email"
-                          trim
-                          :state="isEmailAddressValid(field.email)"
-                          @input="addEmailField(field)"
-                        />
-                        <div v-if="field.showRemoveButton" class="input-group-append">
-                          <span class="input-group-text">
-                            <a @click="removeEmailField(field)"><CIcon name="trashAlt" /></a>
-                          </span>
-                        </div>
-                      </div>
-                    </BFormGroup>
+                    <RepeatedFormInput
+                      v-model="contact.emails"
+                      label="Primary Email Address"
+                      field-type="email"
+                      invalid-feedback="Email address is not valid"
+                    />
                   </div>
                 </div>
                 <div class="col-sm-6">
                   <div class="form-group">
-                    <BFormGroup label="Email Address to CC">
-                      <div v-for="(field, index) in emailCcFields" :key="index" class="input-group mb-3">
-                        <BFormInput
-                          v-model="field.emailCc"
-                          trim
-                          :state="isEmailAddressValid(field.emailCc)"
-                          @input="addEmailCcField(field)"
-                        />
-                        <div v-if="field.showRemoveButton" class="input-group-append">
-                          <span class="input-group-text">
-                            <a @click="removeEmailCcField(field)"><CIcon name="trashAlt" /></a>
-                          </span>
-                        </div>
-                        <BFormInvalidFeedback id="input-live-feedback">
-                          Email address is not valid.
-                        </BFormInvalidFeedback>
-                      </div>
-                    </BFormGroup>
+                    <RepeatedFormInput
+                      v-model="contact.emailCcs"
+                      label="Primary Email Address"
+                      field-type="email"
+                      invalid-feedback="Email address is not valid"
+                    />
                   </div>
                 </div>
               </div>
@@ -333,30 +280,10 @@
 
             <div class="card-body">
               <div class="form-group">
-                <BFormGroup
-                  label="Created On:"
-                  label-cols-sm="4"
-                  label-cols-lg="3"
-                >
-                  <BFormInput
-                    id="createdOn"
-                    v-model="createdOn"
-                    disabled
-                  />
-                </BFormGroup>
+                Created On: {{ contact.createdOn | date }} by {{ contact.createdBy }}
               </div>
               <div class="form-group">
-                <BFormGroup
-                  label="Updated On:"
-                  label-cols-sm="4"
-                  label-cols-lg="3"
-                >
-                  <BFormInput
-                    id="updatedOn"
-                    v-model="updatedOn"
-                    disabled
-                  />
-                </BFormGroup>
+                Updated On: {{ contact.updatedOn | date }} by {{ contact.updatedBy }}
               </div>
             </div>
           </div>
@@ -372,10 +299,9 @@ import {
   BFormInvalidFeedback, BForm,
 } from 'bootstrap-vue';
 import Copy from 'copy-to-clipboard';
-import _ from 'lodash';
 import { date } from '~/filters/datetime';
 import CountrySelector from '~/components/controls/selectors/CountrySelector';
-import { isEmailValid } from '~/filters/emails';
+import RepeatedFormInput from '~/components/controls/RepeatedFormInput';
 
 const TITLE_OPTIONS = [
   { value: null, text: '' },
@@ -397,18 +323,14 @@ export default {
     CountrySelector,
     BFormInvalidFeedback,
     BForm,
+    RepeatedFormInput,
   },
   data() {
     return {
-      contactId    : this.$route.params.edit || '',
-      contact      : {},
-      inputBoxId   : 0,
-      titleOptions : [ ...TITLE_OPTIONS ],
-      mobileFields : [],
-      phoneFields  : [],
-      faxFields    : [],
-      emailFields  : [],
-      emailCcFields: [],
+      contactId   : this.$route.params.edit || '',
+      contact     : {},
+      inputBoxId  : 0,
+      titleOptions: [ ...TITLE_OPTIONS ],
     };
   },
   computed: {
@@ -416,8 +338,6 @@ export default {
       get() { return date(this.contact.dateOfBirth);  },
       set(value) { this.contact.dateOfBirth = value;  },
     },
-    createdOn() { return `${date(this.contact.createdOn)} by ${this.contact.createdBy}`; },
-    updatedOn() { return `${date(this.contact.updatedOn)} by ${this.contact.updatedBy}`; },
     firstNameRequired() { return this.contact.firstName !== ''; },
     lastNameRequired() { return this.contact.lastName !== ''; },
     countyRequired() { return !this.contact.country && !this.contact.isUseOrganizationAddress; },
@@ -426,145 +346,12 @@ export default {
   methods: {
     copyToClipboard,
     contactUpdate,
-    isEmailValid,
-    addMobileField,
-    removeMobileField,
-    addPhoneField,
-    removePhoneField,
-    addFaxField,
-    removeFaxField,
-    addEmailField,
-    removeEmailField,
-    addEmailCcField,
-    removeEmailCcField,
-    getNewId,
-    isPhoneNumberValid,
-    isEmailAddressValid,
   },
 };
-
-function isEmailAddressValid(value) {
-  if (value !== '') return isEmailValid(value);
-  return null;
-}
-
-function isPhoneNumberValid(value) {
-  if (value !== '') {
-    const re = /^\+\d+\s/;
-    return re.test(String(value));
-  }
-  return null;
-}
-
-function getNewId() {
-  this.inputBoxId++;
-  return this.inputBoxId;
-}
-
-// ////////////
-// EamilCcs //
-// ////////////
-function addEmailCcField(f) {
-  const field = f;
-  if (!field.showRemoveButton) {
-    this.emailCcFields.push({ emailCc: '', showRemoveButton: false, id: this.getNewId() });
-    field.showRemoveButton = true;
-  }
-}
-
-function removeEmailCcField(field) {
-  this.emailCcFields = _.remove(this.emailCcFields, (n) => n.id !== field.id);
-}
-
-// ////////////
-// Eamil //
-// ////////////
-function addEmailField(f) {
-  const field = f;
-  if (!field.showRemoveButton) {
-    this.emailFields.push({ email: '', showRemoveButton: false, id: this.getNewId() });
-    field.showRemoveButton = true;
-  }
-}
-
-function removeEmailField(field) {
-  this.emailFields = _.remove(this.emailFields, (n) => n.id !== field.id);
-}
-
-// ////////////
-// Fax //
-// ////////////
-function addFaxField(f) {
-  const field = f;
-  if (!field.showRemoveButton) {
-    this.faxFields.push({ fax: '', showRemoveButton: false, id: this.getNewId() });
-    field.showRemoveButton = true;
-  }
-}
-
-function removeFaxField(field) {
-  this.faxFields = _.remove(this.faxFields, (n) => n.id !== field.id);
-}
-
-// ////////////
-// Phone //
-// ////////////
-function addPhoneField(f) {
-  const field = f;
-  if (!field.showRemoveButton) {
-    this.phoneFields.push({ phone: '', showRemoveButton: false, id: this.getNewId() });
-    field.showRemoveButton = true;
-  }
-}
-
-function removePhoneField(field) {
-  this.phoneFields = _.remove(this.phoneFields, (n) => n.id !== field.id);
-}
-
-// ////////////
-// Mobile //
-// ////////////
-function addMobileField(f) {
-  const field = f;
-  if (!field.showRemoveButton) {
-    this.mobileFields.push({ mobile: '', showRemoveButton: false, id: this.getNewId() });
-    field.showRemoveButton = true;
-  }
-}
-
-function removeMobileField(field) {
-  this.mobileFields = _.remove(this.mobileFields, (n) => n.id !== field.id);
-}
 
 async function mounted() {
   const result = await this.$kronosApi.getContact(this.contactId);
   this.contact = result;
-
-  this.contact.phones.forEach((phone) => {
-    this.phoneFields.push({ phone, showRemoveButton: true, id: this.getNewId() });
-  });
-
-  this.contact.mobiles.forEach((mobile) => {
-    this.mobileFields.push({ mobile, showRemoveButton: true, id: this.getNewId() });
-  });
-
-  this.contact.faxes.forEach((fax) => {
-    this.faxFields.push({ fax, showRemoveButton: true, id: this.getNewId() });
-  });
-
-  this.contact.emails.forEach((email) => {
-    this.emailFields.push({ email, showRemoveButton: true, id: this.getNewId() });
-  });
-
-  this.contact.emailCcs.forEach((emailCc) => {
-    this.emailCcFields.push({ emailCc, showRemoveButton: true, id: this.getNewId() });
-  });
-
-  this.mobileFields.push({ mobile: '', showRemoveButton: false, id: this.getNewId() });
-  this.phoneFields.push({ phone: '', showRemoveButton: false, id: this.getNewId() });
-  this.faxFields.push({ fax: '', showRemoveButton: false, id: this.getNewId() });
-  this.emailFields.push({ email: '', showRemoveButton: false, id: this.getNewId() });
-  this.emailCcFields.push({ emailCc: '', showRemoveButton: false, id: this.getNewId() });
 }
 
 function contactUpdate(event) {
