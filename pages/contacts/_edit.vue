@@ -280,10 +280,10 @@
 
             <div class="card-body">
               <div class="form-group">
-                Created On: {{ contact.createdOn | date }} by {{ contact.createdBy }}
+                Created On: {{ contact.createdOn | datetime }} by {{ contact.createdBy }}
               </div>
               <div class="form-group">
-                Updated On: {{ contact.updatedOn | date }} by {{ contact.updatedBy }}
+                Updated On: {{ contact.updatedOn | datetime }} by {{ contact.updatedBy }}
               </div>
             </div>
           </div>
