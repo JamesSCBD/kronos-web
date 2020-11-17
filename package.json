@@ -13,7 +13,7 @@
     "test": "jest",
     "outdated-deps": "yarn outdated",
     "upgrade-deps": "yarn upgrade-interactive --latest",
-    "clean-reinstall": "rm yarn.lock && rm -rf node_modules && yarn install --force"
+    "clean-reinstall": "rm -f yarn.lock && rm -rf node_modules && yarn install --force"
   },
   "dependencies": {
     "@coreui/coreui": "3.2.2",
