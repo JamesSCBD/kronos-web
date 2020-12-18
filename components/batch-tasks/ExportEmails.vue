@@ -70,7 +70,7 @@
       </div>
       <div class="line-top" />
       <div v-for="(row, index) in textareaEmails" :key="row.emails" class="row">
-        <div class="col-md-11 col-sm-11 col-xs-12">
+        <div class="col-md-10 col-sm-11 col-xs-12">
           <div class="form-group">
             <BFormTextarea
               id="textarea"
@@ -80,7 +80,7 @@
             />
           </div>
         </div>
-        <div class="col-md-1 col-sm-1 col-xs-12">
+        <div class="col-md-2 col-sm-1 col-xs-12 pr-0">
           <div class="form-group copy-btn">
             <button
               :id="`btnCopy${index}`"
@@ -88,11 +88,19 @@
               @click="copy(row)"
               @mouseleave="clearCopied(row)"
             >
-              <i class="cil-copy" />
+              <CIcon name="copy" />
             </button>
             <BTooltip :target="`btnCopy${index}`" triggers="hover">
               {{ !row.isCopied ? 'Copy to clipboard' : 'Copied!' }}
             </BTooltip>
+            <a
+              v-if="row.emailsCount < 250"
+              id="btnMailto"
+              class="btn btn-light ml-1"
+              :href="`mailto: '${row.mailto}'`"
+              target="_blank"
+            ><CIcon name="envelope" /></a>
+            <BTooltip target="btnMailto" triggers="hover" title="Open in mail app" />
           </div>
         </div>
       </div>
@@ -191,8 +199,10 @@ async function exportEmails() {
 
   this.textareaEmails = _.chunk(emails, this.selectedRowSize || emails.length)
     .map((rowEmails) => ({
-      emails  : rowEmails.join(this.selectedSpearator),
-      isCopied: false,
+      emails     : rowEmails.join(this.selectedSpearator),
+      isCopied   : false,
+      mailto     : rowEmails.join(', '),
+      emailsCount: rowEmails.length,
     }));
 }
 
