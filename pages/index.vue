@@ -1,11 +1,18 @@
 <template>
-  <div class="cont">
-    this page should never be seen, if seen there is an error
+  <div class="container-fluid">
+    <div class="row ">
+      <div class="col-12">
+        dashboard
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import { user } from '@roles';
+
 export default {
-  name: 'Index',
+  name: 'ConferenceDashboard',
+  auth: user,
 };
 </script>

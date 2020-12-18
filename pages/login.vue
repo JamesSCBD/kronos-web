@@ -14,16 +14,7 @@
           </h3>
         </div>
 
-        <div v-if="!isUserLoaded" class="col-md-8">
-          <div class="card p-4">
-            <div class="card-body text-center">
-              <h1>Authenticating with accounts.cbd.int</h1>
-              <fa :icon="['fas','circle-notch']" class="fa-spin fa-3x fa-fw" />
-            </div>
-          </div>
-        </div>
-
-        <div v-if="isUserLoaded && !$me.isAuthenticated" class="col-md-8">
+        <div class="col-md-8">
           <div class="card-group">
             <div class="card p-4">
               <div class="card-body text-center">
@@ -68,43 +59,19 @@
 export default {
   name   : 'Login',
   layout : 'login',
-  data,
-  mounted,
-  methods: { goToSCBDLogin, goToSCBDSignUp, authenticate },
+  methods: { goToSCBDLogin, goToSCBDSignUp },
 };
-
-function data() {
-  const isUserLoaded = false;
-
-  return { isUserLoaded };
-}
-
-function mounted() {
-  this.$root.$on('$me', this.authenticate);
-}
-
-function authenticate() {
-  this.$forceUpdate();
-
-  this.isUserLoaded = true;
-  if (!this.$me.isAuthenticated) { return; }
-
-  const { returnUrl } = this.$route.query;
-  const targetUrl     = returnUrl || '/';
-
-  this.$router.push(targetUrl);
-}
 
 function goToSCBDLogin() {
   const returnUrl = window.location.href;
 
-  window.location.href = `${this.$auth.accountsUrl}?returnUrl=${returnUrl}`;
+  window.location.href = `${this.$ssoScbd.auth.accountsUrl}?returnUrl=${encodeURIComponent(returnUrl.replace('/login', '/'))}`;
 }
 
 function goToSCBDSignUp() {
   const returnUrl = window.location.href;
 
-  window.location.href = `${this.$auth.accountsUrl}/signup?returnUrl=${encodeURIComponent(returnUrl)}`;
+  window.location.href = `${this.$ssoScbd.auth.accountsUrl}/signup?returnUrl=${encodeURIComponent(returnUrl).replace('/login', '/')}`;
 }
 
 </script>

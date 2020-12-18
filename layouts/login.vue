@@ -4,10 +4,15 @@
   </div>
 </template>
 <script>
-import mixin from './mixin';
 
 export default {
-  name  : 'Login',
-  mixins: [ mixin ],
+  name: 'Login',
+  created,
 };
+
+async function created() { // eslint-disable-line 
+  const { isAuthenticated } = await this.$getUser();
+
+  if (isAuthenticated) return this.$router.push({ path: '/' });
+}
 </script>

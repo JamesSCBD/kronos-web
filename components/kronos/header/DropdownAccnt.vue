@@ -2,7 +2,7 @@
   <CDropdown in-nav class="c-header-nav-items" placement="bottom-end" add-menu-classes="pt-0">
     <template #toggler>
       <CHeaderNavLink>
-        <Avatar :username="$me.name || 'Anon'" />
+        <Avatar :username="$ssoScbd.me.name" />
       </CHeaderNavLink>
     </template>
     <CDropdownHeader tag="div" class="text-center" color="light">
@@ -10,7 +10,7 @@
     </CDropdownHeader>
     <CDropdownDivider />
     <CDropdownItem
-      :href="`${$auth.accountsUrl}/profile/?returnIUrl=${returnUrl}`"
+      :href="`${$ssoScbd.auth.accountsUrl}/profile`"
       target="_blank"
       rel="noopener"
     >
@@ -33,13 +33,8 @@ export default {
   components: {
     Avatar, CDropdown, CDropdownHeader, CDropdownItem, CDropdownDivider, CHeaderNavLink,
   },
-  computed: { returnUrl },
 };
 
-function returnUrl() {
-  if (!this.isServer) return encodeURIComponent(window.location.href);
-  return '';
-}
 </script>
 
 <style scoped>

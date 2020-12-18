@@ -1,13 +1,11 @@
-import path from 'path';
-import dotenv from 'dotenv';
-
+import path        from 'path';
+import dotenv      from 'dotenv';
 import fontawesome from './configs/fa';
-import ssoScbd from './configs/ssoScbd';
 
 dotenv.config({ debug: true });
 
 export default {
-  mode    : 'spa',
+  ssr     : false,
   parallel: true,
   modern  : true,
   head    : {
@@ -23,6 +21,7 @@ export default {
   },
   loading: { color: '#fff' },
   plugins: [
+    'plugins/sso-scbd/index.js',
     'plugins/global-component-registry.js',
     'plugins/fa-to-coreui-icons/index.js',
     'plugins/register-apis.js',
@@ -32,15 +31,9 @@ export default {
     { src: 'node_modules/@coreui/icons/css/all.min.css', lang: 'css' },
     { src: 'node_modules/bootstrap-vue/dist/bootstrap-vue.min.css', lang: 'css' },
     { src: '~/assets/scss/style.scss', lang: 'scss' }],
-  buildModules: [
-    '@nuxtjs/eslint-module', // Doc: https://github.com/nuxt-community/eslint-module
-    '@nuxtjs/stylelint-module', // Doc: https://github.com/nuxt-community/stylelint-module
-  ],
   modules: [
     '@nuxtjs/pwa',
     'nuxt-fontawesome', // https://github.com/vaso2/nuxt-fontawesome#readme
-    '@scbd/nuxt-scbd-sso-module',
-
   ],
   build: {
     extractCSS: true,
@@ -70,7 +63,6 @@ export default {
       ],
     },
   },
-  router: { linkActiveClass: 'active-link', middleware: [ 'auth', 'redirects' ] },
+  router: { linkActiveClass: 'active-link', middleware: [ 'auth' ] },
   fontawesome,
-  ssoScbd,
 };

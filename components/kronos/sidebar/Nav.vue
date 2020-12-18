@@ -1,7 +1,7 @@
 <template>
   <CSidebarNav>
     <BFormSelect id="page-size" :value="conferenceId" class="form-control" :options="conferenceOptions" @change="setSelectedConference" />
-    <CSidebarNavItem name="Dashbord" icon="tachometerAlt" :to="`/dashboard`" />
+    <CSidebarNavItem name="Dashbord" icon="tachometerAlt" :to="`/`" />
     <CSidebarNavTitle> Reg </CSidebarNavTitle>
     <CSidebarNavItem name="Contacts" icon="addressBook" :to="`/contacts`" />
     <CSidebarNavItem name="Organizations" icon="building" :to="`/organizations`" />
